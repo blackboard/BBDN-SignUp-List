@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html ng-app="signupApp">
+  <head>
+    <title>SignUp List Tool</title>
+  	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
+  		crossorigin="anonymous">
+  </head>
+  <body ng-controller="SignupController" data-ng-init="getLtiData()">
+    <!-- Signups View -->
+    <div>
+      <div ng-show="lti">
+        <h1>Here is the LTI data</h1>
+        <ul>
+          <li>Course UUID : {{lti.course_uuid}}</li>
+          <li>User UUID : {{lti.user_uuid}}</li>
+          <li>System GUID : {{lti.system_guid}}</li>
+          <li>Shared CSS : {{lti.shared_css}}</li>
+          <li>Return URL : {{lti.return_url}}</li>
+        </ul>
+      </div>
+      <div ng-show="!lti">
+        <p>Loading...</p>
+      </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular-resource.min.js"></script>
+    <script src="./controllers/signup-controller.js"></script>
+
+  </body>
+</html>
