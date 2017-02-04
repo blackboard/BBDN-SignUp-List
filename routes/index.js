@@ -3,10 +3,9 @@ var lti = require('ims-lti');
 var _ = require('lodash');
 var path = require('path');
 
-var router = express.Router();
+var config = require('../config/config.js')
 
-var lti_key = "12345";
-var lti_secret = "secret";
+var router = express.Router();
 
 var course_uuid = "";
 var user_uuid = "";
@@ -21,8 +20,8 @@ router.post('/lti', function(req, res, next) {
 /*
  * POST LTI Launch Received
  */
-console.log('In post function');
-  var provider = new lti.Provider(lti_key, lti_secret);
+console.log('In post function - config key/secret: ' + config.ltiCreds.key, config.ltiCreds.secret);
+  var provider = new lti.Provider(config.ltiCreds.key, config.ltiCreds.secret);
   req.body = _.omit(req.body, '__proto__');
 
   console.log(req.headers);
