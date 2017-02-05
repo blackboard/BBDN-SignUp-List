@@ -4,14 +4,13 @@
   "keywords": ["node", "express", "MEAN", "mongodb" ],
   "website": "https://github.com/moneil/BBDN-SignUp-List",
   "repository": "https://github.com/moneil/BBDN-SignUp-List",
-  "success_url": "/is_up",
   "env": {
     "LTI_KEY": {
-        "description":"add your LTI Key - this is used by your consumer to access this application"
+        "description":"add your LTI Key - this is used by your consumer to access this application",
         "required": true
     },
     "LTI_SECRET": {
-        "description":"add your LTI Secret - this is used by your consumer to access this application"
+        "description":"add your LTI Secret - this is used by your consumer to access this application",
         "required": true
     },
     "APP_OAUTH_KEY": {
