@@ -5,8 +5,9 @@ var path = require('path');
 
 var router = express.Router();
 
-var lti_key = "12345";
-var lti_secret = "secret";
+var lti_key = process.env.LTI_KEY;
+var lti_secret = process.env.LTI_SECRET || "terces";
+
 
 var course_uuid = "";
 var user_uuid = "";
@@ -15,6 +16,9 @@ var shared_css = "";
 var return_url = "";
 
 var valid_session = false;
+
+if (lti_key == undefined) lti_key = "54321";
+if (lti_secret == undefined) lti_secret = "terces";
 
 /* Return home page from LTI Launch. */
 router.post('/lti', function(req, res, next) {
@@ -62,7 +66,7 @@ console.log('Check request validity');
            '"user_uuid" :' +  user_uuid + ',' +
            '"system_guid" :' +  system_guid + ',' +
            '"shared_css" :' +  shared_css + ',' +
-           '"return_url" :' +  return_url +
+           '"return_url" :' +  return_url + ',' +
          '}');
 
        	 res.sendFile(path.resolve(__dirname + '/../public/index.html'));
@@ -74,7 +78,7 @@ console.log('Check request validity');
 /* Supply node variables to angular front end */
 router.get('/lti/data', function(req, res, next) {
   if(!valid_session) {
-    console.log('No valid session found. Application can only be accessed via LTI.');
+    console.log('No valid session found. Application can only be accessed via LTI.' + '"lti_key" :' + lti_key + ',' + '"lti_secret" :' + lti_secret);
     var err = new Error('No valid session found. Application can only be accessed via LTI.');
     err.status = 403;
     next(err);
