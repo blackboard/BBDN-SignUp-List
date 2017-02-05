@@ -1,7 +1,7 @@
 {
   "name": "Sign Up List",
   "description": "A MEAN port of the Sign Up List tool originally written by Malcolm Murray and Stephen Vickers.",
-  "keywords": ["node", "express", "MEAN", "mongodb" ],
+  "keywords": ["node", "express", "MEAN", "mongodb", "angular" ],
   "website": "https://github.com/moneil/BBDN-SignUp-List",
   "repository": "https://github.com/moneil/BBDN-SignUp-List",
   "env": {
