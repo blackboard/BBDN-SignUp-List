@@ -16,5 +16,6 @@ Whether you download or deploy to run the demo you will need to visit developer.
 4. To start the app type in the terminal: DEBUG=signuplist:\* npm start & echo $! > .pid
 5. To stop the app type in the terminal: DEBUG=signuplist:\* npm stop
 
-To view in Blackboard add the LTI application and LTI placement via the System Admin Panel using your deployed settings - more details to come...
+To view in Blackboard add the LTI application and LTI placement via the System Admin Panel using your deployed settings...
 
+As the project progresses, we will update this readme and supporting documentation to show complete setup as well as REST key and secret usage.
