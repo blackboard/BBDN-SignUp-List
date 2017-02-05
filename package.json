@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www & echo $! > .pid",
+    "start": "node ./bin/www",
     "stop": "kill $(cat .pid)"
   },
   "dependencies": {
@@ -14,5 +14,8 @@
     "ims-lti": "^3.0.2",
     "morgan": "~1.7.0",
     "serve-favicon": "~2.3.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0"
   }
 }
