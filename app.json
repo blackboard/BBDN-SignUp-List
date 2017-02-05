@@ -1,0 +1,30 @@
+{
+  "name": "Sign Up List",
+  "description": "A MEAN port of the Sign Up List tool originally written by Malcolm Murray and Stephen Vickers.",
+  "keywords": ["node", "express", "MEAN", "mongodb" ],
+  "website": "https://github.com/moneil/BBDN-SignUp-List",
+  "repository": "https://github.com/moneil/BBDN-SignUp-List",
+  "success_url": "/is_up",
+  "env": {
+    "LTI_KEY": {
+        "description":"add your LTI Key - this is used by your consumer to access this application"
+        "required": true
+    },
+    "LTI_SECRET": {
+        "description":"add your LTI Secret - this is used by your consumer to access this application"
+        "required": true
+    },
+    "APP_OAUTH_KEY": {
+      "description": "Paste the OAUTH KEY provided when you registered your Application",
+      "required": true
+    },
+    "APP_OAUTH_SECRET": {
+      "description": "Paste the OAUTH SECRET provided when you registered your Application",
+      "required": true
+    },
+    "APP_TARGET_URL": {
+      "description": "Enter the target URL for your Application. E.g.: learn.myschool.edu. Do NOT include the protocol (http:// or https://)",
+      "required": true
+    }
+  }
+}
