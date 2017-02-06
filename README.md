@@ -1,5 +1,5 @@
 # Sign Up List
-MEAN (Mongodb, Express, Angular, Node) port the original Sign Up List written by Malcolm Murray and Stephen Vickers <a href="http://projects.oscelot.org/gf/project/signup/">on projects.oscelot.com</a>.
+MEAN (Mongodb, Express, Angular, Node) port of the original Sign Up List written by Malcolm Murray and Stephen Vickers <a href="http://projects.oscelot.org/gf/project/signup/">on projects.oscelot.com</a>.
 
 You may visit our demo site - coming soon - , download the source and run locally, or use the below button to deploy to your heroku account.
 
