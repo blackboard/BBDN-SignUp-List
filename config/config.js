@@ -1,9 +1,14 @@
-// main config.js file
+var env = process.env.NODE_ENV || 'development';
 
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+//use these when not set by cloud setup or using localhost for dev...
+var config = { 
+  lti_key: '54321',  
+  lti_secret: 'terces',
+  oauth_key: 'your-oauth-key',
+  oauth_secret: 'your-oauth-secret',
+  port: 3000,
+  host: 'localhost',
+  db: 'mongodb://localhost/signuplist'
+};
 
-// load the config file for the current environment
-var config = require('./env/' + process.env.NODE_ENV);
-
-// export config
 module.exports = config;

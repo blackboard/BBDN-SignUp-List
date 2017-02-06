@@ -1,9 +1,15 @@
+var config = require('../config/config');
+
 var express = require('express');
 var lti = require('ims-lti');
 var _ = require('lodash');
 var path = require('path');
 
-var config = require('../config/config.js')
+
+var lti_key = process.env.LTI_KEY || config.lti_key;
+var lti_secret = process.env.LTI_SECRET || config.lti_secret;
+var oauth_key = process.env.OAUTH_KEY || config.oauth_key;
+var oauth_secret = process.env.OAUTH_SECRET || config.oauth_secret;
 
 var router = express.Router();
 
@@ -14,6 +20,35 @@ var shared_css = "";
 var return_url = "";
 
 var valid_session = false;
+
+/* key and secret sanity checks - logged on startup */
+if (lti_key == config.lti_key) {
+  console.log('Using lti_key from index.js: ');
+} else {
+  console.log('Using lti_key from process.env: ')
+}
+console.log(lti_key);
+
+if (lti_secret == config.lti_secret) {
+  console.log('Using lti_secret from index.js: ');
+} else {
+  console.log('Using lti_secret from process.env: ');
+}
+console.log(lti_secret);
+
+if (oauth_key == config.oauth_key) {
+  console.log('Using oauth_key from index.js: ');
+} else {
+  console.log('Using oauth_key from process.env: ')
+}
+console.log(oauth_key);
+
+if (oauth_secret == config.oauth_secret) {
+  console.log('Using oauth_secret from index.js: ');
+} else {
+  console.log('Using oauth_secret from process.env: ');
+}
+console.log(oauth_secret);
 
 /* Return home page from LTI Launch. */
 router.post('/lti', function(req, res, next) {
@@ -61,7 +96,7 @@ console.log('Check request validity');
            '"user_uuid" :' +  user_uuid + ',' +
            '"system_guid" :' +  system_guid + ',' +
            '"shared_css" :' +  shared_css + ',' +
-           '"return_url" :' +  return_url +
+           '"return_url" :' +  return_url + ',' +
          '}');
 
        	 res.sendFile(path.resolve(__dirname + '/../public/index.html'));
