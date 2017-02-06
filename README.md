@@ -11,6 +11,7 @@ Whether you download or deploy to run the demo you will need to visit developer.
 
 ## To Run Locally
 1. Download the source
+2. The LTI key and secret are stored in config/config.js, edit or leave as is.
 2. Using a terminal, cd into the project directory at the server.js level
 3. To setup: type in the terminal: npm install
 4. To start the app type in the terminal: DEBUG=signuplist:\* npm start & echo $! > .pid
