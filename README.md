@@ -1,13 +1,21 @@
-# SignUp List
+# Sign Up List
+MEAN (Mongodb, Express, Angular, Node) port the original Sign Up List written by Malcolm Murray and Stephen Vickers <a href="http://projects.oscelot.org/gf/project/signup/">on projects.oscelot.com</a>.
 
-This project is a migration of a very popular open source building block built by Durham University to a LTI Tool Prover, enabled with the Blackboard Learn REST APIs to handle data. Currently, the work is being documented on the <a href="https://community.blackboard.com/community/developers/projects/signup-list-b2-to-rest-migration" target="_blank">Blackboard Community site</a> for those that want to follow along or participate.
+You may visit our demo site - coming soon - , download the source and run locally, or use the below button to deploy to your heroku account.
 
-To run this code, 
-1. Clone the repository to your computer.
-2. Navigate at the commandline to the directory you just created.
-3. Run npm install to install all of the dependencies.
-4. Run DEBUG=signuplist:* npm start. This will start the server on port 3000.
+<a href="https://heroku.com/deploy">
+  <img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy">
+</a>
 
-Once the code is running, simply create a LTI Link in Blackboard Learn. The key and is currently hard-coded to 12345 and secret respectively. The URL is http://localhost:3000/lti. 
+Whether you download or deploy to run the demo you will need to visit developer.blackboard.com and create a developer account and application. You will use your key and secret provided when you set the heroku deploy configuration.
 
-As the project progresses, we will update the readme and supporting documentation to show the proper way to inject the key and secret -- as well as REST key and secret -- to make this work in production.
+## To Run Locally
+1. Download the source
+2. Using a terminal, cd into the project directory at the server.js level
+3. To setup: type in the terminal: npm install
+4. To start the app type in the terminal: DEBUG=signuplist:\* npm start & echo $! > .pid
+5. To stop the app type in the terminal: DEBUG=signuplist:\* npm stop
+
+To view in Blackboard add the LTI application and LTI placement via the System Admin Panel using your deployed settings...
+
+As the project progresses, we will update this readme and supporting documentation to show complete setup as well as REST key and secret usage.
