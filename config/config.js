@@ -8,7 +8,7 @@ var config = {
   oauth_secret: 'your-oauth-secret',
   port: 3000,
   host: 'localhost',
-  db: 'mongodb://localhost/signuplist'
+  db: 'mongodb://localhost:27017/signuplistdb'
 };
 
 module.exports = config;
