@@ -24,6 +24,10 @@
     "APP_TARGET_URL": {
       "description": "Enter the target URL for your Application. E.g.: learn.myschool.edu. Do NOT include the protocol (http:// or https://)",
       "required": true
+    },
+    "MONGODB_URI": {
+      "description": "Enter the target URI for your MongoDB. E.g.: ds145039.mlab.com:45039/signuplistdb -u <dbuser> -p <dbpassword>",
+      "required": true
     }
   }
 }
