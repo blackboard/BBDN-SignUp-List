@@ -12,8 +12,8 @@ var mongoose = require('mongoose');
 var db;
 
 //test that mongodb is available
-describe("Is mongoose connected?", function() {
-    it('should connect to server', function(done) {
+describe("Is mongoDB available?", function() {
+    it('can connect to server', function(done) {
       mongoose.connect("mongodb://localhost/test", function () {
         // always use config settings for testing.
         //0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
