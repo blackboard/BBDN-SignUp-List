@@ -15,10 +15,12 @@ chai.use(chaiHttp);
 var db = config.test_db;
 
 //test data
-var good_course = { uuid: "mochaCourseSchemaTestCourse", ultrafied: false }
-var bad_uuid_test = { ultrafied: false }
-var minimum_good_course = { uuid: "mochaCourseSchemaTestCourse", ultrafied: false }
-var complete_course = { uuid: "mochaCourseSchemaTestCourse", ultrafied: false }
+var good_course = { uuid: "mochaCourseSchemaTestCourse", ultrafied: false };
+var bad_uuid_test = { ultrafied: false };
+var minimum_good_course = { uuid: "mochaCourseSchemaTestCourse", ultrafied: false };
+var complete_course = { uuid: "mochaCourseSchemaTestCourse", ultrafied: false };
+var update_course_uuid = "mochaCourseSchemaTestCourse";
+var update_course = { uuid: ""};
 
 //POST tests
 

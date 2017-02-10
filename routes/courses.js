@@ -27,7 +27,7 @@ router.post('/', function(req, res, next) {
 });
 
 router.get('/', function(req, res, next) {
-    res.send('get all courses');
+    //res.send('get all courses');
 });
 
 router.get('/:id', function(req, res, next) {
