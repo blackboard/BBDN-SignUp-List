@@ -1,5 +1,5 @@
 # Sign Up List
-MEAN (Mongodb, Express, Angular, Node) port the original Sign Up List written by Malcolm Murray and Stephen Vickers <a href="http://projects.oscelot.org/gf/project/signup/">on projects.oscelot.com</a>.
+MEAN (Mongodb, Express, Angular, Node) port of the original Sign Up List written by Malcolm Murray and Stephen Vickers <a href="http://projects.oscelot.org/gf/project/signup/">on projects.oscelot.com</a>.
 
 You may visit our demo site - coming soon - , download the source and run locally, or use the below button to deploy to your heroku account.
 
@@ -11,6 +11,7 @@ Whether you download or deploy to run the demo you will need to visit developer.
 
 ## To Run Locally
 1. Download the source
+2. The LTI key and secret are stored in config/config.js, edit or leave as is.
 2. Using a terminal, cd into the project directory at the server.js level
 3. To setup: type in the terminal: npm install
 4. To start the app type in the terminal: DEBUG=signuplist:\* npm start & echo $! > .pid
