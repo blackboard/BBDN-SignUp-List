@@ -5,16 +5,13 @@ var should = chai.should();
 var expect = chai.expect;
 
 var config = require('../config/config');
-
-console.log(config.db);
-
 var mongoose = require('mongoose');
 var db;
 
 //test that mongodb is available
 describe("Is mongoDB available?", function() {
     it('can connect to server', function(done) {
-      mongoose.connect("mongodb://localhost/test", function () {
+      mongoose.connect(config.db, function () {
         // always use config settings for testing.
         //0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
         mongoose.connection.readyState.should.be.eql(1);
