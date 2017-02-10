@@ -1,23 +1,27 @@
 var express = require('express');
 var router = express.Router();
-var mongoose = require('mongoose');
+//var mongoose = require('mongoose');
 var System = require('../controllers/models/systems');
+var mongoose = require('bluebird').promisifyAll(require('mongoose'));
 
 /*
  * POST /systems to save a new system.
  */
 router.post('/', function(req, res, next) {
-    console.log("req.body.json: " + JSON.stringify(req.body, null, 4));
+    //console.log("req.body.json: " + JSON.stringify(req.body, null, 4));
     var newSystem = new System(req.body);
 
     //Save it into the DB.
     newSystem.save((err, system) => {
         if(err) {
-            if (err.code == '11000') {res.status(409).send(err);}
+            if (err.code == '11000') { res.status(409).send(err); }
+            else if ( err.name == "ValidationError" ) {
+                res.status(400).send(err); 
+            }
             else { res.send(err); }
         }
         else { //If no errors, send it back to the client
-           console.log(req.body);
+           //console.log(req.body);
            res.status(201).json(req.body);
         }
     });

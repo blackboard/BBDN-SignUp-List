@@ -24,35 +24,35 @@ userlist: ARRAY
 
 
 //listSchema schema definition
-var listSchema = new Schema({
-    name: String,
-    description: String,
-    location: String,
-    start: Date,
-    end: Date,
-    waitlist_allowed: Boolean,
-    max_size: Number,
-    max_waitlist: Number,
-    state: {
-        type: String,
-        enum: ['NEW', 'STATUS'],
-        default: 'NEW'
-    },
-    group: String,
-    userlist: [{
-        user_uuid: String,
-        role: { type: String,
-                enum: ['INSTRUCTOR', 'TEACHING_ASSISTANT', 'STUDENT'],
-                default: 'STUDENT'
+var listSchema = new Schema(
+    {
+        name: String,
+        description: String,
+        location: String,
+        start: Date,
+        end: Date,
+        waitlist_allowed: Boolean,
+        max_size: Number,
+        max_waitlist: Number,
+        state: {
+            type: String,
+            enum: ['NEW', 'STATUS'],
+            default: 'NEW'
         },
-        added_by: String,
-        waitlisted: Boolean,
-        created_on: Date,
-        updated_on: Date },
-        { timestamps: { 
-        createdAt: 'created_on', 
-        updatedAt: 'updated_on'
-      } 
+        group: String,
+        userlist: [{
+            user_uuid: String,
+            role: { type: String,
+                enum: ['INSTRUCTOR', 'TEACHING_ASSISTANT', 'STUDENT'],
+                default: 'STUDENT'},
+            added_by: String,
+            waitlisted: Boolean,
+            created_on: Date,
+            updated_on: Date },
+            { timestamps: {
+                createdAt: 'created_on',
+                updatedAt: 'updated_on'}
+        }]
     } 
 );
 
