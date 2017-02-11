@@ -10,11 +10,11 @@ var index = require('./routes/index');
 var users = require('./routes/users');
 var systems = require('./routes/systems');
 var courses = require('./routes/courses');
-//var lists = require('./routes/lists');
+var lists = require('./routes/lists');
 
 //set up mongoose
 //determine db path
-var db = process.env.MONGODB_URI || config.db;
+var db = process.env.MONGODB_URI || config.test_db;
 // Bring Mongoose into the app 
 var mongoose = require( 'mongoose' ); 
 // Create the database connection 
@@ -58,6 +58,7 @@ app.use('/', index);
 app.use('/users', users);
 app.use('/systems', systems);
 app.use('/courses', courses);
+app.use('/lists', lists);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
