@@ -3,7 +3,8 @@ var Schema = mongoose.Schema;
 
 /*
 LISTS Collection
-name: TEXT
+uuid: TEST, Required, Unique
+name: TEXT, Required
 description: TEXT
 location: TEXT
 start: DATETIME
@@ -26,12 +27,12 @@ userlist: ARRAY
 //listSchema schema definition
 var listSchema = new Schema(
     {
-        name: String,
+        name: { type: String, required: true },
         description: String,
         location: String,
-        start: Date,
+        start: { type: Date, required: true },
         end: Date,
-        waitlist_allowed: Boolean,
+        waitlist_allowed: { type: Boolean, default: false }
         max_size: Number,
         max_waitlist: Number,
         state: {
@@ -46,7 +47,7 @@ var listSchema = new Schema(
                 enum: ['INSTRUCTOR', 'TEACHING_ASSISTANT', 'STUDENT'],
                 default: 'STUDENT'},
             added_by: String,
-            waitlisted: Boolean,
+            waitlisted: { type: Boolean, default: false },
             created_on: Date,
             updated_on: Date },
             { timestamps: {
