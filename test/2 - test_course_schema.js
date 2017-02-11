@@ -116,7 +116,7 @@ describe("[test_course_schema] Delete what we created", function() {
 //empty DB after tests
 after(function (done) {
     console.log('[test_course_schema] Dropping test course collection');
-    console.log(mongoose.connection.readyState);
+//    console.log(mongoose.connection.readyState);
     mongoose.connection.db.dropCollection('courses');
     mongoose.connection.close();
     done();

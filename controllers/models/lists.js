@@ -27,12 +27,13 @@ userlist: ARRAY
 //listSchema schema definition
 var listSchema = new Schema(
     {
+        uuid: { type: String, required: true },
         name: { type: String, required: true },
         description: String,
         location: String,
         start: { type: Date, required: true },
         end: Date,
-        waitlist_allowed: { type: Boolean, default: false }
+        waitlist_allowed: { type: Boolean, default: false },
         max_size: Number,
         max_waitlist: Number,
         state: {
@@ -56,6 +57,17 @@ var listSchema = new Schema(
         }]
     } 
 );
+
+// Sets the createdOn parameter equal to the current time
+listSchema.pre('save', function(next){
+  now = new Date();
+  this.updated_on = now;
+  if ( !this.userlist.created_on ) {
+    this.userlist.created_on = now;
+  }
+  next();
+});
+
 
 //Exports the listSchema for use elsewhere.
 module.exports = mongoose.model('List', listSchema);

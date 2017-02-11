@@ -135,8 +135,7 @@ describe("[test_system_schema] Delete what we created", function() {
 //empty DB after tests
 after(function (done) {
     console.log('[test_system_schema] Dropping test system collection');
-    console.log(mongoose.connection.readyState);
-
+//    console.log(mongoose.connection.readyState);
     mongoose.connection.db.dropCollection('systems');
     mongoose.connection.close();
     done();
