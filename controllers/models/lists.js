@@ -67,7 +67,9 @@ listSchema.pre('save', function(next){
   if ( !this.userlist.created_on ) {
     this.userlist.created_on = now;
   }
-  this.uuid = uuid=uuidV1();
+  if (!this.uuid) {
+    this.uuid = uuid=uuidV1();
+  } 
   next();
 });
 
