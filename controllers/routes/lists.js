@@ -1,18 +1,17 @@
 var express = require('express');
 var router = express.Router();
-//var mongoose = require('mongoose');
-var System = require('../controllers/models/systems');
 var mongoose = require('bluebird').promisifyAll(require('mongoose'));
+var List = require('../models/lists');
 
 /*
- * POST /systems to save a new system.
+ * POST /lists to save a new list.
  */
 router.post('/', function(req, res, next) {
-    //console.log("req.body.json: " + JSON.stringify(req.body, null, 4));
-    var newSystem = new System(req.body);
+    //res.send('post lists requested');
+    var newList = new List(req.body);
 
     //Save it into the DB.
-    newSystem.save((err, system) => {
+    newList.save((err, list) => {
         if(err) {
             if (err.code == '11000') { res.status(409).send(err); }
             else if ( err.name == "ValidationError" ) {
@@ -22,57 +21,63 @@ router.post('/', function(req, res, next) {
         }
         else { //If no errors, send it back to the client
            //console.log(req.body);
+           //console.log(list.id);
            res.status(201).json(req.body);
         }
     });
 });
 
 
+
 /*
- * GET /systems route to retrieve all the systems.
+ * GET /lists route to retrieve all the lists.
  */
 router.get('/', function(req, res, next) {
-    var query = System.find({});
-    query.exec((err, systems) => {
+    var query = List.find({});
+    query.exec((err, lists) => {
         if(err) res.send(err);
         //If no errors, send them back to the client
-        res.json(systems);
+        res.json(lists);
     });
 });
 
 /*
- * GET /systems/:system_id route to retrieve a single system.
+ * GET /lists/:uuid route to retrieve a single list.
  */
 router.get('/:id', function(req, res, next) {
     //Query the DB and if no errors, return all the systems
-    System.findOne({system_id: req.params.id}, (err, system) => {
+    List.findOne({uuid: req.params.id}, (err, list) => {
         if(err) res.send(err);
         //If no errors, send them back to the client
-        res.json(system);
+        res.json(list);
     });
+});
+
+router.get('/:id', function(req, res, next) {
+    res.send('get lists requested');
 });
 
 /*
  * PUT /systems/:system_id route to update a single system.
  */
 router.put('/:id', function(req, res, next) {
-    System.findOne({system_id: req.params.id}, (err, system) => {
+    List.findOne({uuid: req.params.id}, (err, list) => {
         if(err) res.send(err);
-        Object.assign(system, req.body).save((err, system) => {
+        Object.assign(list, req.body).save((err, list) => {
             if(err) res.send(err);
-            res.json(system);
+            res.json(list);
         }); 
     });
 });
 
+
 /*
- * DELETE /systems/:system_id route to delete a single system.
+ * DELETE /lists/:id route to delete a single list.
  */
 router.delete('/:id', function(req, res, next) {
-    System.remove({system_id : req.params.id}, (err, result) => {
+    List.remove({uuid : req.params.id}, (err, result) => {
         res.status(204).send();
     });
 });
-
 
 module.exports = router;

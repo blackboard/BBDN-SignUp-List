@@ -1,17 +1,17 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('bluebird').promisifyAll(require('mongoose'));
-var List = require('../controllers/models/lists');
+var Course = require('../models/courses');
 
 /*
- * POST /lists to save a new list.
+ * POST /courses to save a new course.
  */
 router.post('/', function(req, res, next) {
-    //res.send('post lists requested');
-    var newList = new List(req.body);
+    //res.send('post courses requested');
+    var newCourse = new Course(req.body);
 
     //Save it into the DB.
-    newList.save((err, list) => {
+    newCourse.save((err, course) => {
         if(err) {
             if (err.code == '11000') { res.status(409).send(err); }
             else if ( err.name == "ValidationError" ) {
@@ -21,7 +21,6 @@ router.post('/', function(req, res, next) {
         }
         else { //If no errors, send it back to the client
            //console.log(req.body);
-           //console.log(list.id);
            res.status(201).json(req.body);
         }
     });
@@ -30,52 +29,52 @@ router.post('/', function(req, res, next) {
 
 
 /*
- * GET /lists route to retrieve all the lists.
+ * GET /courses route to retrieve all the courses.
  */
 router.get('/', function(req, res, next) {
-    var query = List.find({});
-    query.exec((err, lists) => {
+    var query = Course.find({});
+    query.exec((err, courses) => {
         if(err) res.send(err);
         //If no errors, send them back to the client
-        res.json(lists);
+        res.json(courses);
     });
 });
 
 /*
- * GET /lists/:uuid route to retrieve a single list.
+ * GET /courses/:uuid route to retrieve a single course.
  */
 router.get('/:id', function(req, res, next) {
     //Query the DB and if no errors, return all the systems
-    List.findOne({uuid: req.params.id}, (err, list) => {
+    Course.findOne({uuid: req.params.id}, (err, course) => {
         if(err) res.send(err);
         //If no errors, send them back to the client
-        res.json(list);
+        res.json(course);
     });
 });
 
 router.get('/:id', function(req, res, next) {
-    res.send('get lists requested');
+    res.send('get courses requested');
 });
 
 /*
  * PUT /systems/:system_id route to update a single system.
  */
 router.put('/:id', function(req, res, next) {
-    List.findOne({uuid: req.params.id}, (err, list) => {
+    Course.findOne({uuid: req.params.id}, (err, course) => {
         if(err) res.send(err);
-        Object.assign(list, req.body).save((err, list) => {
+        Object.assign(course, req.body).save((err, course) => {
             if(err) res.send(err);
-            res.json(list);
+            res.json(course);
         }); 
     });
 });
 
 
 /*
- * DELETE /lists/:id route to delete a single list.
+ * DELETE /courses/:id route to delete a single course.
  */
 router.delete('/:id', function(req, res, next) {
-    List.remove({uuid : req.params.id}, (err, result) => {
+    Course.remove({uuid : req.params.id}, (err, result) => {
         res.status(204).send();
     });
 });

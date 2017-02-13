@@ -6,11 +6,11 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var index = require('./routes/index');
-var users = require('./routes/users');
-var systems = require('./routes/systems');
-var courses = require('./routes/courses');
-var lists = require('./routes/lists');
+var index = require('./controllers/routes/index');
+var users = require('./controllers/routes/users');
+var systems = require('./controllers/routes/systems');
+var courses = require('./controllers/routes/courses');
+var lists = require('./controllers/routes/lists');
 
 //set up mongoose
 //determine db path

@@ -1,17 +1,18 @@
 var express = require('express');
 var router = express.Router();
+//var mongoose = require('mongoose');
+var System = require('../models/systems');
 var mongoose = require('bluebird').promisifyAll(require('mongoose'));
-var Course = require('../controllers/models/courses');
 
 /*
- * POST /courses to save a new course.
+ * POST /systems to save a new system.
  */
 router.post('/', function(req, res, next) {
-    //res.send('post courses requested');
-    var newCourse = new Course(req.body);
+    //console.log("req.body.json: " + JSON.stringify(req.body, null, 4));
+    var newSystem = new System(req.body);
 
     //Save it into the DB.
-    newCourse.save((err, course) => {
+    newSystem.save((err, system) => {
         if(err) {
             if (err.code == '11000') { res.status(409).send(err); }
             else if ( err.name == "ValidationError" ) {
@@ -27,56 +28,51 @@ router.post('/', function(req, res, next) {
 });
 
 
-
 /*
- * GET /courses route to retrieve all the courses.
+ * GET /systems route to retrieve all the systems.
  */
 router.get('/', function(req, res, next) {
-    var query = Course.find({});
-    query.exec((err, courses) => {
+    var query = System.find({});
+    query.exec((err, systems) => {
         if(err) res.send(err);
         //If no errors, send them back to the client
-        res.json(courses);
+        res.json(systems);
     });
 });
 
 /*
- * GET /courses/:uuid route to retrieve a single course.
+ * GET /systems/:system_id route to retrieve a single system.
  */
 router.get('/:id', function(req, res, next) {
     //Query the DB and if no errors, return all the systems
-    Course.findOne({uuid: req.params.id}, (err, course) => {
+    System.findOne({system_id: req.params.id}, (err, system) => {
         if(err) res.send(err);
         //If no errors, send them back to the client
-        res.json(course);
+        res.json(system);
     });
-});
-
-router.get('/:id', function(req, res, next) {
-    res.send('get courses requested');
 });
 
 /*
  * PUT /systems/:system_id route to update a single system.
  */
 router.put('/:id', function(req, res, next) {
-    Course.findOne({uuid: req.params.id}, (err, course) => {
+    System.findOne({system_id: req.params.id}, (err, system) => {
         if(err) res.send(err);
-        Object.assign(course, req.body).save((err, course) => {
+        Object.assign(system, req.body).save((err, system) => {
             if(err) res.send(err);
-            res.json(course);
+            res.json(system);
         }); 
     });
 });
 
-
 /*
- * DELETE /courses/:id route to delete a single course.
+ * DELETE /systems/:system_id route to delete a single system.
  */
 router.delete('/:id', function(req, res, next) {
-    Course.remove({uuid : req.params.id}, (err, result) => {
+    System.remove({system_id : req.params.id}, (err, result) => {
         res.status(204).send();
     });
 });
+
 
 module.exports = router;

@@ -1,6 +1,8 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+const uuidV1 = require('uuid/v1')
+
 /*
 LISTS Collection
 uuid: TEST, Required, Unique
@@ -65,6 +67,7 @@ listSchema.pre('save', function(next){
   if ( !this.userlist.created_on ) {
     this.userlist.created_on = now;
   }
+  this.uuid = uuid=uuidV1();
   next();
 });
 

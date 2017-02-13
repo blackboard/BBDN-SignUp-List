@@ -1,4 +1,4 @@
-var config = require('../config/config');
+var config = require('../../config/config');
 
 var express = require('express');
 var lti = require('ims-lti');
