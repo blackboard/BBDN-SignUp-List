@@ -1,6 +1,13 @@
 var app = angular.module('signupApp',
         [
-            'ngResource',
-            'ltiService'
+            'ngResource'
         ]
-    );
+    )
+
+/*
+,
+'ltiFactory',
+'apiFactory',
+'listFactory',
+'summaryView'
+*/
