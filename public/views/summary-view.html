@@ -1,0 +1,20 @@
+<div class="col-md-6">
+    <table class="table table-striped">
+        <tr>
+            <th></th>
+            <th>List Name</th>
+            <th>Signed Up</th>
+            <th>Waitlisted</th>
+            <th>State</th>
+            <th>Group</th>
+        </tr>
+        <tr ng-repeat="list in model.summary">
+            <td><input type="checkbox" value="Detail"></td>
+            <td>{{list.name}}</td>
+            <td>{{list.taken}}/{{list.total}}</td>
+            <td>{{list.wtaken}}/{{list.wtotal}}</td>
+            <td>{{list.state}}</td>
+            <td>{{list.group}}
+        </tr>
+    </table>
+</div>

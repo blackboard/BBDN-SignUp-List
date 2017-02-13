@@ -55,8 +55,8 @@ router.post('/lti', function(req, res, next) {
 /*
  * POST LTI Launch Received
  */
-console.log('In post function - config key/secret: ' + config.ltiCreds.key, config.ltiCreds.secret);
-  var provider = new lti.Provider(config.ltiCreds.key, config.ltiCreds.secret);
+console.log('In post function - config key/secret: ' + config.lti_key, config.lti_secret);
+  var provider = new lti.Provider(config.lti_key, config.lti_secret);
   req.body = _.omit(req.body, '__proto__');
 
   console.log(req.headers);
@@ -82,20 +82,18 @@ console.log('Check request validity');
 
        	 course_uuid = req.body['context_id'];
        	 user_uuid = req.body['user_id'];
+         user_role = req.body['roles'];
          system_guid = req.body['tool_consumer_instance_guid'];
-         shared_css = req.body['ext_launch_presentation_css_url'];
        	 return_url = req.body['launch_presentation_return_url'];
 
        	 if(return_url == undefined) {
-       		var parts = url.parse(req.body['caliper_profile_url'], true);
-      	    return_url = parts.protocol + '//' + parts.host;
+      	    return_url = 'https://' + config.rest_host + ':' + config.rest_port;
        	 }
 
          console.log ('{' +
            '"course_uuid" :' + course_uuid + ',' +
            '"user_uuid" :' +  user_uuid + ',' +
            '"system_guid" :' +  system_guid + ',' +
-           '"shared_css" :' +  shared_css + ',' +
            '"return_url" :' +  return_url + ',' +
          '}');
 
@@ -118,8 +116,10 @@ router.get('/lti/data', function(req, res, next) {
     var ltidata = {
       "course_uuid" : course_uuid,
       "user_uuid" : user_uuid,
+      "user_role" : user_role,
       "system_guid" : system_guid,
-      "shared_css" : shared_css,
+      "rest_host" : config.rest_host,
+      "rest_port" : config.rest_port,
       "return_url" : return_url
     };
     console.log(JSON.stringify(ltidata));
