@@ -7,7 +7,7 @@ var should = chai.should();
 var config = require('../config/config');
 var mongoose = require("mongoose");
 // Use bluebird since mongoose has deprecated mPromise
-mongoose.Promise = require("bluebird");
+//mongoose.Promise = require("bluebird");
 
 chai.use(chaiHttp);
 
@@ -26,6 +26,10 @@ var good_system = {
   hostname: "testSystemSchemaHost"
 };
 var updated_system = {
+  system_id: "tsetamehcSmetsySahcom"
+}
+
+var system_to_delete = {
   system_id: "tsetamehcSmetsySahcom"
 }
 
@@ -108,7 +112,6 @@ describe("[test_system_schema] Return the entire systems collection", function()
     chai
       .request(server)
       .get('/systems')
-      .send(updated_system)
       .end((err, res) => {
         res.should.have.status(200);
         res.should.be.json;
@@ -117,9 +120,22 @@ describe("[test_system_schema] Return the entire systems collection", function()
   });
 });
 
+describe("[test_system_schema] Delete what we created", function() {
+    it('should delete what we POSTed', (done) => {
+    chai
+      .request(server)
+      .delete('/systems/' + system_to_delete)
+      .end((err, res) => {
+        res.should.have.status(204);
+      done();
+    });
+  });
+});
+
 //empty DB after tests
 after(function (done) {
     console.log('[test_system_schema] Dropping test system collection');
+//    console.log(mongoose.connection.readyState);
     mongoose.connection.db.dropCollection('systems');
     mongoose.connection.close();
     done();

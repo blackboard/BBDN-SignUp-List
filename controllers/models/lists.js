@@ -1,9 +1,12 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+const uuidV1 = require('uuid/v1')
+
 /*
 LISTS Collection
-name: TEXT
+uuid: TEST, Required, Unique
+name: TEXT, Required
 description: TEXT
 location: TEXT
 start: DATETIME
@@ -26,12 +29,13 @@ userlist: ARRAY
 //listSchema schema definition
 var listSchema = new Schema(
     {
-        name: String,
+        uuid: { type: String, required: true },
+        name: { type: String, required: true },
         description: String,
         location: String,
-        start: Date,
+        start: { type: Date, required: true },
         end: Date,
-        waitlist_allowed: Boolean,
+        waitlist_allowed: { type: Boolean, default: false },
         max_size: Number,
         max_waitlist: Number,
         state: {
@@ -46,7 +50,7 @@ var listSchema = new Schema(
                 enum: ['INSTRUCTOR', 'TEACHING_ASSISTANT', 'STUDENT'],
                 default: 'STUDENT'},
             added_by: String,
-            waitlisted: Boolean,
+            waitlisted: { type: Boolean, default: false },
             created_on: Date,
             updated_on: Date },
             { timestamps: {
@@ -55,6 +59,18 @@ var listSchema = new Schema(
         }]
     } 
 );
+
+// Sets the createdOn parameter equal to the current time
+listSchema.pre('save', function(next){
+  now = new Date();
+  this.updated_on = now;
+  if ( !this.userlist.created_on ) {
+    this.userlist.created_on = now;
+  }
+  this.uuid = uuid=uuidV1();
+  next();
+});
+
 
 //Exports the listSchema for use elsewhere.
 module.exports = mongoose.model('List', listSchema);
