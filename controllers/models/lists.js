@@ -61,12 +61,10 @@ var listSchema = new Schema(
     }
 );
 
-<<<<<<< HEAD
 /*
  * pre Sets the createdOn parameter equal to the current time and 
  * sets uuid before saving
  */
-=======
 // creates a UUID on list save if one does not exist
 listSchema.pre('validate', function(next){
   if (!this.uuid) {
@@ -76,7 +74,6 @@ listSchema.pre('validate', function(next){
 });
 
 // Sets the createdOn parameter equal to the current time
->>>>>>> blackboard/master
 listSchema.pre('save', function(next){
   now = new Date();
 
@@ -84,12 +81,6 @@ listSchema.pre('save', function(next){
   if ( !this.userlist.created_on ) {
     this.userlist.created_on = now;
   }
-<<<<<<< HEAD
-  if (!this.uuid) {
-    this.uuid = uuid=uuidV1();
-  } 
-=======
->>>>>>> blackboard/master
   next();
 });
 

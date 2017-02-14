@@ -4,12 +4,12 @@ var env = process.env.NODE_ENV || 'development';
 var config = {
   lti_key: '12345',
   lti_secret: 'secret',
-  oauth_key: 'd03caa33-1095-47b9-bc67-f5cd634430b1',
-  oauth_secret: 'QSFClAMu5KmoG8yFbHTi7pjhsseJl4uz',
+  oauth_key: 'your_app_oauth_key',
+  oauth_secret: 'your_app_oauth_secret',
   port: 3000,
   host: 'localhost',
   rest_host: 'localhost',
-  rest_port: '9877',
+  rest_port: '3000',
   db: 'mongodb://localhost:27017/signuplistdb',
   test_db: 'mongodb://localhost:27017/test_signuplistdb'
 };

@@ -11,11 +11,8 @@ var users = require('./controllers/routes/users');
 var systems = require('./controllers/routes/systems');
 var courses = require('./controllers/routes/courses');
 var lists = require('./controllers/routes/lists');
-<<<<<<< HEAD
 var logs = require('./controllers/routes/logs');
-=======
 var rest = require('./controllers/routes/rest');
->>>>>>> blackboard/master
 
 //set up mongoose
 //determine db path
@@ -66,11 +63,8 @@ app.use('/users', users);
 app.use('/systems', systems);
 app.use('/courses', courses);
 app.use('/lists', lists);
-<<<<<<< HEAD
 app.use('/logs', logs);
-=======
 app.use('/api', rest);
->>>>>>> blackboard/master
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
