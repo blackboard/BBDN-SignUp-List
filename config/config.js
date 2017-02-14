@@ -1,11 +1,17 @@
 var env = process.env.NODE_ENV || 'development';
 
+try {
+    var keys = require('./keys.js');
+} catch (ex) {
+    var keys = require('./keys.template.js');
+}
+
 //use these when not set by cloud setup or using localhost for dev...
 var config = {
-  lti_key: '12345',
-  lti_secret: 'secret',
-  oauth_key: 'd03caa33-1095-47b9-bc67-f5cd634430b1',
-  oauth_secret: 'QSFClAMu5KmoG8yFbHTi7pjhsseJl4uz',
+  lti_key: keys.lti_key,
+  lti_secret: keys.lti_secret,
+  oauth_key: keys.oauth_key,
+  oauth_secret: keys.oauth_secret,
   port: 3000,
   host: 'localhost',
   rest_host: 'localhost',
