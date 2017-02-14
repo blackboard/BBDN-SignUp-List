@@ -1,6 +1,9 @@
 
 # Created by https://www.gitignore.io/api/node
 
+### Project-Specific ###
+config/keys.js
+
 ### Node ###
 # Logs
 logs
