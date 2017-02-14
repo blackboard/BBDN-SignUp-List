@@ -10,6 +10,8 @@ var lti_key = process.env.LTI_KEY || config.lti_key;
 var lti_secret = process.env.LTI_SECRET || config.lti_secret;
 var oauth_key = process.env.OAUTH_KEY || config.oauth_key;
 var oauth_secret = process.env.OAUTH_SECRET || config.oauth_secret;
+var host = process.env.REST_HOST || config.rest_host;
+var port = process.env.REST_PORT || config.rest_port;
 
 var router = express.Router();
 
@@ -22,34 +24,43 @@ var return_url = "";
 var valid_session = false;
 
 /* key and secret sanity checks - logged on startup */
-if (lti_key == config.lti_key) {
-  console.log('Using lti_key from index.js: ');
-} else {
-  console.log('Using lti_key from process.env: ')
-}
-console.log(lti_key);
+if (process.env.DEBUG) {
+    console.log('[index.js]: ');
+    if (lti_key == config.lti_key) {
+        console.log('Using lti_key from config.js:','\x1b[32m',lti_key,'\x1b[0m');
+    } else {
+        console.log('Using lti_key from process.env:','\x1b[32m',lti_key,'\x1b[0m');
+    }
 
-if (lti_secret == config.lti_secret) {
-  console.log('Using lti_secret from index.js: ');
-} else {
-  console.log('Using lti_secret from process.env: ');
-}
-console.log(lti_secret);
+    if (lti_secret == config.lti_secret) {
+      console.log('Using lti_secret from config.js:','\x1b[32m',lti_secret,'\x1b[0m');
+    } else {
+      console.log('Using lti_secret from process.env:','\x1b[32m',lti_secret,'\x1b[0m');
+    }
 
-if (oauth_key == config.oauth_key) {
-  console.log('Using oauth_key from index.js: ');
-} else {
-  console.log('Using oauth_key from process.env: ')
-}
-console.log(oauth_key);
+    if (oauth_key == config.oauth_key) {
+      console.log('Using oauth_key from config.js:','\x1b[32m',oauth_key,'\x1b[0m');
+    } else {
+      console.log('Using oauth_key from process.env:','\x1b[32m',oauth_key,'\x1b[0m');
+    }
 
-if (oauth_secret == config.oauth_secret) {
-  console.log('Using oauth_secret from index.js: ');
-} else {
-  console.log('Using oauth_secret from process.env: ');
+    if (oauth_secret == config.oauth_secret) {
+      console.log('Using oauth_secret from config.js:','\x1b[32m',oauth_secret,'\x1b[0m');
+    } else {
+      console.log('Using oauth_secret from process.env:','\x1b[32m',oauth_secret,'\x1b[0m');
+    }
+    
+    if (host == config.rest_host) {
+      console.log('Using rest_host from config.js:','\x1b[32m',host,'\x1b[0m');
+    } else {
+      console.log('Using rest_host from process.env:','\x1b[32m',host,'\x1b[0m');
+    }
+    if (port == config.rest_port) {
+      console.log('Using rest_port from config.js:','\x1b[32m',port,'\x1b[0m');
+    } else {
+      console.log('Using rest_port from process.env:','\x1b[32m',port,'\x1b[0m');
+    }
 }
-console.log(oauth_secret);
-
 /* Return home page from LTI Launch. */
 router.post('/lti', function(req, res, next) {
 /*

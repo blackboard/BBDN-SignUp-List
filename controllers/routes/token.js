@@ -31,41 +31,6 @@ var user_role = "";
 
 var valid_session = false;
 
-/* key and secret sanity checks - logged on startup */
-if (lti_key == config.lti_key) {
-  console.log('Using lti_key from index.js: ');
-} else {
-  console.log('Using lti_key from process.env: ')
-}
-console.log(lti_key);
-
-if (lti_secret == config.lti_secret) {
-  console.log('Using lti_secret from index.js: ');
-} else {
-  console.log('Using lti_secret from process.env: ');
-}
-console.log(lti_secret);
-
-if (oauth_key == config.oauth_key) {
-  console.log('Using oauth_key from index.js: ');
-} else {
-  console.log('Using oauth_key from process.env: ')
-}
-console.log(oauth_key);
-
-if (oauth_secret == config.oauth_secret) {
-  console.log('Using oauth_secret from index.js: ');
-} else {
-  console.log('Using oauth_secret from process.env: ');
-}
-console.log(oauth_secret);
-
-if (host == config.host) {
-  console.log('Using host from index.js: ');
-} else {
-  console.log('Using host from process.env: ');
-}
-console.log(host);
 
 /**
   * Check the cache for a token based on system Id.
