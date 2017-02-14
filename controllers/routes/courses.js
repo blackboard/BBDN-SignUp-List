@@ -15,7 +15,7 @@ router.post('/', function(req, res, next) {
         if(err) {
             if (err.code == '11000') { res.status(409).send(err); }
             else if ( err.name == "ValidationError" ) {
-                res.status(400).send(err); 
+                res.status(400).send(err);
             }
             else { res.send(err); }
         }
@@ -34,9 +34,17 @@ router.post('/', function(req, res, next) {
 router.get('/', function(req, res, next) {
     var query = Course.find({});
     query.exec((err, courses) => {
+        console.log("err: " + err + " courses: " + courses);
+
         if(err) res.send(err);
         //If no errors, send them back to the client
-        res.json(courses);
+        if(!courses) {
+          console.log("send 204");
+          res.sendStatus(204);
+        } else {
+          console.log("send courses");
+          res.json(courses);
+        }
     });
 });
 
@@ -65,7 +73,7 @@ router.put('/:id', function(req, res, next) {
         Object.assign(course, req.body).save((err, course) => {
             if(err) res.send(err);
             res.json(course);
-        }); 
+        });
     });
 });
 
