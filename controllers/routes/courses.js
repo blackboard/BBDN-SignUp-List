@@ -53,7 +53,9 @@ router.get('/', function(req, res, next) {
  */
 router.get('/:id', function(req, res, next) {
     //Query the DB and if no errors, return all the systems
-    Course.findOne({uuid: req.params.id}, (err, course) => {
+    Course.findOne({uuid: req.params.id})
+    .populate('lists')
+    .exec(function (err, course) {
         if(err) res.send(err);
         //If no errors, send them back to the client
         res.json(course);
@@ -69,6 +71,9 @@ router.get('/:id', function(req, res, next) {
  */
 router.put('/:id', function(req, res, next) {
     Course.findOne({uuid: req.params.id}, (err, course) => {
+        console.log("COURSE: " + JSON.stringify(course));
+        console.log("UUID: " + req.params.id);
+        console.log("ERR: " + err);
         if(err) res.send(err);
         Object.assign(course, req.body).save((err, course) => {
             if(err) res.send(err);

@@ -57,6 +57,11 @@ angular.module('signupApp')
                       } else {
                         $scope.course = response.data;
                         $scope.course['name'] = courseName;
+                        angular.forEach($scope.course.list, function(value,key) {
+                          angular.forEach(value, function(list, listKey) {
+                            list['showMembers'] = false;
+                          });
+                        });
                       }
                     }, function (error) {
                         $scope.status = 'Unable to load course data from database: ' + error.message;
@@ -181,19 +186,28 @@ angular.module('signupApp')
           //$scope.course.lists.push($scope.list);
           dbFactory.createList($scope.list)
             .then(function (response) {
-              $scope.course.lists.push(response.data._id);
-              dbFactory.updateCourse($scope.config.lti.system_guid, $scope.course)
+              $log.log("list id: " + response.data._id);
+              $scope.course.lists.push({ "_id": response.data._id });
+              $log.log($scope.course.lists);
+              dbFactory.updateCourse($scope.config.lti.course_uuid, $scope.course)
                 .then(function (response) {
                   $scope.status = 'List Added.';
                   $log.log($scope.status);
                   $scope.config.addList = false;
+
+                  angular.forEach($scope.course.list, function(value,key) {
+                    angular.forEach(value, function(list, listKey) {
+                      list['showMembers'] = false;
+                    });
+                  });
                   $scope.list = {};
+                  getCourse($scope.config.lti.system_guid, $scope.config.lti.course_uuid);
                 }, function (error) {
-                  $scope.status = 'Unable to save course data: ' + error.message;
+                  $scope.status = 'Unable to save course data: ' + error;
                   $log.log($scope.status);
                 });
           }, function (error) {
-            $scope.status = 'Unable to create list: ' + error.message;
+            $scope.status = 'Unable to create list: ' + error;
             $log.log($scope.status);
           });
         };
