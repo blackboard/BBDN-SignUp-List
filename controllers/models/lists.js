@@ -36,12 +36,13 @@ var listSchema = new Schema(
         start: { type: Date, required: true },
         end: Date,
         waitlist_allowed: { type: Boolean, default: false },
+        student_view: { type: Boolean, default: false },
         max_size: Number,
         max_waitlist: Number,
         state: {
             type: String,
-            enum: ['NEW', 'STATUS'],
-            default: 'NEW'
+            enum: ['OPEN', 'CLOSED'],
+            default: 'OPEN'
         },
         group: String,
         userlist: [{
@@ -57,25 +58,40 @@ var listSchema = new Schema(
                 createdAt: 'created_on',
                 updatedAt: 'updated_on'}
         }]
-    } 
+    }
 );
 
+<<<<<<< HEAD
 /*
  * pre Sets the createdOn parameter equal to the current time and 
  * sets uuid before saving
  */
+=======
+// creates a UUID on list save if one does not exist
+listSchema.pre('validate', function(next){
+  if (!this.uuid) {
+    this.uuid = uuid=uuidV1();
+  }
+  next();
+});
+
+// Sets the createdOn parameter equal to the current time
+>>>>>>> blackboard/master
 listSchema.pre('save', function(next){
   now = new Date();
+
   this.updated_on = now;
   if ( !this.userlist.created_on ) {
     this.userlist.created_on = now;
   }
+<<<<<<< HEAD
   if (!this.uuid) {
     this.uuid = uuid=uuidV1();
   } 
+=======
+>>>>>>> blackboard/master
   next();
 });
-
 
 //Exports the listSchema for use elsewhere.
 module.exports = mongoose.model('List', listSchema);

@@ -12,15 +12,19 @@ angular.module('signupApp')
         return $http.get(urlBase  + '/system/' + systemId + '/user/' + userId);
     };
 
+    apiFactory.getUserByPk = function (systemId, userId) {
+        return $http.get(urlBase  + '/system/' + systemId + '/user_pk/' + userId);
+    };
+
     apiFactory.getRoster = function (systemId, courseId) {
-        return $http.get(urlBase  + '/system/' + systemId + '/course/' + courseId + '/users');
+        return $http.get(urlBase  + '/system/' + systemId + '/course/' + courseId + '/roster');
     };
 
     apiFactory.createGroup = function (systemId, courseId, groupName) {
         return $http.post(urlBase  + '/system/' + systemId + '/course/' + courseId + '/group/' + groupName);
     };
 
-    apiFactory.AddUsersToGroup = function (systemId, courseId, groupId, userId) {
+    apiFactory.addUsersToGroup = function (systemId, courseId, groupId, userId) {
         return $http.post(urlBase  + '/system/' + systemId + '/course/' + courseId + '/group/' + groupName + '/user/' + userId);
     };
 

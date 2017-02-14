@@ -3,27 +3,141 @@
   <head>
     <title>SignUp List</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/spacelab/bootstrap.min.css" rel="stylesheet" integrity="sha384-L/tgI3wSsbb3f/nW9V6Yqlaw3Gj7mpE56LWrhew/c8MIhAYWZ/FNirA64AVkB5pI" crossorigin="anonymous">
-    <link href="components/ngPrint/ngPrint.minJ@ckson8]
-    .css" rel="stylesheet">
-
+    <link rel="stylesheet" href="/datetimepicker/css/datetimepicker.css"/>
   </head>
   <body ng-controller="SignupController" data-ng-init="getData()">
     <!-- Signups View -->
-    <div class="container" ng-show="config.lti && course && user">
-      <div class="jumbotron text-center">
-        <h1>SignUp Lists</h1>
-        <div clas="row">
-          <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 text-left">Course: {{course.name}}</div>
-          <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 text-right">User: {{user.name.given}} {{user.name.family}}</div>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid"  ng-show="config.lti && course && user">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <h1 class="navbar-brand mb-0" style="margin-top: 0px">SignUp List</h1>
         </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul ng-if="config.lti.user_role === 'urn:lti:role:ims/lis/Instructor'" class="nav navbar-nav">
+            <li><button class="btn btn-outline-default" style="margin-top:6px" type="button" ng-click="config.addList = true">New List</button></li>
+            <!--<li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">List Tools <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Edit</a></li>
+                <li><a href="#">Print</a></li>
+                <li><a href="#">Email List</a></li>
+                <li><a href="#">Create Group</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#">Add User</a></li>
+                <li><a href="#">Remove User</a></li>
+              </ul>
+            </li>-->
+          </ul>
+          <p class="navbar-text navbar-right"><a href="{{config.lti.return_url}}"><span class="glyphicon glyphicon-off" aria-hidden="true"></span></a></p>
+          <p class="navbar-text navbar-right">Signed in as {{user.name.given}} {{user.name.family}}</p>
+          <p class="navbar-text navbar-right">Course:</strong> {{course.name}}</p>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+    <div class="container-fluid">
+      <div ng-show="config.addList">
+        <form novalidate >
+          <div class="form-group dropdown">
+            <label for="name" class="col-2 col-form-label">Name</label>
+            <div class="col-10">
+              <input class="form-control" type="text" id="name" ng-model="list.name" />
+            </div>
+          </div>
+          <div class="form-group dropdown">
+            <label for="description" class="col-2 col-form-label">Description</label>
+            <div class="col-10">
+              <input class="form-control" type="text" id="description" ng-model="list.description" />
+            </div>
+          </div>
+          <div class="form-group dropdown">
+            <label for="location" class="col-2 col-form-label">Location</label>
+            <div class="col-10">
+              <input class="form-control" type="text" id="location" ng-model="list.location" />
+            </div>
+          </div>
+          <div class="dropdown form-group">
+            <label>Start Date</label>
+            <a class="dropdown-toggle" id="dropdownStart" role="button" data-toggle="dropdown" data-target="#"
+               href="#">
+                <div class="input-group date">
+                    <input type="text" class="form-control" data-ng-model="list.start">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                </div>
+            </a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                <datetimepicker data-ng-model="dateRangeStart"
+                                data-datetimepicker-config="{ renderOn: 'end-date-changed' }"
+                                data-on-set-time="startDateOnSetTime()"
+                                data-before-render="startDateBeforeRender($dates)"></datetimepicker>
+            </ul>
+          </div>
+
+          <div class="dropdown form-group">
+            <label>End Date</label>
+            <a class="dropdown-toggle" id="dropdownEnd" role="button" data-toggle="dropdown" data-target="#"
+               href="#">
+                <div class="input-group date">
+                    <input type="text" class="form-control" data-ng-model="list.end">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                </div>
+            </a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                <datetimepicker data-ng-model="dateRangeEnd"
+                                data-datetimepicker-config="{ renderOn: 'start-date-changed' }"
+                                data-on-set-time="endDateOnSetTime()"
+                                data-before-render="endDateBeforeRender($view, $dates, $leftDate, $upDate, $rightDate)"></datetimepicker>
+            </ul>
+          </div>
+          <div class="form-group dropdown">
+            <label for="max-size" class="col-2 col-form-label">Maximum Members</label>
+            <div class="col-10">
+              <input class="form-control" type="number" id="max-size" ng-model="list.max_size">
+            </div>
+          </div>
+          <div class="form-check">
+            <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" value="waitlist_allowed" ng-model="list.waitlist_allowed">
+              Allow Waitlist
+            </label>
+          </div>
+          <div class="form-group dropdown" ng-show="list.waitlist_allowed">
+            <label for="max-waitlist" class="col-2 col-form-label">Maximum Waitlist</label>
+            <div class="col-10">
+              <input class="form-control" type="number" id="max-waitlist" ng-model="list.max_waitlist">
+            </div>
+          </div>
+          <div class="form-check">
+            <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" value="student_view" ng-model="list.student_view">
+              Allow Students To View Memberships
+            </label>
+          </div>
+          <div class="form-group dropdown">
+            <label for="group-name" class="col-2 col-form-label">Group Name</label>
+            <div class="col-10">
+              <input class="form-control" type="text" id="group-name" ng-model="list.group">
+            </div>
+          </div>
+          <input class="btn btn-default" type="button" ng-click="config.addList = false" value="Cancel" />
+          <input class="btn btn-default" type="submit" ng-click="addList()" value="Save" />
+        </form>
       </div>
 
-      <div id="printMe" ng-repeat="list in lists">
-        <div class="panel" ng-class="list.taken < list.total ? 'panel-default' : 'panel-danger'">
+      <div id="printMe" ng-repeat="list in course.lists">
+        <div class="panel" ng-class="calculateTaken(list, true) < list.max_size ? 'panel-default' : 'panel-danger'">
           <div class="panel-heading clearfix">
             <div class="row">
-              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-left">{{list.name}}</div>
-              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-center">{{list.taken}}/{{list.total}} places free</div>
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-left h3" style="margin-top:0px; margin-bottom: 0px;">{{list.name}}</div>
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-center">{{calculateTaken(list, true)}}/{{list.max_size}} places free</div>
               <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-right">{{reserveSpaces(list)}} reserve places</div>
             </div>
           </div>
@@ -31,10 +145,10 @@
             <div class="row">
               <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
                 <div>
-                  <div>{{list.description}}</div>
-                  <div>{{list.location}}</div>
+                  <p class="lead">{{list.description}}</p>
+                  <p><span class="strong">Location</span>: {{list.location}}</p>
                 </div>
-                <div ng-show="permissions.viewMembers || config.lti.user_role === 'urn:lti:role:ims/lis/Instructor'">
+                <div ng-show="list.student_view || config.lti.user_role === 'urn:lti:role:ims/lis/Instructor'">
                   <button class="btn btn-default" ng-show="!list.showMembers" ng-click="list.showMembers = true">View Members</button>
                   <button class="btn btn-default" ng-show="list.showMembers" ng-click="list.showMembers = false">Hide Members</button>
                 </div>
@@ -145,44 +259,48 @@
         </div>
       </div>
 
-    <div ng-if="config.debug_mode">
-      <div ng-show="config.lti">
-        <h1>Here is the provided LTI data</h1>
-        <ul>
-          <li>Course UUID : {{config.lti.course_uuid}}</li>
-          <li>User UUID : {{config.lti.user_uuid}}</li>
-          <li>User Role : {{config.lti.user_role}}</li>
-          <li>System GUID : {{config.lti.system_guid}}</li>
-          <li>Host : {{config.lti.rest_host}}</li>
-          <li>Port : {{config.lti.rest_port}}</li>
-          <li>Return URL : {{config.lti.return_url}}</li>
-        </ul>
-      </div>
-      <div ng-show="course">
-        <h4>Course</h4>
-        <pre>{{course | json}}</pre>
-      </div>
-      <div ng-show="user">
-        <h4>User</h4>
-        <pre>{{user | json}}</pre>
-      </div>
-      <h4>Lists</h4>
-      <pre>{{lists | json}}</pre>
+      <div ng-if="config.debug_mode">
+        <div ng-show="config.lti">
+          <h1>Here is the provided LTI data</h1>
+          <ul>
+            <li>Course UUID : {{config.lti.course_uuid}}</li>
+            <li>User UUID : {{config.lti.user_uuid}}</li>
+            <li>User Role : {{config.lti.user_role}}</li>
+            <li>System GUID : {{config.lti.system_guid}}</li>
+            <li>Host : {{config.lti.rest_host}}</li>
+            <li>Port : {{config.lti.rest_port}}</li>
+            <li>Return URL : {{config.lti.return_url}}</li>
+          </ul>
+        </div>
+        <div ng-show="course">
+          <h4>Course</h4>
+          <pre>{{course | json}}</pre>
+        </div>
+        <div ng-show="user">
+          <h4>User</h4>
+          <pre>{{user | json}}</pre>
+        </div>
+        <h4>Lists</h4>
+        <pre>{{lists | json}}</pre>
 
-      <h4>Permissions</h4>
-      <pre>{{permissions | json}}</pre>
+        <h4>Permissions</h4>
+        <pre>{{permissions | json}}</pre>
+      </div>
+      <!-- <div ng-controller="SignUpSummaryController">
+        <summary-view></summary-view>
+      </div> -->
     </div>
-    <!-- <div ng-controller="SignUpSummaryController">
-      <summary-view></summary-view>
-    </div> -->
 
+    <script src="/moment/moment.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular-resource.min.js"></script>
+    <script src="/datetimepicker/js/datetimepicker.js"></script>
+    <script src="/datetimepicker/js/datetimepicker.templates.js"></script>
 
-    <script src="./components/ngPrint/ngPrint.min.js"></script>
     <script src="./app.js"></script>
     <script src="./controllers/signup-controller.js"></script>
     <script src="./services/api-service.js"></script>
+    <script src="./services/db-service.js"></script>
     <script src="./services/lti-service.js"></script>
     <script src="./services/list-service.js"></script>
     <script src="./directives/summary-view.js"></script>

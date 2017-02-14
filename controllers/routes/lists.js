@@ -12,17 +12,17 @@ router.post('/', function(req, res, next) {
 
     //Save it into the DB.
     newList.save((err, list) => {
+
         if(err) {
             if (err.code == '11000') { res.status(409).send(err); }
             else if ( err.name == "ValidationError" ) {
-                res.status(400).send(err); 
+                res.status(400).send(err);
             }
             else { res.send(err); }
         }
         else { //If no errors, send it back to the client
-           //console.log(req.body);
-           //console.log(list.id);
-           res.status(201).json(req.body);
+           console.log(JSON.stringify(list));
+           res.status(201).json(list);
         }
     });
 });
@@ -66,7 +66,7 @@ router.put('/:id', function(req, res, next) {
         Object.assign(list, req.body).save((err, list) => {
             if(err) res.send(err);
             res.json(list);
-        }); 
+        });
     });
 });
 

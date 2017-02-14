@@ -1,6 +1,7 @@
 var app = angular.module('signupApp',
         [
-            'ngResource'
+            'ngResource',
+            'ui.bootstrap.datetimepicker'
         ]
     )
 
