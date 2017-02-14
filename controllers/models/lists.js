@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-const uuidV1 = require('uuid/v1')
+const uuidV1 = require('uuid/v1');
 
 /*
 LISTS Collection
@@ -60,7 +60,10 @@ var listSchema = new Schema(
     } 
 );
 
-// Sets the createdOn parameter equal to the current time
+/*
+ * pre Sets the createdOn parameter equal to the current time and 
+ * sets uuid before saving
+ */
 listSchema.pre('save', function(next){
   now = new Date();
   this.updated_on = now;

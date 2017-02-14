@@ -11,6 +11,7 @@ var users = require('./controllers/routes/users');
 var systems = require('./controllers/routes/systems');
 var courses = require('./controllers/routes/courses');
 var lists = require('./controllers/routes/lists');
+var logs = require('./controllers/routes/logs');
 
 //set up mongoose
 //determine db path
@@ -59,6 +60,7 @@ app.use('/users', users);
 app.use('/systems', systems);
 app.use('/courses', courses);
 app.use('/lists', lists);
+app.use('/logs', logs);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
