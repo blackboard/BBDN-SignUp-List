@@ -1,4 +1,4 @@
-var config = require('../config/config');
+var config = require('../../config/config');
 
 var express = require('express');
 var https = require('https');
@@ -67,25 +67,32 @@ if (host == config.host) {
 }
 console.log(host);
 
-/* Add a token to cache. */
-router.post('/', function(req, res, next) {
-
-  var ttl = req.body.expires_in;
-  var token = req.body.access_token;
-  var system = req.body.system_id;
-
-  console.log('{ TTL: ' + ttl + ' }, { token: ' + token + ' }')
-
-  success = tokenCache.set( system, token, ttl );
-
-  res.sendStatus(200);
-});
-
 /**
-  * Request a token from Blackboard
-  * Return a the token
+  * Check the cache for a token based on system Id.
+  * If it exists, the token is still valid.
+  * If it does not, return 403 to initiate a new token request.
   */
-router.get('/:systemId', function(req, res, next) {
+exports.checkToken = function(systemId, callback) {
+
+  var token = tokenCache.get( systemId );
+    console.log('Token=' + token);
+    if(token) {
+      callback (null, token);
+    } else {
+      getToken(function(err,token) {
+        if(err) console.log(err);
+        token['systemId'] = systemId;
+
+        success = cacheToken(token);
+
+        callback (null,token.access_token);
+      });
+
+    }
+};
+
+/* Get a token from Learn */
+getToken = function (callback) {
   var auth_hash = new Buffer(oauth_key + ":" + oauth_secret).toString('base64')
 
   var auth_string = 'Basic ' + auth_hash;
@@ -118,9 +125,7 @@ router.get('/:systemId', function(req, res, next) {
 
             console.log("Access Token: " + access_token + " Token Type: " + token_type + " Expires In: " + expires_in);
 
-            success = tokenCache.set( req.params.systemId, access_token, expires_in );
-
-            res.json(json);
+            callback(null, {'access_token' : access_token, 'expires_in' : expires_in});
 
         });
     });
@@ -131,28 +136,18 @@ router.get('/:systemId', function(req, res, next) {
     //console.log(http_req);
     http_req.end();
 
-});
+};
 
-/**
-  * Check the cache for a token based on system Id.
-  * If it exists, the token is still valid.
-  * If it does not, return 403 to initiate a new token request.
-  */
-router.get('/check', function(req, res, next) {
-  var token = tokenCache.get( req.param.systemId );
-  console.log('Token=' + token);
-  if(token) {
-    res.write(token);
-    res.send(200);
-  } else {
-    res.send(401);
-  }
-});
+/* Add a token to cache. */
+cacheToken = function(token) {
 
-module.exports = router;
+  var ttl = token.expires_in;
+  var access_token = token.access_token;
+  var system = token.systemId;
 
-exports.checkToken = function(systemId) {
-  var token = tokenCache.get( req.param.systemId );
-  console.log(token);
-  return(token);
+  console.log('{ TTL: ' + ttl + ' }, { access_token: ' + access_token + ' }')
+
+  success = tokenCache.set( system, access_token, ttl );
+
+  return success;
 };

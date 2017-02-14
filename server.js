@@ -11,38 +11,39 @@ var users = require('./controllers/routes/users');
 var systems = require('./controllers/routes/systems');
 var courses = require('./controllers/routes/courses');
 var lists = require('./controllers/routes/lists');
+var rest = require('./controllers/routes/rest');
 
 //set up mongoose
 //determine db path
 var db = process.env.MONGODB_URI || config.test_db;
-// Bring Mongoose into the app 
-var mongoose = require( 'mongoose' ); 
-// Create the database connection 
-mongoose.connect(db); 
+// Bring Mongoose into the app
+var mongoose = require( 'mongoose' );
+// Create the database connection
+mongoose.connect(db);
 
 // CONNECTION EVENTS
 // When successfully connected
-mongoose.connection.on('connected', function () {  
+mongoose.connection.on('connected', function () {
   console.log('Mongoose default connection open to ' + db );
-}); 
-
-// If the connection throws an error
-mongoose.connection.on('error',function (err) {  
-  console.log('Mongoose default connection error: ' + err);
-}); 
-
-// When the connection is disconnected
-mongoose.connection.on('disconnected', function () {  
-  console.log('Mongoose default connection disconnected'); 
 });
 
-// If the Node process ends, close the Mongoose connection 
-process.on('SIGINT', function() {  
-  mongoose.connection.close(function () { 
-    console.log('Mongoose default connection disconnected through app termination'); 
-    process.exit(0); 
-  }); 
-}); 
+// If the connection throws an error
+mongoose.connection.on('error',function (err) {
+  console.log('Mongoose default connection error: ' + err);
+});
+
+// When the connection is disconnected
+mongoose.connection.on('disconnected', function () {
+  console.log('Mongoose default connection disconnected');
+});
+
+// If the Node process ends, close the Mongoose connection
+process.on('SIGINT', function() {
+  mongoose.connection.close(function () {
+    console.log('Mongoose default connection disconnected through app termination');
+    process.exit(0);
+  });
+});
 
 var app = express();
 
@@ -59,6 +60,7 @@ app.use('/users', users);
 app.use('/systems', systems);
 app.use('/courses', courses);
 app.use('/lists', lists);
+app.use('/api', rest);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -7,6 +7,7 @@
     "stop": "kill -9 $(cat .pid)"
   },
   "dependencies": {
+    "angular-bootstrap-datetimepicker": "^1.1.3",
     "body-parser": "~1.16.0",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.0",

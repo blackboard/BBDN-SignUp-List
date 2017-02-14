@@ -1,4 +1,4 @@
-var config = require('../config/config');
+var config = require('../../config/config');
 
 var express = require('express');
 var lti = require('ims-lti');
@@ -16,7 +16,7 @@ var router = express.Router();
 var course_uuid = "";
 var user_uuid = "";
 var system_guid = "";
-var shared_css = "";
+var user_role = "";
 var return_url = "";
 
 var valid_session = false;
@@ -93,11 +93,12 @@ console.log('Check request validity');
          console.log ('{' +
            '"course_uuid" :' + course_uuid + ',' +
            '"user_uuid" :' +  user_uuid + ',' +
+           '"user_role" :' +  user_role + ',' +
            '"system_guid" :' +  system_guid + ',' +
            '"return_url" :' +  return_url + ',' +
          '}');
 
-       	 res.sendFile(path.resolve(__dirname + '/../public/index.html'));
+       	 res.sendFile(path.resolve(__dirname + '/../../public/index.html'));
        }
      }
   });

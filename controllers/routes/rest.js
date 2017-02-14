@@ -1,4 +1,4 @@
-var config = require('../config/config');
+var config = require('../../config/config');
 
 var express = require('express');
 var https = require('https');
@@ -17,9 +17,6 @@ var host = process.env.REST_HOST || config.rest_host;
 var port = process.env.REST_PORT || config.rest_port;
 
 var router = express.Router();
-
-const NodeCache = require( "node-cache" );
-const tokenCache = new NodeCache();
 
 //set false to allow self-signed certs with local Learn
 var rejectUnauthorized = false;
@@ -83,30 +80,13 @@ if (port == config.rest_port) {
 }
 console.log(port);
 
-/**
-  * Request a token from Blackboard
-  * Return the token
-  */
-router.get('/oauth/token/:systemId', function(req, res, next) {
-  var token = {};
-
-  getToken(function(err,token) {
-    if(err) console.log(err);
-    token['systemId'] = req.params.systemId;
-
-    success = cacheToken(token);
-
-    res.json(token);
-  });
-});
-
-/* Add a token to cache. */
+/* Get User Information by UUID. */
 router.get('/system/:systemId/user/:userId', function(req, res, next) {
 
   var uuid = req.params.userId;
   var system = req.params.systemId;
 
-  checkToken(system, function(err,token) {
+  tokenjs.checkToken(system, function(err,token) {
       if (err) console.log(err);
 
       var auth_string = 'Bearer ' + token;
@@ -143,13 +123,56 @@ router.get('/system/:systemId/user/:userId', function(req, res, next) {
     });
 });
 
-/* Add a token to cache. */
+/* Get User Information by UUID. */
+router.get('/system/:systemId/user_pk/:userId', function(req, res, next) {
+
+  var pk = req.params.userId;
+  var system = req.params.systemId;
+
+  tokenjs.checkToken(system, function(err,token) {
+      if (err) console.log(err);
+
+      var auth_string = 'Bearer ' + token;
+
+    console.log("pk: " + pk + " system " + system + " auth_string: " + auth_string);
+
+      var options = {
+              hostname: host,
+              port: port,
+              path: '/learn/api/public/v1/users/' + pk + '?fields=uuid',
+              method: 'GET',
+              rejectUnauthorized: rejectUnauthorized,
+              headers: { "Authorization" : auth_string }
+      };
+
+      console.log(options);
+
+      var http_req = https.request(options, function(http_res) {
+          http_res.setEncoding('utf-8');
+          var responseString = '';
+          http_res.on('data', function(data) {
+              responseString += data;
+          });
+          http_res.on('end', function() {
+              console.log(responseString);
+              var json = JSON.parse(responseString);
+
+              res.json(json);
+
+          });
+      });
+
+      http_req.end();
+    });
+});
+
+/* Get Course information by UUID. */
 router.get('/system/:systemId/course/:courseId', function(req, res, next) {
 
   var uuid = req.params.courseId;
   var system = req.params.systemId;
 
-  checkToken(system, function(err,token) {
+  tokenjs.checkToken(system, function(err,token) {
       if (err) console.log(err);
 
       var auth_string = 'Bearer ' + token;
@@ -159,7 +182,7 @@ router.get('/system/:systemId/course/:courseId', function(req, res, next) {
       var options = {
               hostname: host,
               port: port,
-              path: '/learn/api/public/v1/courses/uuid:' + uuid,
+              path: '/learn/api/public/v1/courses/uuid:' + uuid + '?fields=uuid,name,ultraStatus',
               method: 'GET',
               rejectUnauthorized: rejectUnauthorized,
               headers: { "Authorization" : auth_string }
@@ -187,88 +210,145 @@ router.get('/system/:systemId/course/:courseId', function(req, res, next) {
   });
 });
 
-var getToken = function (callback) {
-  var auth_hash = new Buffer(oauth_key + ":" + oauth_secret).toString('base64')
+/* Get Course Roster. Used by Intrcutor for manually adding users,
+ * as well as displaying list members
+ */
+router.get('/system/:systemId/course/:courseId/roster', function(req, res, next) {
 
-  var auth_string = 'Basic ' + auth_hash;
+  var uuid = req.params.courseId;
+  var system = req.params.systemId;
 
-  console.log("oauth_host: " + host + " auth_hash: " + auth_hash + " auth_string: " + auth_string);
+  tokenjs.checkToken(system, function(err,token) {
+      if (err) console.log(err);
 
-    var options = {
-            hostname: host,
-            port: port,
-            path: '/learn/api/public/v1/oauth2/token',
-            method: 'POST',
-            rejectUnauthorized: rejectUnauthorized,
-            headers: { "Authorization" : auth_string , "Content-Type" : "application/x-www-form-urlencoded" }
-    };
+      var auth_string = 'Bearer ' + token;
 
-    console.log(options);
+      console.log("uuid: " + uuid + " system " + system + " auth_string: " + auth_string);
 
-    var http_req = https.request(options, function(http_res) {
-        http_res.setEncoding('utf-8');
-        var responseString = '';
-        http_res.on('data', function(data) {
-            responseString += data;
-        });
-        http_res.on('end', function() {
-            console.log(responseString);
-            var json = JSON.parse(responseString);
-            access_token = json['access_token'];
-            token_type = json['token_type'];
-            expires_in = json['expires_in'];
+      var options = {
+              hostname: host,
+              port: port,
+              path: '/learn/api/public/v1/courses/uuid:' + uuid + '/users?fields=userId',
+              method: 'GET',
+              rejectUnauthorized: rejectUnauthorized,
+              headers: { "Authorization" : auth_string }
+      };
 
-            console.log("Access Token: " + access_token + " Token Type: " + token_type + " Expires In: " + expires_in);
+      console.log(options);
 
-            callback(null, {'access_token' : access_token, 'expires_in' : expires_in});
+      var http_req = https.request(options, function(http_res) {
+          http_res.setEncoding('utf-8');
+          var responseString = '';
+          http_res.on('data', function(data) {
+              responseString += data;
+          });
+          http_res.on('end', function() {
+              console.log(responseString);
+              var json = JSON.parse(responseString);
 
-        });
-    });
+              res.json(json);
 
-    var grant = "grant_type=client_credentials";
-
-    http_req.write(grant);
-    //console.log(http_req);
-    http_req.end();
-
-};
-
-/**
-  * Check the cache for a token based on system Id.
-  * If it exists, the token is still valid.
-  * If it does not, return 403 to initiate a new token request.
-  */
-checkToken = function(systemId, callback) {
-
-  var token = tokenCache.get( systemId );
-    console.log('Token=' + token);
-    if(token) {
-      callback (null, token);
-    } else {
-      getToken(function(err,token) {
-        if(err) console.log(err);
-        token['systemId'] = systemId;
-
-        success = cacheToken(token);
-
-        callback (null,token.access_token);
+          });
       });
 
-    }
-};
+      http_req.end();
 
-/* Add a token to cache. */
-cacheToken = function(token) {
+  });
+});
 
-  var ttl = token.expires_in;
-  var access_token = token.access_token;
-  var system = token.systemId;
+/* Create Course Group */
+router.post('/system/:systemId/course/:courseId/:groupName', function(req, res, next) {
 
-  console.log('{ TTL: ' + ttl + ' }, { access_token: ' + access_token + ' }')
+  var uuid = req.params.courseId;
+  var system = req.params.systemId;
 
-  success = tokenCache.set( system, access_token, ttl );
+  tokenjs.checkToken(system, function(err,token) {
+      if (err) console.log(err);
 
-  return success;
-};
+      var auth_string = 'Bearer ' + token;
+
+      console.log("uuid: " + uuid + " system " + system + " auth_string: " + auth_string);
+
+      var group = {
+          "name" : req.params.groupName,
+          "externalId" : req.params.groupName
+      };
+
+      var options = {
+              hostname: host,
+              port: port,
+              path: '/learn/api/public/v1/courses/uuid:' + uuid + '/groups',
+              method: 'POST',
+              rejectUnauthorized: rejectUnauthorized,
+              headers: { "Authorization" : auth_string }
+      };
+
+      console.log(options);
+
+      var http_req = https.request(options, function(http_res) {
+          http_res.setEncoding('utf-8');
+          var responseString = '';
+          http_res.on('data', function(data) {
+              responseString += data;
+          });
+          http_res.on('end', function() {
+              console.log(responseString);
+              var json = JSON.parse(responseString);
+
+              res.json(json);
+
+          });
+      });
+
+      http_req.end(group);
+
+  });
+});
+
+/* Add Users to Group */
+router.post('/system/:systemId/course/:courseId/:groupName/user/:userId', function(req, res, next) {
+
+  var courseId = req.params.courseId;
+  var groupId = req.params.groupName;
+  var userId = req.params.userId;
+  var system = req.params.systemId;
+
+  tokenjs.checkToken(system, function(err,token) {
+      if (err) console.log(err);
+
+      var auth_string = 'Bearer ' + token;
+
+      console.log("uuid: " + uuid + " system " + system + " auth_string: " + auth_string);
+
+      var options = {
+              hostname: host,
+              port: port,
+              path: '/learn/api/public/v1/courses/uuid:' + uuid + '/groups/externalId:' + groupName + '/users/uuid:' + userId,
+              method: 'POST',
+              rejectUnauthorized: rejectUnauthorized,
+              headers: { "Authorization" : auth_string }
+      };
+
+      console.log(options);
+
+      var http_req = https.request(options, function(http_res) {
+          http_res.setEncoding('utf-8');
+          var responseString = '';
+          http_res.on('data', function(data) {
+              responseString += data;
+          });
+          http_res.on('end', function() {
+              console.log(responseString);
+              var json = JSON.parse(responseString);
+
+              res.json(json);
+
+          });
+      });
+
+      http_req.end();
+
+  });
+});
 
 module.exports = router;
