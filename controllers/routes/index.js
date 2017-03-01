@@ -6,10 +6,10 @@ var _ = require('lodash');
 var path = require('path');
 
 
-var lti_key = process.env.LTI_KEY || config.lti_key;
-var lti_secret = process.env.LTI_SECRET || config.lti_secret;
-var oauth_key = process.env.OAUTH_KEY || config.oauth_key;
-var oauth_secret = process.env.OAUTH_SECRET || config.oauth_secret;
+var lti_key = process.env.lti_secret || config.lti_key;
+var lti_secret = process.env.lti_secret || config.lti_secret;
+var oauth_key = process.env.app_oauth_key || config.oauth_key;
+var oauth_secret = process.env.app_oauth_secret || config.oauth_secret;
 var host = process.env.REST_HOST || config.rest_host;
 var port = process.env.REST_PORT || config.rest_port;
 
@@ -24,7 +24,7 @@ var return_url = "";
 var valid_session = false;
 
 /* key and secret sanity checks - logged on startup */
-if (process.env.DEBUG) {
+//if (process.env.DEBUG) {
     console.log('[index.js]: ');
     if (lti_key == config.lti_key) {
         console.log('Using lti_key from config.js:','\x1b[32m',lti_key,'\x1b[0m');
@@ -60,7 +60,7 @@ if (process.env.DEBUG) {
     } else {
       console.log('Using rest_port from process.env:','\x1b[32m',port,'\x1b[0m');
     }
-}
+//}
 /* Return home page from LTI Launch. */
 router.post('/lti', function(req, res, next) {
 /*
