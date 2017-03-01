@@ -6,12 +6,13 @@ var _ = require('lodash');
 var path = require('path');
 
 
-var lti_key = process.env.lti_secret || config.lti_key;
-var lti_secret = process.env.lti_secret || config.lti_secret;
-var oauth_key = process.env.app_oauth_key || config.oauth_key;
-var oauth_secret = process.env.app_oauth_secret || config.oauth_secret;
+var lti_key = process.env.LTI_KEY || config.lti_key;
+var lti_secret = process.env.LTI_SECRET || config.lti_secret;
+var oauth_key = process.env.APP_OAUTH_KEY || config.oauth_key;
+var oauth_secret = process.env.APP_OAUTH_SECRET || config.oauth_secret;
 var host = process.env.REST_HOST || config.rest_host;
 var port = process.env.REST_PORT || config.rest_port;
+var db = process.env.MONGO_URI || config.db;
 
 var router = express.Router();
 
