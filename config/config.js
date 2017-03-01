@@ -16,10 +16,10 @@ var config = {
   oauth_key: keys.oauth_key,
   oauth_secret: keys.oauth_secret,
   port: 3000,
-  host: process.env.app_host || 'localhost',
-  rest_host: process.env.app_target_url || 'localhost', //LMS Host Name
-  rest_port: process.env.app_target_port || '3000', //LMS Port (may be left blank)
-  db: process.env.mongo_uri || 'mongodb://localhost:27017/signuplistdb',
+  host: 'localhost',
+  rest_host: 'localhost', //LMS Host Name
+  rest_port: '3000', //LMS Port (may be left blank)
+  db: 'mongodb://localhost:27017/signuplistdb',
   test_db: 'mongodb://localhost:27017/test_signuplistdb'
 };
 

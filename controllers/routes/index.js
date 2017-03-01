@@ -25,7 +25,7 @@ var return_url = "";
 var valid_session = false;
 
 /* key and secret sanity checks - logged on startup */
-//if (process.env.DEBUG) {
+if (process.env.DEBUG) {
     console.log('[index.js]: ');
     if (lti_key == config.lti_key) {
         console.log('Using lti_key from config.js:','\x1b[32m',lti_key,'\x1b[0m');
@@ -61,7 +61,7 @@ var valid_session = false;
     } else {
       console.log('Using rest_port from process.env:','\x1b[32m',port,'\x1b[0m');
     }
-//}
+}
 /* Return home page from LTI Launch. */
 router.post('/lti', function(req, res, next) {
 /*
