@@ -22,7 +22,7 @@
       "required": true
     },
     "app_target_url": {
-      "description": "Enter the target URL for your Application. E.g.: learn.myschool.edu. Do NOT include the protocol (http:// or https://)",
+      "description": "Enter the target URL for your Application. E.g.: learn.myschool.edu. Do NOT include the protocol (http:// or https://). Provide port if required.",
       "required": true
     },
     "mongo_uri": {
