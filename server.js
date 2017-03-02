@@ -48,6 +48,9 @@ process.on('SIGINT', function() {
 
 var app = express();
 
+//added to enable Heroku to handle proper SSL termination
+app.enable('trust proxy');
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
