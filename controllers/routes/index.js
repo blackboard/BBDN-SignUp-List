@@ -27,11 +27,11 @@ var valid_session = false;
 /* key and secret sanity checks - logged on startup */
 //if (process.env.DEBUG) {
     console.log('[index.js]: ');
-    console.log("process.env.LTI_KEY: ",process.env.LTI_KEY);
-    console.log("process.env.LTI_SECRET: ",process.env.LTI_SECRET);
-    console.log("process.env.APP_OAUTH_KEY: ",process.env.APP_OAUTH_KEY);
-    console.log("rocess.env.APP_OAUTH_SECRET: ",process.env.APP_OAUTH_SECRET);
-    console.log("process.env.MONGO_URI: ",process.env.MONGO_URI);
+    console.log("process.env.LTI_KEY:: ",process.env.LTI_KEY);
+    console.log("process.env.LTI_SECRET:: ",process.env.LTI_SECRET);
+    console.log("process.env.APP_OAUTH_KEY:: ",process.env.APP_OAUTH_KEY);
+    console.log("rocess.env.APP_OAUTH_SECRET:: ",process.env.APP_OAUTH_SECRET);
+    console.log("process.env.MONGO_URI:: ",process.env.MONGO_URI);
     if (lti_key == config.lti_key) {
         console.log('Using lti_key from config.js:','\x1b[32m',lti_key,'\x1b[0m');
     } else {
