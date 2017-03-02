@@ -22,7 +22,11 @@
       "required": true
     },
     "APP_TARGET_URL": {
-      "description": "Enter the target URL for your Application. E.g.: learn.myschool.edu. Do NOT include the protocol (http:// or https://). Provide port if required.",
+      "description": "Enter the target URL for your Application. E.g.: learn.myschool.edu. Do NOT include the protocol (http:// or https://).",
+      "required": true
+    },
+    "APP_TARGET_PORT": {
+      "description": "Enter the target Port for your Application. E.g.: 80 for http:// or 443 for https://.",
       "required": true
     },
     "MONGO_URI": {

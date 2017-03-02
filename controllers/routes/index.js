@@ -10,8 +10,8 @@ var lti_key = process.env.LTI_KEY || config.lti_key;
 var lti_secret = process.env.LTI_SECRET || config.lti_secret;
 var oauth_key = process.env.APP_OAUTH_KEY || config.oauth_key;
 var oauth_secret = process.env.APP_OAUTH_SECRET || config.oauth_secret;
-var host = process.env.REST_HOST || config.rest_host;
-var port = process.env.REST_PORT || config.rest_port;
+var host = process.env.APP_TARGET_URL || config.rest_host;
+var port = process.env.APP_TARGET_PORT || config.rest_port;
 var db = process.env.MONGO_URI || config.db;
 
 var router = express.Router();
@@ -54,6 +54,12 @@ var valid_session = false;
       console.log('Using oauth_secret from config.js:','\x1b[32m',oauth_secret,'\x1b[0m');
     } else {
       console.log('Using oauth_secret from process.env:','\x1b[32m',oauth_secret,'\x1b[0m');
+    }
+
+    if (db == config.db) {
+      console.log('Using db from config.js:','\x1b[32m',db,'\x1b[0m');
+    } else {
+      console.log('Using db from process.env:','\x1b[32m',db,'\x1b[0m');
     }
     
     if (host == config.rest_host) {
