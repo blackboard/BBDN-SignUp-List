@@ -5,28 +5,28 @@
   "website": "https://github.com/moneil/BBDN-SignUp-List",
   "repository": "https://github.com/moneil/BBDN-SignUp-List",
   "env": {
-    "lti_key": {
+    "LTI_KEY": {
         "description":"add your LTI Key - this is used by your consumer to access this application",
         "required": true
     },
-    "lti_secret": {
+    "LTI_SECRET": {
         "description":"add your LTI Secret - this is used by your consumer to access this application",
         "required": true
     },
-    "app_oauth_key": {
+    "APP_OAUTH_KEY": {
       "description": "Paste the OAUTH KEY provided when you registered your Application",
       "required": true
     },
-    "app_oauth_secret": {
+    "APP_OAUTH_SECRET": {
       "description": "Paste the OAUTH SECRET provided when you registered your Application",
       "required": true
     },
-    "app_target_url": {
+    "APP_TARGET_URL": {
       "description": "Enter the target URL for your Application. E.g.: learn.myschool.edu. Do NOT include the protocol (http:// or https://). Provide port if required.",
       "required": true
     },
-    "mongo_uri": {
-      "description": "Enter the target URI for your MongoDB. E.g.: ds145039.mlab.com:45039/signuplistdb -u <dbuser> -p <dbpassword>",
+    "MONGO_URI": {
+      "description": "Enter the target URI for your MongoDB. E.g.: mongo://<dbuser>:<dbpassword>@",
       "required": true
     }
   }
