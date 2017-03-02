@@ -78,8 +78,9 @@ router.post('/lti', function(req, res, next) {
 /*
  * POST LTI Launch Received
  */
-console.log('In post function - config key/secret: ' + config.lti_key, config.lti_secret);
-  var provider = new lti.Provider(config.lti_key, config.lti_secret);
+console.log('In post function - config key/secret: ' + lti_key, lti_secret);
+console.log()
+  var provider = new lti.Provider(lti_key, lti_secret);
   req.body = _.omit(req.body, '__proto__');
 
   console.log(req.headers);
