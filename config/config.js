@@ -2,9 +2,6 @@ var env = process.env.NODE_ENV || 'development';
 
 try {
     var keys = require('./keys.js');
-    if (keys.lti_key == undefined) {
-        keys = require('./keys.template.js');
-    }
 } catch (ex) {
     var keys = require('./keys.template.js');
 }
