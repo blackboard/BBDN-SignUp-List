@@ -21,6 +21,14 @@
       "description": "Paste the OAUTH SECRET provided when you registered your Application",
       "required": true
     },
+    "APP_TARGET_URL": {
+      "description": "Enter the target URL for your Application. E.g.: learn.myschool.edu. Do NOT include the protocol (http:// or https://).",
+      "required": true
+    },
+    "APP_TARGET_PORT": {
+      "description": "Enter the target Port for your Application. E.g.: 80 for http:// or 443 for https://.",
+      "required": true
+    },
     "MONGO_URI": {
       "description": "Enter the target URI for your MongoDB. E.g.: mongo://<dbuser>:<dbpassword>@",
       "required": true
