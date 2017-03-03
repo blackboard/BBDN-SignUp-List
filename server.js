@@ -16,7 +16,7 @@ var rest = require('./controllers/routes/rest');
 
 //set up mongoose
 //determine db path
-var db = process.env.MONGODB_URI || config.test_db;
+var db = process.env.MONGO_URI || config.test_db;
 // Bring Mongoose into the app
 var mongoose = require( 'mongoose' );
 // Create the database connection
