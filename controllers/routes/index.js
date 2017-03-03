@@ -83,7 +83,9 @@ console.log()
   var provider = new lti.Provider(lti_key, lti_secret);
   req.body = _.omit(req.body, '__proto__');
 
+  console.log("request headers: ");
   console.log(req.headers);
+  console.log("request body: ");
   console.log(req.body);
 
 console.log('Check request validity');
