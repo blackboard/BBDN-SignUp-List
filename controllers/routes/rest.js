@@ -138,7 +138,7 @@ router.get('/system/:systemId/course/:courseId', function(req, res, next) {
               headers: { "Authorization" : auth_string }
       };
 
-      console.log(options);
+      console.log("\n[REST.JS: get Course Info by UUID]:options:\n", options);
 
       var http_req = https.request(options, function(http_res) {
           http_res.setEncoding('utf-8');
@@ -184,7 +184,7 @@ router.get('/system/:systemId/course/:courseId/roster', function(req, res, next)
               headers: { "Authorization" : auth_string }
       };
 
-      console.log(options);
+      console.log("\n[REST.JS: get Course Roster]:options:\n", options);
 
       var http_req = https.request(options, function(http_res) {
           http_res.setEncoding('utf-8');
@@ -233,7 +233,7 @@ router.post('/system/:systemId/course/:courseId/:groupName', function(req, res, 
               headers: { "Authorization" : auth_string }
       };
 
-      console.log(options);
+      console.log("\n[REST.JS: Create Course Group]:options:\n", options);
 
       var http_req = https.request(options, function(http_res) {
           http_res.setEncoding('utf-8');
@@ -279,7 +279,7 @@ router.post('/system/:systemId/course/:courseId/:groupName/user/:userId', functi
               headers: { "Authorization" : auth_string }
       };
 
-      console.log(options);
+      console.log("\n[REST.JS: Add Users to Group]:options:\n", options);
 
       var http_req = https.request(options, function(http_res) {
           http_res.setEncoding('utf-8');
