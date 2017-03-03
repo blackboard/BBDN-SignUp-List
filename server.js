@@ -20,6 +20,7 @@ var db = process.env.MONGODB_URI || config.test_db;
 // Bring Mongoose into the app
 var mongoose = require( 'mongoose' );
 // Create the database connection
+console.log("[SERVER.JS]:db: ", db);
 mongoose.connect(db);
 
 // CONNECTION EVENTS
