@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 
 module.exports = function(config) {
   var db_url = process.env.MONGO_URI || config.db;
-  console.log(db_url);
+  console.log("[DB.JS]: db_url: ", db_url);
   mongoose.connect(db_url);
   var db = mongoose.connection;
 
