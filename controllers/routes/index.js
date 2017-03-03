@@ -10,8 +10,8 @@ var lti_key = process.env.LTI_KEY || config.lti_key;
 var lti_secret = process.env.LTI_SECRET || config.lti_secret;
 var oauth_key = process.env.APP_OAUTH_KEY || config.oauth_key;
 var oauth_secret = process.env.APP_OAUTH_SECRET || config.oauth_secret;
-var host = process.env.APP_TARGET_URL || config.rest_host;
-var port = process.env.APP_TARGET_PORT || config.rest_port;
+var rest_host = process.env.APP_TARGET_URL || config.rest_host;
+var rest_port = process.env.APP_TARGET_PORT || config.rest_port;
 var db = process.env.MONGO_URI || config.db;
 
 var router = express.Router();
@@ -62,15 +62,15 @@ var valid_session = false;
       console.log('Using db from process.env:','\x1b[32m',db,'\x1b[0m');
     }
     
-    if (host == config.rest_host) {
-      console.log('Using rest_host from config.js:','\x1b[32m',host,'\x1b[0m');
+    if (rest_host == config.rest_host) {
+      console.log('Using rest_host from config.js:','\x1b[32m',rest_host,'\x1b[0m');
     } else {
-      console.log('Using rest_host from process.env:','\x1b[32m',host,'\x1b[0m');
+      console.log('Using rest_host from process.env:','\x1b[32m',rest_host,'\x1b[0m');
     }
-    if (port == config.rest_port) {
-      console.log('Using rest_port from config.js:','\x1b[32m',port,'\x1b[0m');
+    if (rest_port == config.rest_port) {
+      console.log('Using rest_port from config.js:','\x1b[32m',rest_port,'\x1b[0m');
     } else {
-      console.log('Using rest_port from process.env:','\x1b[32m',port,'\x1b[0m');
+      console.log('Using rest_port from process.env:','\x1b[32m',rest_port,'\x1b[0m');
     }
 //}
 /* Return home page from LTI Launch. */

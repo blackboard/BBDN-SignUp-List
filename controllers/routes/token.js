@@ -11,8 +11,8 @@ var lti_key = process.env.LTI_KEY || config.lti_key;
 var lti_secret = process.env.LTI_SECRET || config.lti_secret;
 var oauth_key = process.env.OAUTH_KEY || config.oauth_key;
 var oauth_secret = process.env.OAUTH_SECRET || config.oauth_secret;
-var host = process.env.REST_HOST || config.rest_host;
-var port = process.env.REST_PORT || config.rest_port;
+var rest_host = process.env.REST_HOST || config.rest_host;
+var rest_port = process.env.REST_PORT || config.rest_port;
 
 var router = express.Router();
 
@@ -40,7 +40,7 @@ var valid_session = false;
 exports.checkToken = function(systemId, callback) {
 
   var token = tokenCache.get( systemId );
-    console.log('Token=' + token);
+    console.log('\n[TOKEN.JS.checkToken]: Token=' + token);
     if(token) {
       callback (null, token);
     } else {
@@ -62,18 +62,18 @@ getToken = function (callback) {
 
   var auth_string = 'Basic ' + auth_hash;
 
-  console.log("oauth_host: " + host + " auth_hash: " + auth_hash + " auth_string: " + auth_string);
+  console.log("\n[TOKEN.JS:getToken]: oauth_host: " + rest_host + ", port: " + rest_port + ", auth_hash: " + auth_hash + ", auth_string: " + auth_string);
 
     var options = {
-            hostname: host,
-            port: port,
+            hostname: rest_host,
+            port: rest_port,
             path: '/learn/api/public/v1/oauth2/token',
             method: 'POST',
             rejectUnauthorized: rejectUnauthorized,
             headers: { "Authorization" : auth_string , "Content-Type" : "application/x-www-form-urlencoded" }
     };
 
-    console.log(options);
+    console.log("\n[TOKEN.JS:getToken.options]: \n", options);
 
     var http_req = https.request(options, function(http_res) {
         http_res.setEncoding('utf-8');
@@ -82,13 +82,13 @@ getToken = function (callback) {
             responseString += data;
         });
         http_res.on('end', function() {
-            console.log(responseString);
+            console.log("\n[TOKEN.JS:getToken.repsonseString]: " + responseString);
             var json = JSON.parse(responseString);
             access_token = json['access_token'];
             token_type = json['token_type'];
             expires_in = json['expires_in'];
 
-            console.log("Access Token: " + access_token + " Token Type: " + token_type + " Expires In: " + expires_in);
+            console.log("\n[TOKEN.JS:getToken]: Access Token: " + access_token + " Token Type: " + token_type + " Expires In: " + expires_in);
 
             callback(null, {'access_token' : access_token, 'expires_in' : expires_in});
 
@@ -110,7 +110,7 @@ cacheToken = function(token) {
   var access_token = token.access_token;
   var system = token.systemId;
 
-  console.log('{ TTL: ' + ttl + ' }, { access_token: ' + access_token + ' }')
+  console.log('\n[TOKEN.JS:cacheToken]: { TTL: ' + ttl + ' }, { access_token: ' + access_token + ' }')
 
   success = tokenCache.set( system, access_token, ttl );
 

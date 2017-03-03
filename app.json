@@ -26,11 +26,11 @@
       "required": true
     },
     "APP_TARGET_PORT": {
-      "description": "Enter the target Port for your Application. E.g.: 80 for http:// or 443 for https://.",
+      "description": "Enter the target port for your Application. E.g.: 80 for http:// or 443 for https://.",
       "required": true
     },
     "MONGO_URI": {
-      "description": "Enter the target URI for your MongoDB. E.g.: mongo://<dbuser>:<dbpassword>@",
+      "description": "Enter the target URI for your MongoDB. E.g.: mongo://<dbuser>:<dbpassword>@<mongodb_url>",
       "required": true
     }
   }
