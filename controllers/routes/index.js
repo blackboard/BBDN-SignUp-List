@@ -78,17 +78,17 @@ router.post('/lti', function(req, res, next) {
 /*
  * POST LTI Launch Received
  */
-console.log('In post function - config key/secret: ' + lti_key, lti_secret);
+console.log('[POST_FUNCTION] CONFIG KEY/SECRET: ' + lti_key + '/' + lti_secret);
 console.log()
   var provider = new lti.Provider(lti_key, lti_secret);
   req.body = _.omit(req.body, '__proto__');
 
-  console.log("request headers: ");
+  console.log("REQUEST HEADERS: ");
   console.log(req.headers);
-  console.log("request body: ");
+  console.log("\nREQUEST BODY: ");
   console.log(req.body);
 
-console.log('Check request validity');
+console.log('\nCHECK REQUEST VALIDITY');
   provider.valid_request(req, function(err, isValid) {
      if(err) {
        console.log('Error in LTI Launch:' + err);
@@ -98,7 +98,7 @@ console.log('Check request validity');
      }
      else {
      	 if (!isValid) {
-         console.log('Error: Invalid LTI launch.');
+         console.log('\nError: Invalid LTI launch.');
          var err = new Error('Invalid LTI launch.');
          err.status = 422;
          next(err);
@@ -115,8 +115,9 @@ console.log('Check request validity');
        	 if(return_url == undefined) {
       	    return_url = 'https://' + config.rest_host + ':' + config.rest_port;
        	 }
-
+         console.log('\nDETAILS: ');
          console.log ('{' +
+           '"return_url" : ' + return_url + ',' +
            '"course_uuid" :' + course_uuid + ',' +
            '"user_uuid" :' +  user_uuid + ',' +
            '"user_role" :' +  user_role + ',' +
@@ -149,6 +150,7 @@ router.get('/lti/data', function(req, res, next) {
       "rest_port" : config.rest_port,
       "return_url" : return_url
     };
+    console.log('\nCAPTURED LTI DATA: ');
     console.log(JSON.stringify(ltidata));
     res.json(ltidata);
   };
