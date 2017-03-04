@@ -93,7 +93,7 @@ router.get('/system/:systemId/user_pk/:userId', function(req, res, next) {
   console.log("\n[REST.JS: get user by UUID]:session.consumer_port : ", sess.consumer_port);
 
 
-  tokenjs.checkToken(system, function(err,token) {
+  tokenjs.checkToken(system, sess, function(err,token) {
       if (err) console.log(err);
 
       var auth_string = 'Bearer ' + token;
@@ -142,7 +142,7 @@ router.get('/system/:systemId/course/:courseId', function(req, res, next) {
   console.log("\n[REST.JS: get Course Info by UUID]:session.consumer_port : ", sess.consumer_port);
 
 
-  tokenjs.checkToken(system, function(err,token) {
+  tokenjs.checkToken(system, sess, function(err,token) {
       if (err) console.log(err);
 
       var auth_string = 'Bearer ' + token;
@@ -193,7 +193,7 @@ router.get('/system/:systemId/course/:courseId/roster', function(req, res, next)
   console.log("\n[REST.JS: get Course Roster by UUID]:session.consumer_hostname: ", sess.consumer_hostname);
   console.log("\n[REST.JS: get Course Roster by UUID]:session.consumer_port : ", sess.consumer_port);
 
-  tokenjs.checkToken(system, function(err,token) {
+  tokenjs.checkToken(system, sess, function(err,token) {
       if (err) console.log(err);
 
       var auth_string = 'Bearer ' + token;
@@ -242,7 +242,7 @@ router.post('/system/:systemId/course/:courseId/:groupName', function(req, res, 
   console.log("\n[REST.JS: Create Course Group]:session.consumer_hostname: ", sess.consumer_hostname);
   console.log("\n[REST.JS: Create Course Group]:session.consumer_port : ", sess.consumer_port);
 
-  tokenjs.checkToken(system, function(err,token) {
+  tokenjs.checkToken(system, sess, function(err,token) {
       if (err) console.log(err);
 
       var auth_string = 'Bearer ' + token;
@@ -299,7 +299,7 @@ router.post('/system/:systemId/course/:courseId/:groupName/user/:userId', functi
   console.log("\n[REST.JS: Add Users to Group]:session.consumer_port : ", sess.consumer_port);
 
 
-  tokenjs.checkToken(system, function(err,token) {
+  tokenjs.checkToken(system, sess, function(err,token) {
       if (err) console.log(err);
 
       var auth_string = 'Bearer ' + token;
