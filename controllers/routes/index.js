@@ -6,7 +6,9 @@ var lti = require('ims-lti');
 var _ = require('lodash');
 var path = require('path');
 
-const url = require('url').URL;
+//const url = require('url').URL;
+
+var url = require('url');
 
 var lti_key = process.env.LTI_KEY || config.lti_key;
 var lti_secret = process.env.LTI_SECRET || config.lti_secret;
@@ -99,7 +101,8 @@ router.post('/lti', function(req, res, next) {
   
   console.log("\nREQUEST launch_presentation_return_url: ", req.body.launch_presentation_return_url);
   
-  var launcherURL = new url(req.body.launch_presentation_return_url);
+  //var launcherURL = new url(req.body.launch_presentation_return_url);
+  var launcherURL = url.parse(req.body.launch_presentation_return_url, true, true);
   console.log("\nLAUNCHER URL PROTOCOL: ", launcherURL.protocol);
   console.log("\nLAUNCHER URL HOSTNAME: ", launcherURL.hostname);
   console.log("\nLAUNCHER URL PORT: ", launcherURL.port);
