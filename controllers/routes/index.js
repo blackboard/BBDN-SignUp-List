@@ -1,10 +1,12 @@
 var config = require('../../config/config');
 
 var express = require('express');
+var session = require('express-session');
 var lti = require('ims-lti');
 var _ = require('lodash');
 var path = require('path');
 
+const url = require('url').URL;
 
 var lti_key = process.env.LTI_KEY || config.lti_key;
 var lti_secret = process.env.LTI_SECRET || config.lti_secret;
@@ -22,6 +24,8 @@ var system_guid = "";
 var user_role = "";
 var return_url = "";
 
+
+var sess;
 var valid_session = false;
 
 /* key and secret sanity checks - logged on startup */
@@ -78,8 +82,13 @@ router.post('/lti', function(req, res, next) {
 /*
  * POST LTI Launch Received
  */
-console.log('[POST_FUNCTION] CONFIG KEY/SECRET: ' + lti_key + '/' + lti_secret);
-console.log()
+  console.log('[POST_FUNCTION] CONFIG KEY/SECRET: ' + lti_key + '/' + lti_secret);
+
+  console.log('\n[POST_FUNCTION] request host: ' +req.headers.host);
+  console.log();
+  //req.session.rest_host = ;
+  //console.log(req.)
+
   var provider = new lti.Provider(lti_key, lti_secret);
   req.body = _.omit(req.body, '__proto__');
 
@@ -87,8 +96,27 @@ console.log()
   console.log(req.headers);
   console.log("\nREQUEST BODY: ");
   console.log(req.body);
+  
+  console.log("\nREQUEST launch_presentation_return_url: ", req.body.launch_presentation_return_url);
+  
+  var launcherURL = new url(req.body.launch_presentation_return_url);
+  console.log("\nLAUNCHER URL PROTOCOL: ", launcherURL.protocol);
+  console.log("\nLAUNCHER URL HOSTNAME: ", launcherURL.hostname);
+  console.log("\nLAUNCHER URL PORT: ", launcherURL.port);
 
-console.log('\nCHECK REQUEST VALIDITY');
+  sess = req.session;
+  sess.consumer_protocol=launcherURL.protocol;
+  sess.consumer_hostname=launcherURL.hostname;
+
+  sess.consumer_port=(launcherURL.port == undefined) ? ((protocol == 'https:')?'443':'80'):launcherURL.port;
+
+
+  console.log("\nsession.consumer_protocol: ", sess.consumer_protocol);
+  console.log("\nsession.consumer_hostname: ", sess.consumer_hostname);
+  console.log("\nsession.consumer_port : ", sess.consumer_port);
+
+  console.log('\nCHECK REQUEST VALIDITY');
+  
   provider.valid_request(req, function(err, isValid) {
      if(err) {
        console.log('Error in LTI Launch:' + err);

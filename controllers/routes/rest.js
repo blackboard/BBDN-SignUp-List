@@ -1,6 +1,8 @@
 var config = require('../../config/config');
 
 var express = require('express');
+//var session = require('express-session');
+
 var https = require('https');
 var lti = require('ims-lti');
 var _ = require('lodash');
@@ -33,10 +35,16 @@ var valid_session = false;
 /* Get User Information by UUID. */
 router.get('/system/:systemId/user/:userId', function(req, res, next) {
 
+  sess = req.session;
+  console.log("\n[REST.JS: get user by UUID]:session.consumer_protocol: ", sess.consumer_protocol);
+  console.log("\n[REST.JS: get user by UUID]:session.consumer_hostname: ", sess.consumer_hostname);
+  console.log("\n[REST.JS: get user by UUID]:session.consumer_port : ", sess.consumer_port);
+
+
   var uuid = req.params.userId;
   var system = req.params.systemId;
 
-  tokenjs.checkToken(system, function(err,token) {
+  tokenjs.checkToken(system, sess, function(err,token) {
       if (err) console.log(err);
 
       var auth_string = 'Bearer ' + token;
@@ -78,6 +86,12 @@ router.get('/system/:systemId/user_pk/:userId', function(req, res, next) {
 
   var pk = req.params.userId;
   var system = req.params.systemId;
+
+  sess = req.session;
+  console.log("\n[REST.JS: get user by UUID]:session.consumer_protocol: ", sess.consumer_protocol);
+  console.log("\n[REST.JS: get user by UUID]:session.consumer_hostname: ", sess.consumer_hostname);
+  console.log("\n[REST.JS: get user by UUID]:session.consumer_port : ", sess.consumer_port);
+
 
   tokenjs.checkToken(system, function(err,token) {
       if (err) console.log(err);
@@ -121,6 +135,12 @@ router.get('/system/:systemId/course/:courseId', function(req, res, next) {
 
   var uuid = req.params.courseId;
   var system = req.params.systemId;
+
+  sess = req.session;
+  console.log("\n[REST.JS: get Course Info by UUID]:session.consumer_protocol: ", sess.consumer_protocol);
+  console.log("\n[REST.JS: get Course Info by UUID]:session.consumer_hostname: ", sess.consumer_hostname);
+  console.log("\n[REST.JS: get Course Info by UUID]:session.consumer_port : ", sess.consumer_port);
+
 
   tokenjs.checkToken(system, function(err,token) {
       if (err) console.log(err);
@@ -168,6 +188,11 @@ router.get('/system/:systemId/course/:courseId/roster', function(req, res, next)
   var uuid = req.params.courseId;
   var system = req.params.systemId;
 
+  sess = req.session;
+  console.log("\n[REST.JS: get Course Roster by UUID]:session.consumer_protocol: ", sess.consumer_protocol);
+  console.log("\n[REST.JS: get Course Roster by UUID]:session.consumer_hostname: ", sess.consumer_hostname);
+  console.log("\n[REST.JS: get Course Roster by UUID]:session.consumer_port : ", sess.consumer_port);
+
   tokenjs.checkToken(system, function(err,token) {
       if (err) console.log(err);
 
@@ -211,6 +236,11 @@ router.post('/system/:systemId/course/:courseId/:groupName', function(req, res, 
 
   var uuid = req.params.courseId;
   var system = req.params.systemId;
+
+  sess = req.session;
+  console.log("\n[REST.JS: Create Course Group]:session.consumer_protocol: ", sess.consumer_protocol);
+  console.log("\n[REST.JS: Create Course Group]:session.consumer_hostname: ", sess.consumer_hostname);
+  console.log("\n[REST.JS: Create Course Group]:session.consumer_port : ", sess.consumer_port);
 
   tokenjs.checkToken(system, function(err,token) {
       if (err) console.log(err);
@@ -262,6 +292,12 @@ router.post('/system/:systemId/course/:courseId/:groupName/user/:userId', functi
   var groupId = req.params.groupName;
   var userId = req.params.userId;
   var system = req.params.systemId;
+
+  sess = req.session;
+  console.log("\n[REST.JS: Add Users to Group]:session.consumer_protocol: ", sess.consumer_protocol);
+  console.log("\n[REST.JS: Add Users to Group]:session.consumer_hostname: ", sess.consumer_hostname);
+  console.log("\n[REST.JS: Add Users to Group]:session.consumer_port : ", sess.consumer_port);
+
 
   tokenjs.checkToken(system, function(err,token) {
       if (err) console.log(err);

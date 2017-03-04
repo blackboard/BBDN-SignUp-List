@@ -1,11 +1,11 @@
 var config = require('../../config/config');
 
 var express = require('express');
+//var session = require('express-session');
 var https = require('https');
 var lti = require('ims-lti');
 var _ = require('lodash');
 var path = require('path');
-
 
 var lti_key = process.env.LTI_KEY || config.lti_key;
 var lti_secret = process.env.LTI_SECRET || config.lti_secret;
@@ -37,32 +37,40 @@ var valid_session = false;
   * If it exists, the token is still valid.
   * If it does not, return 403 to initiate a new token request.
   */
-exports.checkToken = function(systemId, callback) {
+exports.checkToken = function(systemId, session, callback) {
+  console.log("\n[TOKEN.JS:getToken]: session.consumer_protocol: ", session.consumer_protocol);
+  console.log("\n[TOKEN.JS:getToken]: session.consumer_hostname: ", session.consumer_hostname);
+  console.log("\n[TOKEN.JS:getToken]: session.consumer_port : ", session.consumer_port);
 
   var token = tokenCache.get( systemId );
     console.log('\n[TOKEN.JS.checkToken]: Token=' + token);
     if(token) {
-      callback (null, token);
+      if (callback) callback (null, token);
     } else {
-      getToken(function(err,token) {
+      getToken(session, function(err,token) {
         if(err) console.log(err);
         token['systemId'] = systemId;
 
         success = cacheToken(token);
 
-        callback (null,token.access_token);
+        if (callback) callback (null, token.access_token);
       });
 
     }
 };
 
 /* Get a token from Learn */
-getToken = function (callback) {
+getToken = function (session, callback) {
   var auth_hash = new Buffer(oauth_key + ":" + oauth_secret).toString('base64')
 
   var auth_string = 'Basic ' + auth_hash;
 
   console.log("\n[TOKEN.JS:getToken]: oauth_host: " + rest_host + ", port: " + rest_port + ", auth_hash: " + auth_hash + ", auth_string: " + auth_string);
+
+  
+  console.log("\n[TOKEN.JS:getToken]: session.consumer_protocol: ", session.consumer_protocol);
+  console.log("\n[TOKEN.JS:getToken]: session.consumer_hostname: ", session.consumer_hostname);
+  console.log("\n[TOKEN.JS:getToken]: session.consumer_port : ", session.consumer_port);
 
     var options = {
             hostname: rest_host,

@@ -5,6 +5,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('express-session');
 
 var index = require('./controllers/routes/index');
 var users = require('./controllers/routes/users');
@@ -58,6 +59,13 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use(session({
+  secret: '282r5O>Dg0hu?A4',
+  resave: false,
+  saveUninitialized: true
+}))
+
 app.use(express.static(path.join(__dirname, '/public')));
 app.use('/datetimepicker', express.static(path.join(__dirname, '/node_modules/angular-bootstrap-datetimepicker/src/')));
 app.use('/moment', express.static(path.join(__dirname, '/node_modules/moment')));
