@@ -12,8 +12,6 @@ var config = {
   lti_secret: keys.lti_secret,
   oauth_key: keys.oauth_key,
   oauth_secret: keys.oauth_secret,
-  rest_host: 'localhost', //LMS Host Name
-  rest_port: '9877', //LMS Port
   db: 'mongodb://localhost:27017/signuplistdb',
   test_db: 'mongodb://localhost:27017/test_signuplistdb'
 };

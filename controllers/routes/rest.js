@@ -52,8 +52,8 @@ router.get('/system/:systemId/user/:userId', function(req, res, next) {
     console.log("\n[REST.JS: get user by UUID]: uuid: " + uuid + ", system: " + system + ", auth_string: " + auth_string);
 
       var options = {
-              hostname: rest_host,
-              port: rest_port,
+              hostname: sess.consumer_hostname,
+              port: sess.consumer_port,
               path: '/learn/api/public/v1/users/uuid:' + uuid,
               method: 'GET',
               rejectUnauthorized: rejectUnauthorized,
@@ -101,8 +101,8 @@ router.get('/system/:systemId/user_pk/:userId', function(req, res, next) {
       console.log("\n[REST.JS: get user by UUID]: pk: " + pk + " system " + system + ", auth_string: " + auth_string);
 
       var options = {
-              hostname: rest_host,
-              port: rest_port,
+              hostname: sess.consumer_hostname,
+              port: sess.consumer_port,
               path: '/learn/api/public/v1/users/' + pk + '?fields=uuid',
               method: 'GET',
               rejectUnauthorized: rejectUnauthorized,
@@ -150,8 +150,8 @@ router.get('/system/:systemId/course/:courseId', function(req, res, next) {
       console.log("\n[REST.JS: get Course Info by UUID]: \n uuid:" + uuid + ", system: " + system + ", auth_string: " + auth_string);
 
       var options = {
-              hostname: rest_host,
-              port: rest_port,
+              hostname: sess.consumer_hostname,
+              port: sess.consumer_port,
               path: '/learn/api/public/v1/courses/uuid:' + uuid + '?fields=uuid,name,ultraStatus',
               method: 'GET',
               rejectUnauthorized: rejectUnauthorized,
@@ -201,8 +201,8 @@ router.get('/system/:systemId/course/:courseId/roster', function(req, res, next)
       console.log("\n[REST.JS: get Course Roster by UUID]: \n uuid: " + uuid + " system " + system + " auth_string: " + auth_string);
 
       var options = {
-              hostname: rest_host,
-              port: rest_port,
+              hostname: sess.consumer_hostname,
+              port: sess.consumer_port,
               path: '/learn/api/public/v1/courses/uuid:' + uuid + '/users?fields=userId',
               method: 'GET',
               rejectUnauthorized: rejectUnauthorized,
@@ -255,8 +255,8 @@ router.post('/system/:systemId/course/:courseId/:groupName', function(req, res, 
       };
 
       var options = {
-              hostname: rest_host,
-              port: rest_port,
+              hostname: sess.consumer_hostname,
+              port: sess.consumer_port,
               path: '/learn/api/public/v1/courses/uuid:' + uuid + '/groups',
               method: 'POST',
               rejectUnauthorized: rejectUnauthorized,
@@ -307,8 +307,8 @@ router.post('/system/:systemId/course/:courseId/:groupName/user/:userId', functi
       console.log("uuid: " + uuid + " system " + system + " auth_string: " + auth_string);
 
       var options = {
-              hostname: rest_host,
-              port: rest_port,
+              hostname: sess.consumer_hostname,
+              port: sess.consumer_port,
               path: '/learn/api/public/v1/courses/uuid:' + uuid + '/groups/externalId:' + groupName + '/users/uuid:' + userId,
               method: 'POST',
               rejectUnauthorized: rejectUnauthorized,

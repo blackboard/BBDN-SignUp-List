@@ -86,10 +86,8 @@ router.post('/lti', function(req, res, next) {
  */
   console.log('[POST_FUNCTION] CONFIG KEY/SECRET: ' + lti_key + '/' + lti_secret);
 
-  console.log('\n[POST_FUNCTION] request host: ' +req.headers.host);
+  console.log('\n[POST_FUNCTION] request host: ' + req.headers.host);
   console.log();
-  //req.session.rest_host = ;
-  //console.log(req.)
 
   var provider = new lti.Provider(lti_key, lti_secret);
   req.body = _.omit(req.body, '__proto__');
@@ -100,7 +98,7 @@ router.post('/lti', function(req, res, next) {
   console.log(req.body);
   
   console.log("\nREQUEST launch_presentation_return_url: ", req.body.launch_presentation_return_url);
-  console.log("\nREQUEST launch_presentation_return_url: ", req.body.custom_tc_profile_url); //seems to be the only consistent URL returned?
+  console.log("\nREQUEST custom_tc_profile_url: ", req.body.custom_tc_profile_url); //seems to be the only consistent URL returned?
 
   
   //var launcherURL = new url(req.body.launch_presentation_return_url);
@@ -116,7 +114,6 @@ router.post('/lti', function(req, res, next) {
   sess.consumer_hostname=launcherURL.hostname;
 
   sess.consumer_port=(launcherURL.port == undefined) ? ((launcherURL.protocol == 'https:')?'443':'80'):launcherURL.port;
-
 
   console.log("\nsession.consumer_protocol: ", sess.consumer_protocol);
   console.log("\nsession.consumer_hostname: ", sess.consumer_hostname);
@@ -148,7 +145,7 @@ router.post('/lti', function(req, res, next) {
        	 return_url = req.body['launch_presentation_return_url'];
 
        	 if(return_url == undefined) {
-      	    return_url = 'https://' + config.rest_host + ':' + config.rest_port;
+      	    return_url = 'https://' + sess.consumer_hostname + ':' + sess.consumer_port;
        	 }
          console.log('\nDETAILS: ');
          console.log ('{' +

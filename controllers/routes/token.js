@@ -73,8 +73,8 @@ getToken = function (session, callback) {
   console.log("\n[TOKEN.JS:getToken]: session.consumer_port : ", session.consumer_port);
 
     var options = {
-            hostname: rest_host,
-            port: rest_port,
+            hostname: session.consumer_hostname,
+            port: session.consumer_port,
             path: '/learn/api/public/v1/oauth2/token',
             method: 'POST',
             rejectUnauthorized: rejectUnauthorized,
