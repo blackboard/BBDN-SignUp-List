@@ -100,9 +100,13 @@ router.post('/lti', function(req, res, next) {
   console.log(req.body);
   
   console.log("\nREQUEST launch_presentation_return_url: ", req.body.launch_presentation_return_url);
+  console.log("\nREQUEST launch_presentation_return_url: ", req.body.custom_tc_profile_url); //seems to be the only consistent URL returned?
+
   
   //var launcherURL = new url(req.body.launch_presentation_return_url);
-  var launcherURL = url.parse(req.body.launch_presentation_return_url, true, true);
+
+  var launcherURL = url.parse(req.body.custom_tc_profile_url, true, true);
+
   console.log("\nLAUNCHER URL PROTOCOL: ", launcherURL.protocol);
   console.log("\nLAUNCHER URL HOSTNAME: ", launcherURL.hostname);
   console.log("\nLAUNCHER URL PORT: ", launcherURL.port);
