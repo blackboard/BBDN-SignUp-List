@@ -115,7 +115,7 @@ router.post('/lti', function(req, res, next) {
   sess.consumer_protocol=launcherURL.protocol;
   sess.consumer_hostname=launcherURL.hostname;
 
-  sess.consumer_port=(launcherURL.port == undefined) ? ((protocol == 'https:')?'443':'80'):launcherURL.port;
+  sess.consumer_port=(launcherURL.port == undefined) ? ((launcherURL.protocol == 'https:')?'443':'80'):launcherURL.port;
 
 
   console.log("\nsession.consumer_protocol: ", sess.consumer_protocol);
