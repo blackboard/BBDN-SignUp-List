@@ -1,7 +1,7 @@
 var config = require('../../config/config');
 
 var express = require('express');
-var session = require('express-session');
+var session = require('cookie-session');
 var lti = require('ims-lti');
 var _ = require('lodash');
 var path = require('path');

@@ -5,7 +5,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var session = require('express-session');
+var session = require('cookie-session');
 
 var index = require('./controllers/routes/index');
 var users = require('./controllers/routes/users');
@@ -61,6 +61,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use(session({
+  name: 'signuplistv1',
   secret: '282r5O>Dg0hu?A4',
   resave: false,
   saveUninitialized: true
