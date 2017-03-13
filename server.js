@@ -5,20 +5,23 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('cookie-session');
 
 var index = require('./controllers/routes/index');
 var users = require('./controllers/routes/users');
 var systems = require('./controllers/routes/systems');
 var courses = require('./controllers/routes/courses');
 var lists = require('./controllers/routes/lists');
+var logs = require('./controllers/routes/logs');
 var rest = require('./controllers/routes/rest');
 
 //set up mongoose
 //determine db path
-var db = process.env.MONGODB_URI || config.test_db;
+var db = process.env.MONGO_URI || config.test_db;
 // Bring Mongoose into the app
 var mongoose = require( 'mongoose' );
 // Create the database connection
+console.log("[SERVER.JS]:db: ", db);
 mongoose.connect(db);
 
 // CONNECTION EVENTS
@@ -47,12 +50,23 @@ process.on('SIGINT', function() {
 
 var app = express();
 
+//added to enable Heroku to handle proper SSL termination
+app.enable('trust proxy');
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use(session({
+  name: 'signuplistv1',
+  secret: '282r5O>Dg0hu?A4',
+  resave: false,
+  saveUninitialized: true
+}))
+
 app.use(express.static(path.join(__dirname, '/public')));
 app.use('/datetimepicker', express.static(path.join(__dirname, '/node_modules/angular-bootstrap-datetimepicker/src/')));
 app.use('/moment', express.static(path.join(__dirname, '/node_modules/moment')));
@@ -62,6 +76,7 @@ app.use('/users', users);
 app.use('/systems', systems);
 app.use('/courses', courses);
 app.use('/lists', lists);
+app.use('/logs', logs);
 app.use('/api', rest);
 
 // catch 404 and forward to error handler

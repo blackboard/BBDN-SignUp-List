@@ -46,6 +46,7 @@ var db = config.test_db;
 */
 
 //test data
+var posted_uuid;
 var good_list = { uuid: "mochaListSchemaTestList", ultrafied: false };
 var bad_test_no_uuid = {
         "name": "no start date",
@@ -80,7 +81,7 @@ var minimum_good_list = {
         "max_waitlist": 3
 };
 var list_created_uuid = "";
-var update_list_name = { name: "tsiLtseTamehcStsiLahcom"};
+var update_list_name = { "name": "tsiLtseTamehcStsiLahcom" };
 var updated_list_name = "tsiLtseTamehcStsiLahcom"
 
 //POST tests
@@ -128,8 +129,8 @@ describe("[test_list_schema] Pass on correctly formatted POST?", function() {
       .send(minimum_good_list)
       .end((err, res) => {
         res.should.have.status(201);
+        res.body.description.should.eql("test post list with minimum data");
       list_created_uuid = res.body.uuid;
-      console.log(list_created_uuid);
       done();
     });
   });
@@ -170,24 +171,23 @@ describe("[test_list_schema] Return the entire lists collection", function() {
 describe("[test_list_schema] Pass on correctly formatted PUT?", function() {
     it('should PUT (update) item correctly', (done) => {
     chai
-      .request(server)
-      .put('/lists/' + list_created_uuid)
-      .send(update_list_name)
-      .end((err, res) => {
-        res.should.be.json;
-        res.body.should.be.a('object');
-        res.body.should.have.property('name');
-        res.body.name.should.eql(updated_list_name);
-      done();
+          .request(server)
+          .put('/lists/' + list_created_uuid)
+          .send(update_list_name)
+          .end((err, res) => {
+            //res.should.be.json;
+            res.body.should.be.a('object');
+            //res.body.should.have.property('UPDATED');
+            res.body.should.have.property('name');
+            res.body.name.should.eql(updated_list_name);
+          done();
     });
   });
 });
 
 
 describe("[test_list_schema] Delete what we created", function() {
-    it('should delete what we POSTed', (done) => {
-    // get a list of _ids
-     
+    it('should delete what we POSTed', (done) => {     
     chai
       .request(server)
       .delete('/lists/' + list_created_uuid)
@@ -200,9 +200,11 @@ describe("[test_list_schema] Delete what we created", function() {
 
 //empty DB after tests
 after(function (done) {
-    console.log('[test_list_schema] Dropping test list collection');
+  console.log('[test_list_schema] Dropping test list collection');
 //    console.log(mongoose.connection.readyState);
+  mongoose.connection.on('open', function(){
     mongoose.connection.db.dropCollection('lists');
     mongoose.connection.close();
-    done();
+  });
+  done();
 });

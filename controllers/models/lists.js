@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-const uuidV1 = require('uuid/v1')
+const uuidV1 = require('uuid/v1');
 
 /*
 LISTS Collection
@@ -61,6 +61,10 @@ var listSchema = new Schema(
     }
 );
 
+/*
+ * pre Sets the createdOn parameter equal to the current time and 
+ * sets uuid before saving
+ */
 // creates a UUID on list save if one does not exist
 listSchema.pre('validate', function(next){
   if (!this.uuid) {

@@ -4,6 +4,22 @@ var router = express.Router();
 var Log = require('../models/logs');
 var mongoose = require('bluebird').promisifyAll(require('mongoose'));
 
+var url = require('url');
+
+/*
+{   uuid: { type: String, required: true, unique: true },
+    course_uuid: { type: String, required: true },
+    logged_on: Date,
+    action_by: { type: String, required: true },
+    action_on: String,
+    action: {
+        type: String,
+        enum: ['list_add', 'list_remove', 'waitlist_add', 'waitlist_remove', 'list_created', 'list_removed'],
+    },
+    comment: String
+}
+*/
+
 /*
  * POST /logs to save a new log.
  */
@@ -37,7 +53,7 @@ router.get('/', function(req, res, next) {
     var query = Log.find({});
     query.exec((err, logs) => {
         if(err) res.send(err);
-        //If no errors, send them back to the client
+        //If no errors, send the result back to the client
         res.json(logs);
     });
 });
@@ -57,20 +73,27 @@ router.get('/:id', function(req, res, next) {
 /*
  * GET /logs/:id
  * returns all the logs for a specific course
- * ?before=DATE returns all the logs before a specific DATE
- * ?after=DATE returns all the logs after a specific DATE  
+ * ?before=ISODate returns all the logs before a specific DATE
+ * ?after=ISODate returns all the logs after a specific DATE  
  */
+mongoose.set('debug', true);
+
 router.get('/course/:id', function(req, res, next) {
     //Query the DB and if no errors, return a specific log :id
-    boolean isParameter = false;
-    query_root = "{course_uuid: req.params.id";
-    if (req.param.after) {
-        query = query_root + 
+    var params = url.parse(req.url, true).query;
+    var query;
+
+    if (params.after) {
+        query = Log.find({course_uuid : req.params.id, logged_on: {$gte : params.after}});
+    } else if (params.before) {
+        query = Log.find({course_uuid : req.params.id, logged_on: {$lt : params.before}});
+    } else {
+        query = Log.find({course_uuid : req.params.id});
     }
-    Log.find({course_uuid: req.params.id}, (err, log) => {
+    query.exec((err, logs) => {
         if(err) res.send(err);
-        //If no errors, send them back to the client
-        res.json(log);
+        //If no errors, send the result back to the client
+        res.json(logs);
     });
 }); 
 
@@ -78,7 +101,7 @@ router.get('/course/:id', function(req, res, next) {
  * DELETE /logs/:log_id route to delete a single log.
  */
 router.delete('/:id', function(req, res, next) {
-    Log.remove({log_id : req.params.id}, (err, result) => {
+    Log.remove({uuid : req.params.id}, (err, result) => {
         res.status(204).send();
     });
 });

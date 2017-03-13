@@ -1,0 +1,21 @@
+{
+  "restartable": "rs",
+  "verbose": true,
+  "ignore": [
+    "$HOME/public",
+    "$HOME/test",
+    "$HOME/node_modules",
+    "$HOME/bower_components",
+    "$HOME/.git"
+  ],
+  "execMap": {
+    "js": "DEBUG=signuplist:* npm start"
+  },
+  "events": {
+    "restart": "osascript -e 'display notification \"App restarted due to:\n'$FILENAME'\" with title \"nodemon\"'"
+  },
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "ext": "js json"
+}

@@ -22,11 +22,15 @@
       "required": true
     },
     "APP_TARGET_URL": {
-      "description": "Enter the target URL for your Application. E.g.: learn.myschool.edu. Do NOT include the protocol (http:// or https://)",
+      "description": "Enter the target URL for your Application. E.g.: learn.myschool.edu. Do NOT include the protocol (http:// or https://).",
       "required": true
     },
-    "MONGODB_URI": {
-      "description": "Enter the target URI for your MongoDB. E.g.: ds145039.mlab.com:45039/signuplistdb -u <dbuser> -p <dbpassword>",
+    "APP_TARGET_PORT": {
+      "description": "Enter the target port for your Application. E.g.: 80 for http:// or 443 for https://.",
+      "required": true
+    },
+    "MONGO_URI": {
+      "description": "Enter the target URI for your MongoDB. E.g.: mongo://<dbuser>:<dbpassword>@<mongodb_url>",
       "required": true
     }
   }
