@@ -1,39 +1,32 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+.divider-vertical {
+    height: 65px;                   /* any height */
+    border-left: 1px solid gray;     /* right or left is the same */
+    float: left;                     /* so BS grid doesn't break */
+    opacity: 0.5;                    /* optional */
+    margin: 0 15px;                  /* optional */
 }
 
-a {
-  color: #00B7FF;
+.custom-brand {
+  margin-top: 5px;
 }
 
-/* DivTable.com */
-.divTable{
-	display: table;
-	width: 100%;
+.custom-nav-btn {
+  margin-top:12px;
 }
-.divTableRow {
-	display: table-row;
+
+.custom-nav-btn-right {
+  margin-left:10px;
+  border: 1px;
+  font-weight: bold;
 }
-.divTableHeading {
-	background-color: #EEE;
-	display: table-header-group;
+
+.custom-nav-text-vcenter {
+  margin-top: 22px;
+  border: 1px;
+  font-weight: bold;
 }
-.divTableCell, .divTableHead {
-	border: 1px solid #999999;
-	display: table-cell;
-	padding: 3px 10px;
-}
-.divTableHeading {
-	background-color: #EEE;
-	display: table-header-group;
-	font-weight: bold;
-}
-.divTableFoot {
-	background-color: #EEE;
-	display: table-footer-group;
-	font-weight: bold;
-}
-.divTableBody {
-	display: table-row-group;
+
+.custom-nav-text-vcenter a a:hover, a:visited, a:link, a:active {
+  color: gray;
+  text-decoration: none;
 }

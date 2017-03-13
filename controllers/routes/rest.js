@@ -139,7 +139,7 @@ router.get('/system/:systemId/user_pk/:userId', function(req, res, next) {
       var options = {
               hostname: host,
               port: port,
-              path: '/learn/api/public/v1/users/' + pk + '?fields=uuid',
+              path: '/learn/api/public/v1/users/' + pk + '?fields=uuid,name.given,name.family,contact.email',
               method: 'GET',
               rejectUnauthorized: rejectUnauthorized,
               headers: { "Authorization" : auth_string }
@@ -228,7 +228,7 @@ router.get('/system/:systemId/course/:courseId/roster', function(req, res, next)
       var options = {
               hostname: host,
               port: port,
-              path: '/learn/api/public/v1/courses/uuid:' + uuid + '/users?fields=userId',
+              path: '/learn/api/public/v1/courses/uuid:' + uuid + '/users?fields=userId.courseRoleId',
               method: 'GET',
               rejectUnauthorized: rejectUnauthorized,
               headers: { "Authorization" : auth_string }
