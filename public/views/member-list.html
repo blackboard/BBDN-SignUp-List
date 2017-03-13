@@ -1,0 +1,23 @@
+config.showMembers: {{config.showMembers}}
+<table class="table table-responsive" ng-show="config.showMembers">
+  <thead class="thead-default">
+    <tr>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Date Joined</th>
+      <th>Added By</th>
+    </tr>
+  </thead>
+  <tbody ng-repeat="user in list.userlist" ng-init="member=getUserById(user.uuid)">
+    <tr>
+      <th scope="row">{{member.first}}</th>
+      <td>{{member.last}}</td>
+      <td>{{member.email}}</td>
+      <td>{{user.role}}</td>
+      <td>{{user.created | date}}</td>
+      <td>{{user.addedBy}}</td>
+    </tr>
+  </tbody>
+</table>

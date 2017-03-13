@@ -101,9 +101,11 @@ router.get('/system/:systemId/user_pk/:userId', function(req, res, next) {
       console.log("\n[REST.JS: get user by UUID]: pk: " + pk + " system " + system + ", auth_string: " + auth_string);
 
       var options = {
+
               hostname: sess.consumer_hostname,
               port: sess.consumer_port,
               path: '/learn/api/public/v1/users/' + pk + '?fields=uuid',
+
               method: 'GET',
               rejectUnauthorized: rejectUnauthorized,
               headers: { "Authorization" : auth_string }
@@ -201,9 +203,11 @@ router.get('/system/:systemId/course/:courseId/roster', function(req, res, next)
       console.log("\n[REST.JS: get Course Roster by UUID]: \n uuid: " + uuid + " system " + system + " auth_string: " + auth_string);
 
       var options = {
+
               hostname: sess.consumer_hostname,
               port: sess.consumer_port,
               path: '/learn/api/public/v1/courses/uuid:' + uuid + '/users?fields=userId',
+
               method: 'GET',
               rejectUnauthorized: rejectUnauthorized,
               headers: { "Authorization" : auth_string }

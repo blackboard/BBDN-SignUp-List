@@ -19,5 +19,9 @@ angular.module('signupApp')
         return $http.post('/lists', list);
     };
 
+    dbFactory.updateList = function (listId, list) {
+        return $http.put('/lists/' + listId, list);
+    };
+
     return dbFactory;
 }]);
