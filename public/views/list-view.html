@@ -12,23 +12,23 @@
           <button class="btn btn-default" ng-click="exportList(list)">Export List</button>
         </div>
         <div ng-show="config.lti.user_role === 'urn:lti:role:ims/lis/Learner'" class="col-lg-8 col-md-8 col-sm-8 col-xs-8 text-right">
-          <button ng-class="(calculateTaken(list, true) < list.max_size) && (calculateTaken(list, false) < list.max_waitlist) ? 'btn btn-default' : 'btn btn-default disabled'" ng-show="!userInList(list)" ng-click="addMe(list, (calculateTaken(list, true) < list.max_size) && (calculateTaken(list, false) < list.max_waitlist) ? true : false)">Join</button>
-          <button class="btn" ng-show="userInList(list)" ng-click="delMe()">Unjoin</button>
+          <button ng-disabled="(calculateTaken(list, true) >= list.max_size) && (reserveSpaces(list) === 0)" ng-class="(calculateTaken(list, true) < list.max_size) || (calculateTaken(list, false) < list.max_waitlist) ? 'btn btn-default' : 'btn btn-default disabled'" ng-show="!userInList(list)" ng-click="addMe(list, (calculateTaken(list, true) >= list.max_size) && (reserveSpaces(list) > 0) ? true : false)">Join</button>
+          <button class="btn" ng-show="userInList(list)" ng-click="delMe(list)">Unjoin</button>
         </div>
       </div>
     </div>
     <div class="panel-body">
       <div class="row">
         <div>
-          <p class="lead"> {{list.description}}</p>
-          <p> <strong>Location</strong>: {{list.location}}</p>
+          <p class="lead" style="margin-left: 5px;"> {{list.description}}</p>
+          <p style="margin-left: 5px;"><strong>Location</strong>: {{list.location}}</p>
         </div>
       </div>
       <member-list></member-list>
     </div>
     <div class="panel-footer">
       <div class="row">
-        <div class="text-left col-md-6">{{calculateTaken(list, true)}}/{{list.max_size}} places free</div>
+        <div class="text-left col-md-6">{{calculateTaken(list, true)}}/{{list.max_size}} places taken</div>
         <div class="text-right col-md-6">{{reserveSpaces(list)}} reserve places</div>
       </div>
     </div>

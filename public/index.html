@@ -19,17 +19,10 @@
       <list-view></list-view>
 
       <div ng-if="config.debug_mode">
+        <br />
         <div ng-show="config.lti">
-          <h1>Here is the provided LTI data</h1>
-          <ul>
-            <li>Course UUID : {{config.lti.course_uuid}}</li>
-            <li>User UUID : {{config.lti.user_uuid}}</li>
-            <li>User Role : {{config.lti.user_role}}</li>
-            <li>System GUID : {{config.lti.system_guid}}</li>
-            <li>Host : {{config.lti.rest_host}}</li>
-            <li>Port : {{config.lti.rest_port}}</li>
-            <li>Return URL : {{config.lti.return_url}}</li>
-          </ul>
+          <h4>LTI data</h4>
+          <pre>{{config.lti | json}}</pre>
         </div>
         <div ng-show="course">
           <h4>Course</h4>
@@ -42,6 +35,10 @@
         <div>
           <h4>Config</h4>
           <pre>{{config | json}}</pre>
+        </div>
+        <div>
+          <h4>Member</h4>
+          <pre>{{member | json}}</pre>
         </div>
     </div>
 
