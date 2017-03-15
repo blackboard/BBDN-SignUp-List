@@ -69,6 +69,7 @@ router.put('/:id', function(req, res, next) {
 
 /*
  * PATCH /lists/:id/userList route to update the whole userList on identified list.
+ * Note: using this endpoint requires you to set created_on and updated_on on your user data
  */
 router.patch('/:id/userList', function(req, res, next) {
     List.findOneAndUpdate({"uuid": req.params.id}, {$set: {"userList" : req.body}}, {"new": true}, function(err, list) {
