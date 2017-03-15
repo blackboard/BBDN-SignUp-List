@@ -1,14 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-LOGS Collection
-uuid: TEXT, Required, Unique
-course_uuid: TEXT, Required
-logged_on: DATE
-action_by: TEXT <= user_uuid (instructor etc)
-action_on: TEXT <= user_uuid (student etc)
-action: enum - list_add, list_remove, waitlist_add waitlist_remove
-comment: TEXT
+const uuidV1 = require('uuid/v1');
 
 //logSchema schema definition
 var logSchema = new Schema(
@@ -30,6 +23,22 @@ var logSchema = new Schema(
       } 
     } 
 );
+
+/*
+ * pre Sets the createdOn parameter equal to the current time and 
+ * sets uuid before saving
+ */
+logSchema.pre('save', function(next){
+  now = new Date();
+  if ( !this.logged_on ) {
+    this.logged_on = now;
+  }
+  if (!this.uuid) {
+    this.uuid = uuid=uuidV1();
+  } 
+  next();
+});
+
 
 //Exports the courseSchema for use elsewhere.
 module.exports = mongoose.model('Log', logSchema);

@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-const uuidV1 = require('uuid/v1')
+const uuidV1 = require('uuid/v1');
 
 /*
 LISTS Collection
@@ -25,6 +25,20 @@ userlist: ARRAY
      waitlisted: BOOLEAN
  */
 
+//userList schema definition 
+var userSchema = new Schema (
+    {
+        user_uuid: String,
+        role: { type: String,
+            enum: ['INSTRUCTOR', 'TEACHING_ASSISTANT', 'STUDENT'],
+            default: 'STUDENT'},
+        added_by: String,
+        waitlisted: { type: Boolean, default: false }
+    },
+    {
+        timestamps: {createdAt : "created_on", updatedAt : "updated_on"}
+    }
+);
 
 //listSchema schema definition
 var listSchema = new Schema(
@@ -45,37 +59,18 @@ var listSchema = new Schema(
             default: 'OPEN'
         },
         group: String,
-        userlist: [{
-            user_uuid: String,
-            role: { type: String,
-                enum: ['INSTRUCTOR', 'TEACHING_ASSISTANT', 'STUDENT'],
-                default: 'STUDENT'},
-            added_by: String,
-            waitlisted: { type: Boolean, default: false },
-            created_on: Date,
-            updated_on: Date },
-            { timestamps: {
-                createdAt: 'created_on',
-                updatedAt: 'updated_on'}
-        }]
+        userList: [userSchema]
     }
 );
 
+/*
+ * pre Sets the createdOn parameter equal to the current time and 
+ * sets uuid before saving
+ */
 // creates a UUID on list save if one does not exist
 listSchema.pre('validate', function(next){
   if (!this.uuid) {
     this.uuid = uuid=uuidV1();
-  }
-  next();
-});
-
-// Sets the createdOn parameter equal to the current time
-listSchema.pre('save', function(next){
-  now = new Date();
-
-  this.updated_on = now;
-  if ( !this.userlist.created_on ) {
-    this.userlist.created_on = now;
   }
   next();
 });

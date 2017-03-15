@@ -1,6 +1,8 @@
 var config = require('../../config/config');
 
 var express = require('express');
+//var session = require('express-session');
+
 var https = require('https');
 var lti = require('ims-lti');
 var _ = require('lodash');
@@ -13,8 +15,8 @@ var lti_key = process.env.LTI_KEY || config.lti_key;
 var lti_secret = process.env.LTI_SECRET || config.lti_secret;
 var oauth_key = process.env.OAUTH_KEY || config.oauth_key;
 var oauth_secret = process.env.OAUTH_SECRET || config.oauth_secret;
-var host = process.env.REST_HOST || config.rest_host;
-var port = process.env.REST_PORT || config.rest_port;
+var rest_host = process.env.APP_TARGET_URL || config.rest_host;
+var rest_port = process.env.APP_TARGET_PORT || config.rest_port;
 
 var router = express.Router();
 
@@ -30,79 +32,35 @@ var user_role = "";
 
 var valid_session = false;
 
-/* key and secret sanity checks - logged on startup */
-if (lti_key == config.lti_key) {
-  console.log('Using lti_key from index.js: ');
-} else {
-  console.log('Using lti_key from process.env: ')
-}
-console.log(lti_key);
-
-if (lti_secret == config.lti_secret) {
-  console.log('Using lti_secret from index.js: ');
-} else {
-  console.log('Using lti_secret from process.env: ');
-}
-console.log(lti_secret);
-
-if (oauth_key == config.oauth_key) {
-  console.log('Using oauth_key from index.js: ');
-} else {
-  console.log('Using oauth_key from process.env: ')
-}
-console.log(oauth_key);
-
-if (oauth_secret == config.oauth_secret) {
-  console.log('Using oauth_secret from index.js: ');
-} else {
-  console.log('Using oauth_secret from process.env: ');
-}
-console.log(oauth_secret);
-
-if (host == config.host) {
-  console.log('Using host from index.js: ');
-} else {
-  console.log('Using host from process.env: ');
-}
-console.log(host);
-
-if (host == config.rest_host) {
-  console.log('Using rest_host from index.js: ');
-} else {
-  console.log('Using rest_host from process.env: ');
-}
-console.log(host);
-
-if (port == config.rest_port) {
-  console.log('Using rest_port from index.js: ');
-} else {
-  console.log('Using rest_port from process.env: ');
-}
-console.log(port);
-
 /* Get User Information by UUID. */
 router.get('/system/:systemId/user/:userId', function(req, res, next) {
+
+  sess = req.session;
+  console.log("\n[REST.JS: get user by UUID]:session.consumer_protocol: ", sess.consumer_protocol);
+  console.log("\n[REST.JS: get user by UUID]:session.consumer_hostname: ", sess.consumer_hostname);
+  console.log("\n[REST.JS: get user by UUID]:session.consumer_port : ", sess.consumer_port);
+
 
   var uuid = req.params.userId;
   var system = req.params.systemId;
 
-  tokenjs.checkToken(system, function(err,token) {
+  tokenjs.checkToken(system, sess, function(err,token) {
       if (err) console.log(err);
 
       var auth_string = 'Bearer ' + token;
 
-    console.log("uuid: " + uuid + " system " + system + " auth_string: " + auth_string);
+    console.log("\n[REST.JS: get user by UUID]: uuid: " + uuid + ", system: " + system + ", auth_string: " + auth_string);
 
       var options = {
-              hostname: host,
-              port: port,
+              hostname: sess.consumer_hostname,
+              port: sess.consumer_port,
               path: '/learn/api/public/v1/users/uuid:' + uuid,
               method: 'GET',
               rejectUnauthorized: rejectUnauthorized,
               headers: { "Authorization" : auth_string }
       };
 
-      console.log(options);
+      console.log("\n[REST.JS: get user by UUID]: uuid: \n", options);
 
       var http_req = https.request(options, function(http_res) {
           http_res.setEncoding('utf-8');
@@ -129,23 +87,31 @@ router.get('/system/:systemId/user_pk/:userId', function(req, res, next) {
   var pk = req.params.userId;
   var system = req.params.systemId;
 
-  tokenjs.checkToken(system, function(err,token) {
+  sess = req.session;
+  console.log("\n[REST.JS: get user by UUID]:session.consumer_protocol: ", sess.consumer_protocol);
+  console.log("\n[REST.JS: get user by UUID]:session.consumer_hostname: ", sess.consumer_hostname);
+  console.log("\n[REST.JS: get user by UUID]:session.consumer_port : ", sess.consumer_port);
+
+
+  tokenjs.checkToken(system, sess, function(err,token) {
       if (err) console.log(err);
 
       var auth_string = 'Bearer ' + token;
 
-    console.log("pk: " + pk + " system " + system + " auth_string: " + auth_string);
+      console.log("\n[REST.JS: get user by UUID]: pk: " + pk + " system " + system + ", auth_string: " + auth_string);
 
       var options = {
-              hostname: host,
-              port: port,
-              path: '/learn/api/public/v1/users/' + pk + '?fields=uuid,name.given,name.family,contact.email',
+
+              hostname: sess.consumer_hostname,
+              port: sess.consumer_port,
+              path: '/learn/api/public/v1/users/' + pk + '?fields=uuid',
+
               method: 'GET',
               rejectUnauthorized: rejectUnauthorized,
               headers: { "Authorization" : auth_string }
       };
 
-      console.log(options);
+      console.log("\n[REST.JS: get user by UUID]: uuid: ]", options);
 
       var http_req = https.request(options, function(http_res) {
           http_res.setEncoding('utf-8');
@@ -154,7 +120,7 @@ router.get('/system/:systemId/user_pk/:userId', function(req, res, next) {
               responseString += data;
           });
           http_res.on('end', function() {
-              console.log(responseString);
+              console.log("\n[REST.JS: get User by UUID]:responseString: \n",responseString);
               var json = JSON.parse(responseString);
 
               res.json(json);
@@ -172,23 +138,29 @@ router.get('/system/:systemId/course/:courseId', function(req, res, next) {
   var uuid = req.params.courseId;
   var system = req.params.systemId;
 
-  tokenjs.checkToken(system, function(err,token) {
+  sess = req.session;
+  console.log("\n[REST.JS: get Course Info by UUID]:session.consumer_protocol: ", sess.consumer_protocol);
+  console.log("\n[REST.JS: get Course Info by UUID]:session.consumer_hostname: ", sess.consumer_hostname);
+  console.log("\n[REST.JS: get Course Info by UUID]:session.consumer_port : ", sess.consumer_port);
+
+
+  tokenjs.checkToken(system, sess, function(err,token) {
       if (err) console.log(err);
 
       var auth_string = 'Bearer ' + token;
 
-      console.log("uuid: " + uuid + " system " + system + " auth_string: " + auth_string);
+      console.log("\n[REST.JS: get Course Info by UUID]: \n uuid:" + uuid + ", system: " + system + ", auth_string: " + auth_string);
 
       var options = {
-              hostname: host,
-              port: port,
+              hostname: sess.consumer_hostname,
+              port: sess.consumer_port,
               path: '/learn/api/public/v1/courses/uuid:' + uuid + '?fields=uuid,name,ultraStatus',
               method: 'GET',
               rejectUnauthorized: rejectUnauthorized,
               headers: { "Authorization" : auth_string }
       };
 
-      console.log(options);
+      console.log("\n[REST.JS: get Course Info by UUID]:options:\n", options);
 
       var http_req = https.request(options, function(http_res) {
           http_res.setEncoding('utf-8');
@@ -197,7 +169,7 @@ router.get('/system/:systemId/course/:courseId', function(req, res, next) {
               responseString += data;
           });
           http_res.on('end', function() {
-              console.log(responseString);
+              console.log("\n[REST.JS: get Course Info by UUID]:responseString: \n", responseString);
               var json = JSON.parse(responseString);
 
               res.json(json);
@@ -210,7 +182,7 @@ router.get('/system/:systemId/course/:courseId', function(req, res, next) {
   });
 });
 
-/* Get Course Roster. Used by Intrcutor for manually adding users,
+/* Get Course Roster. Used by Instructor for manually adding users,
  * as well as displaying list members
  */
 router.get('/system/:systemId/course/:courseId/roster', function(req, res, next) {
@@ -218,23 +190,30 @@ router.get('/system/:systemId/course/:courseId/roster', function(req, res, next)
   var uuid = req.params.courseId;
   var system = req.params.systemId;
 
-  tokenjs.checkToken(system, function(err,token) {
+  sess = req.session;
+  console.log("\n[REST.JS: get Course Roster by UUID]:session.consumer_protocol: ", sess.consumer_protocol);
+  console.log("\n[REST.JS: get Course Roster by UUID]:session.consumer_hostname: ", sess.consumer_hostname);
+  console.log("\n[REST.JS: get Course Roster by UUID]:session.consumer_port : ", sess.consumer_port);
+
+  tokenjs.checkToken(system, sess, function(err,token) {
       if (err) console.log(err);
 
       var auth_string = 'Bearer ' + token;
 
-      console.log("uuid: " + uuid + " system " + system + " auth_string: " + auth_string);
+      console.log("\n[REST.JS: get Course Roster by UUID]: \n uuid: " + uuid + " system " + system + " auth_string: " + auth_string);
 
       var options = {
-              hostname: host,
-              port: port,
-              path: '/learn/api/public/v1/courses/uuid:' + uuid + '/users?fields=userId.courseRoleId',
+
+              hostname: sess.consumer_hostname,
+              port: sess.consumer_port,
+              path: '/learn/api/public/v1/courses/uuid:' + uuid + '/users?fields=userId',
+
               method: 'GET',
               rejectUnauthorized: rejectUnauthorized,
               headers: { "Authorization" : auth_string }
       };
 
-      console.log(options);
+      console.log("\n[REST.JS: get Course Roster]:options:\n", options);
 
       var http_req = https.request(options, function(http_res) {
           http_res.setEncoding('utf-8');
@@ -262,12 +241,17 @@ router.post('/system/:systemId/course/:courseId/:groupName', function(req, res, 
   var uuid = req.params.courseId;
   var system = req.params.systemId;
 
-  tokenjs.checkToken(system, function(err,token) {
+  sess = req.session;
+  console.log("\n[REST.JS: Create Course Group]:session.consumer_protocol: ", sess.consumer_protocol);
+  console.log("\n[REST.JS: Create Course Group]:session.consumer_hostname: ", sess.consumer_hostname);
+  console.log("\n[REST.JS: Create Course Group]:session.consumer_port : ", sess.consumer_port);
+
+  tokenjs.checkToken(system, sess, function(err,token) {
       if (err) console.log(err);
 
       var auth_string = 'Bearer ' + token;
 
-      console.log("uuid: " + uuid + " system " + system + " auth_string: " + auth_string);
+      console.log("\n[REST.JS: Create Course Group]: \n uuid: " + uuid + " system " + system + " auth_string: " + auth_string);
 
       var group = {
           "name" : req.params.groupName,
@@ -275,15 +259,15 @@ router.post('/system/:systemId/course/:courseId/:groupName', function(req, res, 
       };
 
       var options = {
-              hostname: host,
-              port: port,
+              hostname: sess.consumer_hostname,
+              port: sess.consumer_port,
               path: '/learn/api/public/v1/courses/uuid:' + uuid + '/groups',
               method: 'POST',
               rejectUnauthorized: rejectUnauthorized,
               headers: { "Authorization" : auth_string }
       };
 
-      console.log(options);
+      console.log("\n[REST.JS: Create Course Group]:options:\n", options);
 
       var http_req = https.request(options, function(http_res) {
           http_res.setEncoding('utf-8');
@@ -313,7 +297,13 @@ router.post('/system/:systemId/course/:courseId/:groupName/user/:userId', functi
   var userId = req.params.userId;
   var system = req.params.systemId;
 
-  tokenjs.checkToken(system, function(err,token) {
+  sess = req.session;
+  console.log("\n[REST.JS: Add Users to Group]:session.consumer_protocol: ", sess.consumer_protocol);
+  console.log("\n[REST.JS: Add Users to Group]:session.consumer_hostname: ", sess.consumer_hostname);
+  console.log("\n[REST.JS: Add Users to Group]:session.consumer_port : ", sess.consumer_port);
+
+
+  tokenjs.checkToken(system, sess, function(err,token) {
       if (err) console.log(err);
 
       var auth_string = 'Bearer ' + token;
@@ -321,15 +311,15 @@ router.post('/system/:systemId/course/:courseId/:groupName/user/:userId', functi
       console.log("uuid: " + uuid + " system " + system + " auth_string: " + auth_string);
 
       var options = {
-              hostname: host,
-              port: port,
+              hostname: sess.consumer_hostname,
+              port: sess.consumer_port,
               path: '/learn/api/public/v1/courses/uuid:' + uuid + '/groups/externalId:' + groupName + '/users/uuid:' + userId,
               method: 'POST',
               rejectUnauthorized: rejectUnauthorized,
               headers: { "Authorization" : auth_string }
       };
 
-      console.log(options);
+      console.log("\n[REST.JS: Add Users to Group]:options:\n", options);
 
       var http_req = https.request(options, function(http_res) {
           http_res.setEncoding('utf-8');
