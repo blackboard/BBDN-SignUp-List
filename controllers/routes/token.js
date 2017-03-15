@@ -1,7 +1,6 @@
 var config = require('../../config/config');
 
 var express = require('express');
-//var session = require('express-session');
 var https = require('https');
 var lti = require('ims-lti');
 var _ = require('lodash');

@@ -1,5 +1,5 @@
 var config = require('../../config/config');
-
+var db = require('../../config/db');
 var express = require('express');
 var session = require('cookie-session');
 var lti = require('ims-lti');
@@ -16,7 +16,9 @@ var oauth_key = process.env.APP_OAUTH_KEY || config.oauth_key;
 var oauth_secret = process.env.APP_OAUTH_SECRET || config.oauth_secret;
 var rest_host = process.env.APP_TARGET_URL || config.rest_host;
 var rest_port = process.env.APP_TARGET_PORT || config.rest_port;
-var db = process.env.MONGO_URI || config.db;
+var db_URL = process.env.MONGO_URI || config.db;
+
+
 
 var router = express.Router();
 
@@ -62,10 +64,10 @@ var valid_session = false;
       console.log('Using oauth_secret from process.env:','\x1b[32m',oauth_secret,'\x1b[0m');
     }
 
-    if (db == config.db) {
-      console.log('Using db from config.js:','\x1b[32m',db,'\x1b[0m');
+    if (db_URL == config.db) {
+      console.log('Using db_URL from config.js:','\x1b[32m',db_URL,'\x1b[0m');
     } else {
-      console.log('Using db from process.env:','\x1b[32m',db,'\x1b[0m');
+      console.log('Using db_URL from process.env:','\x1b[32m',db_URL,'\x1b[0m');
     }
     
     if (rest_host == config.rest_host) {
@@ -112,6 +114,14 @@ router.post('/lti', function(req, res, next) {
   sess = req.session;
   sess.consumer_protocol=launcherURL.protocol;
   sess.consumer_hostname=launcherURL.hostname;
+
+  /*
+   figure out a way to exit gracefully if heroku is called from localhost
+
+  if (( sess.consumer_hostname == 'localhost' ) && !process.env.DEVELOPMENT )) {
+    //throw http error 400 with a result....
+  }
+  */
 
   sess.consumer_port=(launcherURL.port == undefined) ? ((launcherURL.protocol == 'https:')?'443':'80'):launcherURL.port;
 
