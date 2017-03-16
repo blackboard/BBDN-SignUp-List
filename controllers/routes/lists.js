@@ -2,6 +2,9 @@ var express = require('express');
 var router = express.Router();
 var mongoose = require('bluebird').promisifyAll(require('mongoose'));
 var List = require('../models/lists');
+var config = require('../../config/config');
+
+var debug = (config.debug_mode=="true"?true:false);
 
 /*
  * POST /lists to save a new list.
@@ -60,7 +63,7 @@ router.get('/:id', function(req, res, next) {
  */
 router.put('/:id', function(req, res, next) {
     List.findOneAndUpdate({"uuid": req.params.id}, req.body, { "new": true}, function(err, list){
-        //console.log("\n[lists.js] PUT LIST: \n", req.body );
+        if (debug) console.log("\n[lists.js] PUT LIST: \n", req.body );
         if(err) res.send(err);
         res.status(200).json(list);
     });
@@ -70,10 +73,11 @@ router.put('/:id', function(req, res, next) {
 /*
  * PATCH /lists/:id/userList route to update the whole userList on identified list.
  * Note: using this endpoint requires you to set created_on and updated_on on your user data
+ * Need to rewrite to break apart the passed json and individually $push/.save to get dates auto added
  */
 router.patch('/:id/userList', function(req, res, next) {
     List.findOneAndUpdate({"uuid": req.params.id}, {$set: {"userList" : req.body}}, {"new": true}, function(err, list) {
-        //console.log("\n\n[lists.js] PATCH userList: \n", req.body );
+        if (debug) console.log("\n\n[lists.js] PATCH userList: \n", req.body );
         if(err) res.send(err);
         res.status(200).json(list);
     });
@@ -86,27 +90,30 @@ router.patch('/:id/userList', function(req, res, next) {
 router.put('/:id/userList/:userId', function(req, res, next) {
     List.findOneAndUpdate({"uuid": req.params.id}, {$push: {"userList" : req.body}}, {"new": true}, function(err, list) {
  
-        //console.log("\n\n[lists.js] PUT user: \n", req.body );
+        if (debug) console.log("\n\n[lists.js] PUT user: \n", req.body );
         if(err) res.send(err);
         res.status(200).json(list);
     });
 });
 
-/* PATCH /lists/:uuid/userList/:userId updates a specific user in a specific list */
+/* 
+ * PATCH /lists/:uuid/userList/:userId updates a specific user in a specific list 
+ * Note: using this endpoint requires you to set created_on and updated_on on your user data
+ */
 router.patch('/:id/userList/:userId', function(req, res, next) {
     var userId = req.params.userId;
     var users;
     var place;
-    //console.log("\n\n[lists.js] PATCH user: id \n", req.params.id);
-    //console.log("\n\n[lists.js] PATCH user: userId \n", userId);
+    if (debug) console.log("\n\n[lists.js] PATCH user: id \n", req.params.id);
+    if (debug) console.log("\n\n[lists.js] PATCH user: userId \n", userId);
     List.findOne({"uuid": req.params.id}, function(err, list) {
-        //console.log("\n\n[lists.js] PATCH user in: \n", req.body );
-        //console.log("\n\n[lists.js] PATCH user: found list \n", list);
+        if (debug) console.log("\n\n[lists.js] PATCH user in: \n", req.body );
+        if (debug) console.log("\n\n[lists.js] PATCH user: found list \n", list);
         //find our user
         users =  list.userList;
         for(var i=0;i<users.length;i++){
             if (users[i]["user_uuid"] == userId) place = i;
-            //console.log("\n\n[lists.js] PATCH user: user to Update \n", users[i]);
+            if (debug) console.log("\n\n[lists.js] PATCH user: user to Update \n", users[i]);
         }
         users[place].user_uuid = req.body.user_uuid || users[place].user_uuid;
         users[place].role = req.body.role || users[place].role;
@@ -115,9 +122,9 @@ router.patch('/:id/userList/:userId', function(req, res, next) {
         users[place].created_on = req.body.created_on || users[place].created_on;
         users[place].updated_on = req.body.updated_on || new Date();
 
-        //console.log("\n\n[lists.js] PATCH user: Updated user record \n", users[place]);
-        //console.log("\n\n[lists.js] PATCH user: usersList \n", users);
-        //console.log("\n\n[lists.js] PATCH user: list \n", list);
+        if (debug) console.log("\n\n[lists.js] PATCH user: Updated user record \n", users[place]);
+        if (debug) console.log("\n\n[lists.js] PATCH user: usersList \n", users);
+        if (debug) console.log("\n\n[lists.js] PATCH user: list \n", list);
 		// Save the updated document back to the database
         list.save(function (err, list) {
             if (err) {
@@ -134,11 +141,11 @@ router.delete('/:id/userList/:userId', function(req, res, next) {
 	var id = req.params.id;
     var users;
     var place;
-    //console.log("\n\n[lists.js] DELETE user: list id \n", id);
-    //console.log("[lists.js] DELETE user: userId \n", userId);
+    if (debug) console.log("\n\n[lists.js] DELETE user: list id \n", id);
+    if (debug) console.log("[lists.js] DELETE user: userId \n", userId);
     List.findOneAndUpdate({"uuid": id}, 
 		{ $pull: { "userList": {"user_uuid": userId} } }, {"new": true}, (err, list) => {
-              //console.log("\n\n[lists.js] DELETE user: post delete list \n", list);
+              if (debug) console.log("\n\n[lists.js] DELETE user: post delete list \n", list);
               if (err) {
                 res.status(500).send(err)
               }
@@ -146,13 +153,12 @@ router.delete('/:id/userList/:userId', function(req, res, next) {
     });
 });
  
-//WORKING ON THIS NOW ...
  /* DELETE /lists/:id/userList route to delete the whole userList on identified list.*/
 router.delete('/:id/userList', function(req, res, next) {
-    //console.log("\n\n[lists.js] DELETE userList: id \n", req.params.id);
+    if (debug) console.log("\n\n[lists.js] DELETE userList: id \n", req.params.id);
     List.findOneAndUpdate({"uuid": req.params.id}, 
 		{ $set: { "userList": [] }}, {"new": true}, (err, list) => {
-              //console.log("\n\n[lists.js] DELETE user: post delete list \n", list);
+              if (debug) console.log("\n\n[lists.js] DELETE user: post delete list \n", list);
               if (err) {
                 res.status(500).send(err)
               }
