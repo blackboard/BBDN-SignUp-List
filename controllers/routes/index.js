@@ -17,6 +17,7 @@ var oauth_secret = process.env.APP_OAUTH_SECRET || config.oauth_secret;
 var rest_host = process.env.APP_TARGET_URL || config.rest_host;
 var rest_port = process.env.APP_TARGET_PORT || config.rest_port;
 var db_URL = process.env.MONGO_URI || config.db;
+var debug_mode = process.env.DEBUG_MODE || config.debug_mode;
 
 
 
@@ -69,7 +70,7 @@ var valid_session = false;
     } else {
       console.log('Using db_URL from process.env:','\x1b[32m',db_URL,'\x1b[0m');
     }
-    
+
     if (rest_host == config.rest_host) {
       console.log('Using rest_host from config.js:','\x1b[32m',rest_host,'\x1b[0m');
     } else {
@@ -79,6 +80,11 @@ var valid_session = false;
       console.log('Using rest_port from config.js:','\x1b[32m',rest_port,'\x1b[0m');
     } else {
       console.log('Using rest_port from process.env:','\x1b[32m',rest_port,'\x1b[0m');
+    }
+    if (debug_mode == config.debug_mode) {
+      console.log('Using debug_mode from config.js:','\x1b[32m',debug_mode,'\x1b[0m');
+    } else {
+      console.log('Using debug_mode from process.env:','\x1b[32m',debug_mode,'\x1b[0m');
     }
 //}
 /* Return home page from LTI Launch. */
@@ -98,11 +104,11 @@ router.post('/lti', function(req, res, next) {
   console.log(req.headers);
   console.log("\nREQUEST BODY: ");
   console.log(req.body);
-  
+
   console.log("\nREQUEST launch_presentation_return_url: ", req.body.launch_presentation_return_url);
   console.log("\nREQUEST custom_tc_profile_url: ", req.body.custom_tc_profile_url); //seems to be the only consistent URL returned?
 
-  
+
   //var launcherURL = new url(req.body.launch_presentation_return_url);
 
   var launcherURL = url.parse(req.body.custom_tc_profile_url, true, true);
@@ -123,14 +129,20 @@ router.post('/lti', function(req, res, next) {
   }
   */
 
-  sess.consumer_port=(launcherURL.port == undefined) ? ((launcherURL.protocol == 'https:')?'443':'80'):launcherURL.port;
+  // Check to see if launch is from DVM, if so default to https and 9877.
+  if(launcherURL.hostname == 'localhost' && launcherURL.port == '9876') {
+    sess.consumer_protocol='https:';
+    sess.consumer_port='9877';
+  } else {
+    sess.consumer_port=(launcherURL.port == undefined) ? ((launcherURL.protocol == 'https:')?'443':'80'):launcherURL.port;
+  }
 
   console.log("\nsession.consumer_protocol: ", sess.consumer_protocol);
   console.log("\nsession.consumer_hostname: ", sess.consumer_hostname);
   console.log("\nsession.consumer_port : ", sess.consumer_port);
 
   console.log('\nCHECK REQUEST VALIDITY');
-  
+
   provider.valid_request(req, function(err, isValid) {
      if(err) {
        console.log('Error in LTI Launch:' + err);
@@ -190,7 +202,8 @@ router.get('/lti/data', function(req, res, next) {
       "system_guid" : system_guid,
       "rest_host" : config.rest_host,
       "rest_port" : config.rest_port,
-      "return_url" : return_url
+      "return_url" : return_url,
+      "debug_mode" : debug_mode
     };
     console.log('\nCAPTURED LTI DATA: ');
     console.log(JSON.stringify(ltidata));

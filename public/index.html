@@ -18,29 +18,7 @@
 
       <list-view></list-view>
 
-      <div ng-if="config.debug_mode">
-        <br />
-        <div ng-show="config.lti">
-          <h4>LTI data</h4>
-          <pre>{{config.lti | json}}</pre>
-        </div>
-        <div ng-show="course">
-          <h4>Course</h4>
-          <pre>{{course | json}}</pre>
-        </div>
-        <div ng-show="user">
-          <h4>User</h4>
-          <pre>{{user | json}}</pre>
-        </div>
-        <div>
-          <h4>Config</h4>
-          <pre>{{config | json}}</pre>
-        </div>
-        <div>
-          <h4>Member</h4>
-          <pre>{{member | json}}</pre>
-        </div>
-    </div>
+      <debug-mode></debug-mode>
 
     <!-- Angular Includes-->
     <script src="/moment/moment.js"></script>
@@ -60,13 +38,12 @@
     <script src="./services/db-service.js"></script>
     <script src="./services/lti-service.js"></script>
     <script src="./services/list-service.js"></script>
-    <script src="./services/resource-cache.js"></script>
 
     <!-- Directives -->
     <script src="./directives/new-list.js"></script>
     <script src="./directives/navigation-bar.js"></script>
     <script src="./directives/list-view.js"></script>
     <script src="./directives/member-list.js"></script>
-    <script src="./directives/preload-cache.js"></script>
+    <script src="./directives/debug-mode.js"></script>
   </body>
 </html>

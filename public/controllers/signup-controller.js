@@ -1,10 +1,9 @@
 angular.module('signupApp')
 .controller('SignupController', [
-    '$scope', '$log', '$q', '$filter', 'resourceCache', 'ltiFactory', 'listFactory', 'apiFactory', 'dbFactory',
-    function ($scope, $log, $q, $filter, resourceCache, ltiFactory, listFactory, apiFactory, dbFactory) {
+    '$scope', '$log', '$q', '$filter', 'ltiFactory', 'listFactory', 'apiFactory', 'dbFactory',
+    function ($scope, $log, $q, $filter, ltiFactory, listFactory, apiFactory, dbFactory) {
 
         $scope.config = {};
-        $scope.config.debug_mode = true;
         $scope.config.add_list = false;
         $scope.config.showMembers = false;
         $scope.config.showInfo = false;
@@ -47,9 +46,13 @@ angular.module('signupApp')
         function getCourse() {
           apiFactory.getCourse($scope.config.lti.system_guid, $scope.config.lti.course_uuid)
             .then(function (response) {
+                $log.log("getCourse: response=" + JSON.stringify(response));
+                $log.log("getCourse: response=" + JSON.stringify(response.data));
+                $log.log("getCourse: response=" + JSON.stringify(response.data.name));
                 var ultraStatus = response.data.ultraStatus;
                 var ultrafied = ultraStatus === 'Ultra' || ultraStatus === 'UltraPreview' ? true : false;
                 var courseName = response.data.name;
+                $log.log("getCourse: varcheck={ courseName : " + courseName + ", ultraStatus : " + ultraStatus + " }");
                 dbFactory.getCourse($scope.config.lti.course_uuid)
                   .then(function (response) {
                       if(!response.data) {
@@ -74,7 +77,6 @@ angular.module('signupApp')
                 var pkRoster = [];
                 var uuidRoster = [];
                 var i = 0;
-
                 pkRoster = response.data.results;
                 var promises = [];
                 $log.log("in createCourse");
@@ -83,11 +85,13 @@ angular.module('signupApp')
                     $log.log(jsonKey+":"+pk);
                     var promise = apiFactory.getUserByPk($scope.config.lti.system_guid, pk)
                     .then(function(response) {
+                      $log.log("createCourse: response=" + JSON.stringify(response));
+                      $log.log("createCourse: response=" + JSON.stringify(response.data));
                       var course_role = response.data.courseRoleId === 'Instructor' ? 'INSTRUCTOR' : 'STUDENT';
                       uuidRoster.push({ "user_uuid" : response.data.uuid, "course_role" : course_role });
                       var userInfo = { "first" : response.data.name.given, "last" : response.data.name.family, "email" : response.data.contact.email, "user_uuid" : response.data.uuid, "course_role" : course_role };
                       $scope.member.userInfo[response.data.uuid] = userInfo;
-                      console.log("UUIDRoster: " + uuidRoster);
+                      console.log("UUIDRoster: " + JSON.stringify(uuidRoster));
                     }, function (error) {
                       $scope.status = 'Unable to load user by pk1 for ' + pk;
 
@@ -175,7 +179,7 @@ angular.module('signupApp')
 
         function calculateTaken(list, main) {
           var count = 0;
-          angular.forEach(list.userlist, function(user, key) {
+          angular.forEach(list.userList, function(user, key) {
             $log.log("calculateTaken: main=" + (main ? "True" : "False") + " waitlisted=" + (user.waitlisted ? "True" : "False"));
             if(main && !user.waitlisted) {
               count++;
@@ -213,10 +217,10 @@ angular.module('signupApp')
             "added_by" : 'self'
           }
           $log.log("UserToAdd: " + JSON.stringify(userToAdd));
-          $log.log("User list length before filter: " + list.userlist.length);
           listInCourseScope = $filter('filter')($scope.course.lists, function (d) {return d.uuid === list.uuid;})[0];
-          listInCourseScope.userlist.push(userToAdd);
-          $log.log("User list length: " + list.userlist.length);
+          $log.log("User list length before add: " + list.userList.length);
+          listInCourseScope.userList.push(userToAdd);
+          $log.log("User list length: " + list.userList.length);
           dbFactory.updateList(list.uuid, list)
             .then(function (response) {
               $scope.status = 'User added to list!';
@@ -228,13 +232,13 @@ angular.module('signupApp')
 
         };
         function delMe(list) {
-          $log.log("delMe: User list length before filter: " + list.userlist.length);
+          $log.log("delMe: User list length before filter: " + list.userList.length);
           listInCourseScope = $filter('filter')($scope.course.lists, function (d) {return d.uuid === list.uuid;})[0];
-          angular.forEach(listInCourseScope.userlist, function(userInfo,index) {
+          angular.forEach(listInCourseScope.userList, function(userInfo,index) {
             $log.log("delMe: userInfo = " + userInfo.user_uuid);
             if( $scope.config.lti.user_uuid === userInfo.user_uuid) {
-              listInCourseScope.userlist.splice(index);
-              $log.log("delMe: User list length: " + list.userlist.length);
+              listInCourseScope.userList.splice(index);
+              $log.log("delMe: User list length: " + list.userList.length);
             }
           });
           dbFactory.updateList(list.uuid, list)
@@ -276,16 +280,16 @@ angular.module('signupApp')
 
         function userInList(list) {
           listInCourseScope = $filter('filter')($scope.course.lists, function (c) {return c.uuid === list.uuid;})[0];
-          if(listInCourseScope.userlist.length === 0) {
+          if(listInCourseScope.userList.length === 0 ) {
             $log.log("userInList: returning false");
             return false;
           } else {
             $log.log("userInList: Getting userInListScope");
-            userInListScope = $filter('filter')(listInCourseScope.userlist, function (l) {return l.user_uuid === $scope.config.lti.user_uuid;})[0];
+            userInListScope = $filter('filter')(listInCourseScope.userList, function (l) {return l.user_uuid === $scope.config.lti.user_uuid;})[0];
             $log.log("userInListScope: " + JSON.stringify(userInListScope));
             return userInListScope ? true : false;
           }
-          $log.log("userInList: Returning the default false. userlist exists, but current user is not in it");
+          $log.log("userInList: Returning the default false. userList exists, but current user is not in it");
           return false;
         };
     }])
