@@ -3,8 +3,34 @@ var router = express.Router();
 var mongoose = require('bluebird').promisifyAll(require('mongoose'));
 var Course = require('../models/courses');
 
+var config = require('../../config/config');
+var debug = (config.debug_mode=="true"?true:false);
+
+// √ POST /courses to create a new SUL course record
+// √ PUT /courses/:id to update a complete course record (use PATCH for partial updates)
+// √ GET /courses/:id to retrieve a single SUL course
+// √ GET /courses to retrieve a collection of all SUL courses
+// √ DELETE /courses/:id - delete existing SUL course
+// √ PATCH /courses/:id - partial update of identified course
+// √ POST /courses/:id/roster/ - add a roster to the SUL course 
+//      --- use PUT /courses/:id/roster to update a course roster
+//      --- use DELETE to remove a user from the roster
+// √ PUT /courses/:id/roster - update a whole roster
+// √ GET /courses/:id/roster - get a whole roster
+// √ PATCH /courses/:id/roster - add a single user to a roster for the SUL course
+// √ GET /courses/:id/roster/:user_uuid - gets a specific user from the roster
+// √ DELETE /courses/:id/roster - delete a whole roster
+// √ DELETE /courses/:id/roster/:user_uuid - delete a user from the roster
+// √ DELETE /courses/:id/lists - delete all lists
+
+//put on hold until we decide we need these
+// POST /courses/:id/lists/ - add a whole list of lists
+// POST /courses/:id/lists/:list_uuid - update a specific list
+// DELETE /courses/:id/lists/: list_uuid - delete a list from the lists
+
+
 /*
- * POST /courses to save a new course.
+ * POST /courses to create a new SUL course record
  */
 router.post('/', function(req, res, next) {
     //res.send('post courses requested');
@@ -22,34 +48,33 @@ router.post('/', function(req, res, next) {
         else { //If no errors, send it back to the client
            //console.log(req.body);
            res.status(201).json(req.body);
-        }
+        };
     });
 });
 
 
 
 /*
- * GET /courses route to retrieve all the courses.
+ * GET /courses to retrieve a collection of all SUL courses
  */
 router.get('/', function(req, res, next) {
     var query = Course.find({});
     query.exec((err, courses) => {
-        console.log("err: " + err + " courses: " + courses);
 
         if(err) res.send(err);
         //If no errors, send them back to the client
         if(!courses) {
-          console.log("send 204");
+          if (debug) console.log("send 204");
           res.sendStatus(204);
         } else {
-          console.log("send courses");
-          res.json(courses);
+          if (debug) console.log("send courses");
+          res.sendStatus(200).json(courses);
         }
     });
 });
 
 /*
- * GET /courses/:uuid route to retrieve a single course.
+ * GET /courses/:id to retrieve a single SUL course
  */
 router.get('/:id', function(req, res, next) {
     //Query the DB and if no errors, return all the systems
@@ -62,29 +87,166 @@ router.get('/:id', function(req, res, next) {
     });
 });
 
-router.get('/:id', function(req, res, next) {
-    res.send('get courses requested');
+/*
+ * PUT /courses/:id/roster/ - add a complete roster to the SUL course 
+*/
+router.put('/:id/roster', function(req, res, next) {
+    Course.findOne({uuid: req.params.id}, (err, course) => {
+        if (debug) console.log("[courses.js] PUT: roster: uuid: " + req.params.id);
+        if (debug) console.log("[courses.js] PUT: roster: course: " + course);
+
+        course.roster = req.body;
+        course.save((err, course) => {
+        if (debug) console.log("[courses.js] PUT: roster: updated course: " + course);
+        if(err) {
+            res.send(err);
+        } else { //If no errors, send it back to the client
+           //console.log(req.body);
+           res.status(200).json(req.body);
+        };
+
+        });
+    });
 });
 
 /*
- * PUT /systems/:system_id route to update a single system.
+ * √ GET /courses/:id/roster - gets the roster from a SUL course
  */
-router.put('/:id', function(req, res, next) {
-    Course.findOne({uuid: req.params.id}, (err, course) => {
-        console.log("COURSE: " + JSON.stringify(course));
-        console.log("UUID: " + req.params.id);
-        console.log("ERR: " + err);
+router.get('/:id/roster', function(req,res,next) {
+    Course.findOne({"uuid": req.params.id}, function(err, course) {
+        if (debug) console.log("\n\n[courses.js] GET course roster from: \n", req.params.id );
+        if (debug) console.log("\n\n[courses.js] GET course roster: \n" + req.body.roster);
         if(err) res.send(err);
-        Object.assign(course, req.body).save((err, course) => {
-            if(err) res.send(err);
-            res.json(course);
-        });
+        res.status(200).json(req.body.roster);
     });
 });
 
 
 /*
- * DELETE /courses/:id route to delete a single course.
+DELETE /courses/:id/roster - delete a whole roster
+ */
+router.delete('/:id/roster', function(req, res, next) {
+    if (debug) console.log("\n\n[courses.js] DELETE roster from course:  \n", req.params.id);
+    Course.findOneAndUpdate({"uuid": req.params.id}, { $set: { "roster": [] }}, {"new": true}, (err, course) => {
+              if (debug) console.log("\n\n[courses.js] DELETE roster: post delete:\n", course);
+              if (err) {
+                res.status(500).send(err)
+              }
+            res.status(200).json(course);
+    });
+});
+
+/*
+ * √ DELETE /courses/:id/lists - delete a whole list of lists
+ */
+router.delete('/:id/lists', function(req, res, next) {
+    if (debug) console.log("\n\n[courses.js] DELETE lists from course:  \n", req.params.id);
+    Course.findOneAndUpdate({"uuid": req.params.id}, { $set: { "list": [] }}, {"new": true}, (err, course) => {
+              if (debug) console.log("\n\n[courses.js] DELETE (empty) list of Lists: post delete:\n", course);
+              if (err) {
+                res.status(500).send(err)
+              }
+            res.status(200).json(course);
+    });
+});
+
+
+/*
+ * √ GET /courses/:id/roster/:user_uuid - gets a specific user from the roster
+ */
+router.get('/:id/roster/:uuid', function(req, res, next) {
+
+    var userId = req.params.uuid;
+    var foundUser;
+
+    if (debug) console.log("\n\n[courses.js] GET course roster user from: \n", req.params.id );
+    if (debug) console.log("\n\n[courses.js] GET course roster user: \n" + userId);
+
+    //Course.find({"uuid": req.params.id}, {"roster": {$elemMatch: { "user_uuid": userId } } }, function(err, course) {
+    Course.findOne({"uuid": req.params.id}, function(err, course) {
+        if(err) res.send(err);
+        if (debug) console.log("\n\n[courses.js] Found course: \n" + course);
+        var cRoster = course.roster;
+        if (debug) console.log("\n\n[courses.js] Found course cRoster: \n" + cRoster);
+        for(var i=0;i<cRoster.length;i++){
+            if (cRoster[i]["user_uuid"] == userId) {
+                if (debug) console.log("\n\n[courses.js] Found user: \n", cRoster[i]["user_uuid"]);
+                if (debug) console.log("\n\n[courses.js] Found user: \n", cRoster[i]);
+
+                foundUser = cRoster[i];//["user_uuid"];
+            }
+        }
+
+        //if (debug) console.log("\n\n[courses.js] Found course roster user: \n" + course.roster.user_uuid);
+   
+        res.status(200).json(foundUser);
+    });
+
+});
+
+
+
+/*
+ * PUT /courses/:id to fully update a complete course record (use PATCH for partial updates)
+ */
+router.put('/:id', function(req, res, next) {
+    Course.findOne({uuid: req.params.id}, (err, course) => {
+        if (debug) console.log("[courses.js] PUT: course: " + JSON.stringify(course));
+        if (debug) console.log("[courses.js] PUT: UUID: " + req.params.id);
+        if(err) res.send(err);
+        Object.assign(course, req.body).save((err, course) => {
+            if(err) res.send(err);
+            res.status(200).json(course);
+        });
+    });
+});
+
+/*
+ * PATCH /courses/:id - partial update of identified course
+*/
+router.patch('/:id/', function(req, res, next) {
+    var uuid = req.params.id;
+    if (debug) console.log("\n\n[courses.js] PATCH course: id \n", req.params.id);
+    Course.findOne({"uuid": req.params.id}, function(err, course) {
+        if (debug) console.log("\n\n[courses.js] PATCH course in: \n", req.body );
+        if (debug) console.log("\n\n[courses.js] PATCH course: found  \n", course);
+
+        course.uuid =  req.body.uuid || course.uuid;
+        course.externalId = req.body.externalId || course.externalId;
+        course.roster = req.body.roster || course.roster;
+        course.lists = req.body.lists || course.lists;
+        course.ultrafied = req.body.ultrafied || course.ultrafied;
+        course.created_on = req.body.created_on || course.created_on;
+        course.updated_on = new Date();
+
+        if (debug) console.log("\n\n[courses.js] PATCH course results: \n", course);
+		// Save the updated document back to the database
+        course.save(function (err, course) {
+            if (err) {
+                res.status(500).send(err)
+            }
+            res.status(200).json(course);
+        });
+    });
+});
+
+/*
+ * PATCH /courses/:id/roster/ - add a user to a roster for the SUL course
+ */
+router.patch('/:id/roster', function(req, res, next) {
+    var userToAdd = req.body;
+    if (debug) console.log("\n\n[courses.js] PATCH user: userToAdd: \n", userToAdd );
+
+    Course.findOneAndUpdate({"uuid": req.params.id}, {$addToSet: { "roster": userToAdd } }, {"new": true }, function(err, course) {
+        if(err) res.send(err);
+        if (debug) console.log("\n\n[courses.js] PATCH user: \n", res.body );
+        res.status(200).json(course);
+
+        });     
+    });
+
+/*
+ * DELETE /courses/:id - delete existing SUL course
  */
 router.delete('/:id', function(req, res, next) {
     Course.remove({uuid : req.params.id}, (err, result) => {

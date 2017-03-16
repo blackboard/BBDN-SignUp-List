@@ -6,6 +6,7 @@ require('./lists');
 var courseSchema = new Schema(
     {
         uuid: { type: String, required: true, unique: true },
+        externalId: { type: String },
         roster: [{
             user_uuid: { type: String, required: true, unique: true }
         }],

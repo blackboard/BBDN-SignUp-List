@@ -15,13 +15,14 @@ rest_secret: TEXT
 var systemSchema = new Schema({
     system_id   : { type: String, required: true, unique: true },
     hostname    : { type: String, required: true, unique: true },
-    created_at  : { type: Date, required: true, default: Date.now }
+    created_at  : { type: Date, required: true, default: Date.now },
+    updated_at  : { type: Date, required: true, default: Date.now },
   });
 
 // Sets the createdOn parameter equal to the current time
 systemSchema.pre('save', function(next){
   now = new Date();
-  //this.updated_at = now;
+  this.updated_at = now;
   if ( !this.created_at ) {
     this.created_at = now;
   }

@@ -15,13 +15,15 @@ var lists = require('./controllers/routes/lists');
 var logs = require('./controllers/routes/logs');
 var rest = require('./controllers/routes/rest');
 
+var debug = (config.debug_mode=="true"?true:false);
+
 //set up mongoose
 //determine db path
 var db = process.env.MONGO_URI || config.test_db;
 // Bring Mongoose into the app
 var mongoose = require( 'mongoose' );
 // Create the database connection
-console.log("[SERVER.JS]:db: ", db);
+if (debug) console.log("[SERVER.JS]:db: ", db);
 mongoose.connect(db);
 
 // CONNECTION EVENTS
