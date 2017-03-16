@@ -185,7 +185,7 @@ describe("[test_list_schema] Pass on correctly formatted POST (WITH USER)?", fun
   });
 });
 
-//PUT - add entire userList
+//PUT - update entire userList
 describe("[test_list_schema] Pass on correctly replacing a full List?", function() {
     var usrs = [
       { "user_uuid": "SUPERMAN",
@@ -220,7 +220,7 @@ describe("[test_list_schema] Pass on correctly replacing a full List?", function
       });
     });
 
-//PATCH - change out the entire userList
+//PATCH - change out the entire userList (SHOULD CHANGE TO PUT)
 describe("[test_list_schema] Pass on full userList Update", function() {
   var list;
 
@@ -239,16 +239,14 @@ describe("[test_list_schema] Pass on full userList Update", function() {
 		}
 	];
   
-  //console.log("[test_list_schema] Pass on full userList Update: list_created_uuid: ",list_created_uuid);
 
-  it('should PUT new userList', (done) => {
+  it('should PATCH new userList', (done) => {
     chai
         .request(server)
         .patch('/lists/' + list_created_uuid + '/userList')
         .send(newUserList)
         .end((err, res) => {
           res.should.have.status(200);
-          //console.log("\nres.body.userList: :\n", res.body.userList);
           list =  res.body.userList;
           
           for(var i=0;i<list.length;i++){
@@ -286,7 +284,6 @@ describe("[test_list_schema] Pass on User Add", function() {
         .send(newUser)
         .end((err, res) => {
           res.should.have.status(200);
-          //console.log("\n[test_list_schema Put New User] res.body.userList: :\n", res.body.userList);
           list =  res.body.userList;
           
           for(var i=0;i<list.length;i++){
@@ -316,14 +313,13 @@ describe("[test_list_schema] Pass on User Update", function() {
   
   console.log("[test_list_schema] Pass on  user Update: list_created_uuid: ", list_created_uuid);
 
-  it('should PUT updated user', (done) => {
+  it('should PATCH updated user', (done) => {
     chai
         .request(server)
         .patch('/lists/' + list_created_uuid + '/userList/' + "HAWKEYE")
         .send(updatedUser)
         .end((err, res) => {
           res.should.have.status(200);
-          //console.log("\n[test_list_schema PATCH User] res.body.userList: :\n", res.body.userList);
           list =  res.body.userList;
           
           for(var i=0;i<list.length;i++){
@@ -333,10 +329,7 @@ describe("[test_list_schema] Pass on User Update", function() {
               delete list[i]["created_on"];
               place = i;
             }
-          }
-          //console.log("\n[test_list_schema PATCH User] User to Update: :\n", updatedUser);
-          //console.log("\n[test_list_schema PATCH User] Updated User: :\n", list[place]);
-          
+          }          
           list[place].should.have.all.members(updatedUser);
 
         });
@@ -396,7 +389,6 @@ describe("[test_list_schema] DELETE User", function() {
       .request(server)
       .delete('/lists/' + list_created_uuid + "/userList/" + "HAWKEYE")
       .end((err, res) => {
-        //console.log("\n[test_list_schema DELETE user] Results: :\n", res.body);
         res.should.not.have.err;
         res.should.have.status(200);
       });
@@ -434,12 +426,9 @@ describe("[test_list_schema] Delete what we created", function() {
 
 //empty DB after tests
 after(function (done) {
-  console.log('[test_list_schema] Dropping test list collection');
-//    console.log(mongoose.connection.readyState);
-    mongoose.connection.on('open', function(){
-      mongoose.connection.db.dropCollection('lists');
-      mongoose.connection.close();
-    });
-  done();
+    console.log('[test_list_schema] Dropping test list collection');
+    mongoose.connection.db.dropCollection('lists');
+    mongoose.connection.close();
+    done();
 });
 

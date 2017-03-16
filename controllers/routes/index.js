@@ -8,6 +8,8 @@ var path = require('path');
 
 //const url = require('url').URL;
 
+var debug = (config.debug_mode=="true"?true:false);
+
 var url = require('url');
 
 var lti_key = process.env.LTI_KEY || config.lti_key;
@@ -34,17 +36,18 @@ var valid_session = false;
 
 /* key and secret sanity checks - logged on startup */
 //if (process.env.DEBUG) {
-    console.log('[index.js]: ');
-    console.log("process.env.LTI_KEY:: ",process.env.LTI_KEY);
-    console.log("process.env.LTI_SECRET:: ",process.env.LTI_SECRET);
-    console.log("process.env.APP_OAUTH_KEY:: ",process.env.APP_OAUTH_KEY);
-    console.log("process.env.APP_OAUTH_SECRET:: ",process.env.APP_OAUTH_SECRET);
-    console.log("process.env.MONGO_URI:: ",process.env.MONGO_URI);
-    if (lti_key == config.lti_key) {
+    if (debug) console.log('[index.js]: ');
+    if (debug) console.log("process.env.LTI_KEY:: ",process.env.LTI_KEY);
+    if (debug) console.log("process.env.LTI_SECRET:: ",process.env.LTI_SECRET);
+    if (debug) console.log("process.env.APP_OAUTH_KEY:: ",process.env.APP_OAUTH_KEY);
+    if (debug) console.log("process.env.APP_OAUTH_SECRET:: ",process.env.APP_OAUTH_SECRET);
+    if (debug) console.log("process.env.MONGO_URI:: ",process.env.MONGO_URI);
+    if (debug) {
+      if (lti_key == config.lti_key) {
         console.log('Using lti_key from config.js:','\x1b[32m',lti_key,'\x1b[0m');
-    } else {
+      } else {
         console.log('Using lti_key from process.env:','\x1b[32m',lti_key,'\x1b[0m');
-    }
+      }
 
     if (lti_secret == config.lti_secret) {
       console.log('Using lti_secret from config.js:','\x1b[32m',lti_secret,'\x1b[0m');
@@ -80,36 +83,36 @@ var valid_session = false;
     } else {
       console.log('Using rest_port from process.env:','\x1b[32m',rest_port,'\x1b[0m');
     }
-//}
+  }
 /* Return home page from LTI Launch. */
 router.post('/lti', function(req, res, next) {
 /*
  * POST LTI Launch Received
  */
-  console.log('[POST_FUNCTION] CONFIG KEY/SECRET: ' + lti_key + '/' + lti_secret);
+  if (debug) console.log('[POST_FUNCTION] CONFIG KEY/SECRET: ' + lti_key + '/' + lti_secret);
 
-  console.log('\n[POST_FUNCTION] request host: ' + req.headers.host);
-  console.log();
+  if (debug) console.log('\n[POST_FUNCTION] request host: ' + req.headers.host);
+  if (debug) console.log();
 
   var provider = new lti.Provider(lti_key, lti_secret);
   req.body = _.omit(req.body, '__proto__');
 
-  console.log("REQUEST HEADERS: ");
-  console.log(req.headers);
-  console.log("\nREQUEST BODY: ");
-  console.log(req.body);
+  if (debug) console.log("REQUEST HEADERS: ");
+  if (debug) console.log(req.headers);
+  if (debug) console.log("\nREQUEST BODY: ");
+  if (debug) console.log(req.body);
   
-  console.log("\nREQUEST launch_presentation_return_url: ", req.body.launch_presentation_return_url);
-  console.log("\nREQUEST custom_tc_profile_url: ", req.body.custom_tc_profile_url); //seems to be the only consistent URL returned?
+  if (debug) console.log("\nREQUEST launch_presentation_return_url: ", req.body.launch_presentation_return_url);
+  if (debug) console.log("\nREQUEST custom_tc_profile_url: ", req.body.custom_tc_profile_url); //seems to be the only consistent URL returned?
 
   
   //var launcherURL = new url(req.body.launch_presentation_return_url);
 
   var launcherURL = url.parse(req.body.custom_tc_profile_url, true, true);
 
-  console.log("\nLAUNCHER URL PROTOCOL: ", launcherURL.protocol);
-  console.log("\nLAUNCHER URL HOSTNAME: ", launcherURL.hostname);
-  console.log("\nLAUNCHER URL PORT: ", launcherURL.port);
+  if (debug) console.log("\nLAUNCHER URL PROTOCOL: ", launcherURL.protocol);
+  if (debug) console.log("\nLAUNCHER URL HOSTNAME: ", launcherURL.hostname);
+  if (debug) console.log("\nLAUNCHER URL PORT: ", launcherURL.port);
 
   sess = req.session;
   sess.consumer_protocol=launcherURL.protocol;
@@ -123,17 +126,23 @@ router.post('/lti', function(req, res, next) {
   }
   */
 
-  sess.consumer_port=(launcherURL.port == undefined) ? ((launcherURL.protocol == 'https:')?'443':'80'):launcherURL.port;
+  // Check to see if launch is from DVM, if so default to https and 9877.
+  if(launcherURL.hostname == 'localhost' && launcherURL.port == '9876') {
+    sess.consumer_protocol='https:';
+    sess.consumer_port='9877';
+  } else {
+    sess.consumer_port=(launcherURL.port == undefined) ? ((launcherURL.protocol == 'https:')?'443':'80'):launcherURL.port;
+  }
 
-  console.log("\nsession.consumer_protocol: ", sess.consumer_protocol);
-  console.log("\nsession.consumer_hostname: ", sess.consumer_hostname);
-  console.log("\nsession.consumer_port : ", sess.consumer_port);
+  if (debug) console.log("\nsession.consumer_protocol: ", sess.consumer_protocol);
+  if (debug) console.log("\nsession.consumer_hostname: ", sess.consumer_hostname);
+  if (debug) console.log("\nsession.consumer_port : ", sess.consumer_port);
 
-  console.log('\nCHECK REQUEST VALIDITY');
+  if (debug) console.log('\nCHECK REQUEST VALIDITY');
   
   provider.valid_request(req, function(err, isValid) {
      if(err) {
-       console.log('Error in LTI Launch:' + err);
+        console.log('Error in LTI Launch:' + err);
         var err = new Error('Error in LTI launch.');
         err.status = 403;
         next(err);
@@ -157,6 +166,7 @@ router.post('/lti', function(req, res, next) {
        	 if(return_url == undefined) {
       	    return_url = 'https://' + sess.consumer_hostname + ':' + sess.consumer_port;
        	 }
+         if (debug) {
          console.log('\nDETAILS: ');
          console.log ('{' +
            '"return_url" : ' + return_url + ',' +
@@ -166,6 +176,7 @@ router.post('/lti', function(req, res, next) {
            '"system_guid" :' +  system_guid + ',' +
            '"return_url" :' +  return_url + ',' +
          '}');
+         }
 
        	 res.sendFile(path.resolve(__dirname + '/../../public/index.html'));
        }
@@ -192,8 +203,8 @@ router.get('/lti/data', function(req, res, next) {
       "rest_port" : config.rest_port,
       "return_url" : return_url
     };
-    console.log('\nCAPTURED LTI DATA: ');
-    console.log(JSON.stringify(ltidata));
+    if (debug) console.log('\nCAPTURED LTI DATA: ');
+    if (debug) console.log(JSON.stringify(ltidata));
     res.json(ltidata);
   };
 });
