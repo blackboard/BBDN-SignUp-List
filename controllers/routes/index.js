@@ -19,6 +19,7 @@ var oauth_secret = process.env.APP_OAUTH_SECRET || config.oauth_secret;
 var rest_host = process.env.APP_TARGET_URL || config.rest_host;
 var rest_port = process.env.APP_TARGET_PORT || config.rest_port;
 var db_URL = process.env.MONGO_URI || config.db;
+var debug_mode = process.env.DEBUG_MODE || config.debug_mode;
 
 
 
@@ -72,7 +73,7 @@ var valid_session = false;
     } else {
       console.log('Using db_URL from process.env:','\x1b[32m',db_URL,'\x1b[0m');
     }
-    
+
     if (rest_host == config.rest_host) {
       console.log('Using rest_host from config.js:','\x1b[32m',rest_host,'\x1b[0m');
     } else {
@@ -83,7 +84,9 @@ var valid_session = false;
     } else {
       console.log('Using rest_port from process.env:','\x1b[32m',rest_port,'\x1b[0m');
     }
+
   }
+
 /* Return home page from LTI Launch. */
 router.post('/lti', function(req, res, next) {
 /*
@@ -97,6 +100,7 @@ router.post('/lti', function(req, res, next) {
   var provider = new lti.Provider(lti_key, lti_secret);
   req.body = _.omit(req.body, '__proto__');
 
+
   if (debug) console.log("REQUEST HEADERS: ");
   if (debug) console.log(req.headers);
   if (debug) console.log("\nREQUEST BODY: ");
@@ -105,7 +109,8 @@ router.post('/lti', function(req, res, next) {
   if (debug) console.log("\nREQUEST launch_presentation_return_url: ", req.body.launch_presentation_return_url);
   if (debug) console.log("\nREQUEST custom_tc_profile_url: ", req.body.custom_tc_profile_url); //seems to be the only consistent URL returned?
 
-  
+
+
   //var launcherURL = new url(req.body.launch_presentation_return_url);
 
   var launcherURL = url.parse(req.body.custom_tc_profile_url, true, true);
@@ -139,7 +144,7 @@ router.post('/lti', function(req, res, next) {
   if (debug) console.log("\nsession.consumer_port : ", sess.consumer_port);
 
   if (debug) console.log('\nCHECK REQUEST VALIDITY');
-  
+
   provider.valid_request(req, function(err, isValid) {
      if(err) {
         console.log('Error in LTI Launch:' + err);
@@ -201,7 +206,8 @@ router.get('/lti/data', function(req, res, next) {
       "system_guid" : system_guid,
       "rest_host" : config.rest_host,
       "rest_port" : config.rest_port,
-      "return_url" : return_url
+      "return_url" : return_url,
+      "debug_mode" : debug_mode
     };
     if (debug) console.log('\nCAPTURED LTI DATA: ');
     if (debug) console.log(JSON.stringify(ltidata));

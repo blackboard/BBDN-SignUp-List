@@ -14,7 +14,9 @@ var config = {
   oauth_secret: keys.oauth_secret,
   db: 'mongodb://localhost:27017/signuplistdb',
   test_db: 'mongodb://localhost:27017/test_signuplistdb',
+
   debug_mode: "true"
+
 };
 
 if (config.debug=="true") console.log(config);
