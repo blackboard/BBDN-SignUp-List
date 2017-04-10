@@ -7,13 +7,8 @@ var courseSchema = new Schema(
     {
         uuid: { type: String, required: true, unique: true },
         externalId: { type: String },
-        roster: [{
-            user_uuid: { type: String, required: true, unique: true }
-        }],
         lists: [{ type: Schema.Types.ObjectId, ref: 'List' }],
-        ultrafied: { type: Boolean, required: true },
-        created_on: Date,
-        updated_on: Date 
+        ultrafied: { type: Boolean, required: true }
     },
     // `created_on` & `updated_on` will be included on saves and updates
     { timestamps: { 

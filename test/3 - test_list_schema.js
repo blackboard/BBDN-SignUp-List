@@ -1,434 +1,436 @@
-"use strict";
-var List = require('../controllers/models/lists');
-var chai = require('chai');
-var chaiHttp = require('chai-http');
-var server = require('../server');
-var should = chai.should();
-var config = require('../config/config');
+'use strict'
 var mongoose = require("mongoose");
-const uuidV1 = require('uuid/v1');
+var List = require('../controllers/models/lists')
+var chai = require('chai')
+var chaiHttp = require('chai-http')
+var server = require('../server')
+var config = require('../config/config')
+const uuidV1 = require('uuid/v1')
+var should = chai.should()
+var expect = chai.expect()
 
-chai.use(chaiHttp);
+chai.use(chaiHttp)
 
-//Always use test DB for testing...
-var db = config.test_db;
-/* LISTS 
-    {
-        name: { type: String, required: true },
-        description: String,
-        location: String,
-        start: { type: Date, required: true },
-        end: Date,
-        waitlist_allowed: { type: Boolean, default: false }
-        max_size: Number,
-        max_waitlist: Number,
-        state: {
-            type: String,
-            enum: ['NEW', 'STATUS'],
-            default: 'NEW'
-        },
-        group: String,
-        userlist: [{
-            user_uuid: String,
-            role: { type: String,
-                enum: ['INSTRUCTOR', 'TEACHING_ASSISTANT', 'STUDENT'],
-                default: 'STUDENT'},
-            added_by: String,
-            waitlisted: { type: Boolean, default: false },
-            created_on: Date,
-            updated_on: Date }
-        }]
-*/
+// Always use test DB for testing...
+var db = config.test_db
+var debug = (config.debug_mode === 'true')
 
-//test data
-var posted_uuid;
-var good_list = { uuid: "mochaListSchemaTestList", ultrafied: false };
-var bad_test_no_uuid = {
-        "name": "no start date",
-        "description": "test post list with no start date",
-        "start": new Date(),
-        "max_size": 30,
-        "max_waitlist": 3,
-};
+if (debug) console.log('\n[test_list_schema.js] DB: ' + db)
 
-var bad_test_no_name = { 
-        "uuid": uuidV1(),
-        "description": "test post list with no name",
-        "start": new Date(),
-        "max_size": 30,
-        "max_waitlist": 3, 
-};
+/*
+LISTS Collection
+    list_uuid: TEST, Required, Unique
+    list_name: TEXT                                     #e.g. Mid-term Study Groups
+    list_description: TEXT                              #e.g. 5 groups available
+    list_visible_start: DATETIME                        #Determines visibility of list to students.
+    list_visible_end: DATETIME                          #Determines visibility of list to students.
+    list_state: TEXT/ENUM ['OPEN', 'CLOSED'], default: ‘OPEN’  #State determined by reg'd users
+                                                               # - CLOSED when Group(s) size/waitlist quotas are met.
+                                                               # - CLOSED when list_visible_end is met.
+    student_view: BOOLEAN, default: false                # Determines group member visibility to students
+    group_list: ARRAY of Group:                          #There is always one group. 1…n
+        grp_uuid: TEXT, Required, Unique                 #Group unique ID
+        grp_name: TEXT                                   #e.g. Mid-term Study Group: MONDAY (optional)
+        grp_description: TEXT                            #e.g. Meets Mondays (optional)
+        grp_location: TEXT                               #Where it meets (optional)
+        grp_start: DATETIME                              #meeting time for group (optional)
+        grp_end: DATETIME                                #meeting time for group (optional)
+        grp_waitlist_allowed: BOOLEAN default: false
+        grp_max_size: INTEGER                            #maximum number of students in the group
+        grp_max_waitlist: INTEGER                        #maximum number of students to be waitlisted
+        grp_state: TEXT/ENUM ['OPEN', 'CLOSED'], default: ‘OPEN'    #State determined by reg'd users
+                                                                    #  - CLOSED when Group size/waitlist quotas are met
+        user_list: ARRAY of User:
+          user: TEXT (UUID)
+          role: TEXT/ENUM: ['INSTRUCTOR', 'TEACHING_ASSISTANT', 'STUDENT'] default: 'STUDENT’
+          created_on: DATETIME
+          modified: DATETIME
+          added_by: TEXT
+          waitlisted: BOOLEAN
 
-var bad_test_no_date = { 
-        "uuid": uuidV1(),
-        "name": "no start date",
-        "description": "test post list with no start date",
-        "max_size": 30,
-        "max_waitlist": 3,
-};
+ */
 
-var minimum_good_list = { 
-        "uuid": uuidV1(),
-        "name": "This is the minimum Good List",
-        "description": "test post list with minimum data",
-        "start": new Date(),
-        "max_size": 30,
-        "max_waitlist": 3,
-        "state":"OPEN",
-        "group": uuidV1()
-};
-
-var good_list_one_user = { 
-        "uuid": uuidV1(),
-        "name": "This is the minimum Good List",
-        "description": "test post list with minimum data, one user",
-        "start": new Date(),
-        "max_size": 30,
-        "max_waitlist": 3,
-        "state": "OPEN",
-        "userList": [ { "user_uuid": "SUPERMAN",
-            "role": "STUDENT",
-            "added_by": "BATMAN",
-            "waitlisted": false} ]
-};
-
-var addedUser = {
-        "uuid":list_created_uuid,
-        "name": "This is the minimum Good List",
-        "description": "test post list with minimum data, one user",
-        "start": new Date(),
-        "max_size": 30,
-        "max_waitlist": 3,
-        "state": "OPEN",
-        "userList": [ 
-          { "user_uuid": "SUPERMAN",
-            "role": "STUDENT",
-            "added_by": "BATMAN",
-            "waitlisted": false},
-          { "user_uuid": "AQUAMAN",
-            "role": "STUDENT",
-            "added_by": "WONDER WOMAN",
-            "waitlisted": true } ]
+// test data
+var badTestNoUUID = {
+  'list_name': 'no start date',
+  'list_description': 'test post list with no start date',
+  'list_visible_start': new Date(),
+  'list_visible_end': new Date()
 }
 
-var usr2Add = { "user_uuid": "AQUAMAN", "role": "STUDENT", "added_by": "WONDER WOMAN", "waitlisted": true };
+var badTestNoName = {
+  'list_uuid': uuidV1(),
+  'list_description': 'test post list with no name',
+  'list_visible_start': new Date(),
+  'list_visible_end': new Date()
+}
+
+var badTestNoDates = {
+  'list_uuid': uuidV1(),
+  'list_name': 'no start date',
+  'list_description': 'test post list with no start date'
+}
+
+var badTestNoStartDate = {
+  'list_uuid': uuidV1(),
+  'list_name': 'no start date',
+  'list_description': 'test post list with no start date',
+  'list_visible_end': new Date()
+}
+
+var badTestNoEndDate = {
+  'list_uuid': uuidV1(),
+  'list_name': 'no start date',
+  'list_description': 'test post list with no start date',
+  'list_visible_start': new Date()
+}
+
+var listVisibleEndDate = new Date()
+listVisibleEndDate.setDate(listVisibleEndDate.getDate()+7)
+
+var minimumGoodList = {
+  'list_uuid': uuidV1(),
+  'list_name': 'This is the minimum Good List',
+  'list_description': 'test post list with minimum data',
+  'list_visible_start': new Date(),
+  'list_visible_end': listVisibleEndDate,
+  'list_state': 'OPEN',
+  'student_view': 'false',
+  'group_list': []
+}
+
+var grpEnd = new Date()
+grpEnd.setDate(grpEnd.getDate() + 7)
+var grpOneUUID = uuidV1()
+var grpTwoUUID = uuidV1()
+var grpThreeUUID = uuidV1()
+var listCreatedUUID = uuidV1()
+var updateListNameJSON = { 'name': 'tsiLtseTamehcStsiLahcom' }
+var updatedListName = 'tsiLtseTamehcStsiLahcom'
 
 
-var list_created_uuid = "";
-var update_list_name = { "name": "tsiLtseTamehcStsiLahcom" };
-var updated_list_name = "tsiLtseTamehcStsiLahcom"
+var listGroupsNoUsers = {
+  'list_uuid': uuidV1(),
+  'list_name': 'This is the minimum Good List',
+  'list_description': 'test post list with minimum data',
+  'list_visible_start': new Date(),
+  'list_visible_end': listVisibleEndDate,
+  'list_state': 'OPEN',
+  'student_view': 'false',
+  'groupList': [
+    {
+      'grp_uuid': grpOneUUID,
+      'grp_name': 'Group One',
+      'grp_description': 'First Group',
+      'grp_location': 'Rm 1313',
+      'grp_start': new Date(),
+      'grp_end': grpEnd,
+      'grp_waitlist_allowed': true,
+      'grp_max_size': 4,
+      'grp_max_waitlist': 1,
+      'grp_state': 'OPEN',
+      'userList': []
+    },
+    {
+      'grp_uuid': grpTwoUUID,
+      'grp_name': 'Group Two',
+      'grp_description': 'Second Group',
+      'grp_location': 'Rm 1313',
+      'grp_start': new Date(),
+      'grp_end': grpEnd,
+      'grp_waitlist_allowed': true,
+      'grp_max_size': 4,
+      'grp_max_waitlist': 1,
+      'grp_state': 'OPEN',
+      'userList': []
+    }
+  ]
+}
 
-//POST tests
-describe("[test_list_schema] Fail on incorrectly formatted POST?", function() {
-    it('it should not POST a list without uuid field', (done) => {
-      chai
-        .request(server)
-        .post('/lists')
-        .send(bad_test_no_uuid)
-        .end(function(err, res) {
-          expect(res).to.have.err;
-        });
-      done();
-    });
+var listGroupsWithUsers = { 
+  'list_uuid': listCreatedUUID,
+  'list_name': 'This is the minimum Good List',
+  'list_description': 'test post list with minimum data',
+  'list_visible_start': new Date(),
+  'list_visible_end': listVisibleEndDate,
+  'list_state': 'OPEN',
+  'student_view': 'false',
+  'groupList': [
+    {
+      'grp_uuid': grpOneUUID,
+      'grp_name': 'Group One',
+      'grp_description': 'First Group',
+      'grp_location': 'Rm 1313',
+      'grp_start': new Date(),
+      'grp_end': grpEnd,
+      'grp_waitlist_allowed': true,
+      'grp_max_size': 4,
+      'grp_max_waitlist': 1,
+      'grp_state': 'OPEN',
+      'userList': [
+        { 'user_uuid': 'SUPERMAN',
+          'role': 'STUDENT',
+          'added_by': 'BATMAN',
+          'waitlisted': false},
+        { 'user_uuid': 'AQUAMAN',
+          'role': 'STUDENT',
+          'added_by': 'WONDER WOMAN',
+          'waitlisted': true } ]
+    },
+    {
+      'grp_uuid': grpTwoUUID,
+      'grp_name': 'Group Two',
+      'grp_description': 'Second Group',
+      'grp_location': 'Rm 1313',
+      'grp_start': new Date(),
+      'grp_end': grpEnd,
+      'grp_waitlist_allowed': true,
+      'grp_max_size': 4,
+      'grp_max_waitlist': 1,
+      'grp_state': 'OPEN',
+      'userList': [
+        { 'user_uuid': 'HAWKEYE',
+          'role': 'STUDENT',
+          'added_by': 'BLACKWIDOW',
+          'waitlisted': false},
+        { 'user_uuid': 'HULK',
+          'role': 'STUDENT',
+          'added_by': 'BRUCE BANNER',
+          'waitlisted': true },
+        { 'user_uuid': 'CAPT AMERICA',
+          'role': 'STUDENT',
+          'added_by': 'IRON MAN',
+          'waitlisted': true
+        } ]
+    } ]
+}
 
-    it('it should not POST a list without Name field', (done) => {
-      chai
-        .request(server)
-        .post('/lists')
-        .send(bad_test_no_name)
-        .end(function(err, res) {
-          expect(res).to.have.err;
-        });
-      done();
-    });
-    
-    it('it should not POST a list without start date field', (done) => {
-      chai
-        .request(server)
-        .post('/lists')
-        .send(bad_test_no_date)
-        .end(function(err, res) {
-          expect(res).to.have.err;
-        });
-        done();
-    });
-  });
+var groupThree = {
+  'grp_uuid': grpThreeUUID,
+  'grp_name': 'Group Three',
+  'grp_description': 'Third Group',
+  'grp_location': 'Rm 1313',
+  'grp_start': new Date(),
+  'grp_end': grpEnd,
+  'grp_waitlist_allowed': true,
+  'grp_max_size': 5,
+  'grp_max_waitlist': 2,
+  'grp_state': 'OPEN',
+  'userList': [
+    { 'user_uuid': 'THOR',
+      'role': 'STUDENT',
+      'added_by': 'CAPT AMERICA',
+      'waitlisted': false},
+    { 'user_uuid': 'IRON MAN',
+      'role': 'STUDENT',
+      'added_by': 'JARVIS',
+      'waitlisted': true },
+    { 'user_uuid': 'WOLVERINE ',
+      'role': 'STUDENT',
+      'added_by': 'XAVIER',
+      'waitlisted': true
+    } ]
+}
+
+var addedUser = {
+        'uuid': listCreatedUUID,
+        'name': 'This is the minimum Good List',
+        'description': 'test post list with minimum data, one user',
+        'start': new Date(),
+        'max_size': 30,
+        'max_waitlist': 3,
+        'state': 'OPEN',
+        'userList': [ 
+          { 'user_uuid': 'SUPERMAN',
+            'role': 'STUDENT',
+            'added_by': 'BATMAN',
+            'waitlisted': false},
+          { 'user_uuid': 'AQUAMAN',
+            'role': 'STUDENT',
+            'added_by': 'WONDER WOMAN',
+            'waitlisted': true } ]
+}
+
+var user2Add = { 'user_uuid': 'AQUAMAN', 'role': 'STUDENT', 'added_by': 'WONDER WOMAN', 'waitlisted': true }
 
 
-describe("[test_list_schema] Pass on correctly formatted POST?", function() {
-    it('should POST correctly', (done) => {
+// POST tests
+describe('[test_list_schema] Fail on incorrectly formatted POST?', function () {
+  it('it should not POST a list without list_name field', (done) => {
     chai
       .request(server)
       .post('/lists')
-      .send(minimum_good_list)
-      .end((err, res) => {
-        res.should.have.status(201);
-        res.body.description.should.eql("test post list with minimum data");
-      list_created_uuid = res.body.uuid;
-      done();
-    });
-  });
-});
-
-describe("[test_list_schema] Pass on correctly formatted POST (WITH USER)?", function() {
-    it('should POST correctly', (done) => {
+      .send(badTestNoName)
+      .end(function (err, res) {
+        if (err) {
+          if (debug) console.log('[test_list_schema] should not POST a list without list_name field')
+        }
+        expect(res).to.have.err
+      })
+    done()
+  })
+  it('it should not POST a list without list_visible_start and end fields', (done) => {
     chai
       .request(server)
       .post('/lists')
-      .send(good_list_one_user)
-      .end((err, res) => {
-        res.should.have.status(201);
-        res.body.description.should.eql("test post list with minimum data, one user");
-      list_created_uuid = res.body.uuid;
-      done();
-    });
-  });
-});
+      .send(badTestNoDates)
+      .end(function (err, res) {
+        if (err) {
+          if (debug) console.log('[test_list_schema] should not POST a list without list_visible_start and end fields')
+        }
+        expect(res).to.have.err
+      })
+    done()
+  })
 
-//PUT - update entire userList
-describe("[test_list_schema] Pass on correctly replacing a full List?", function() {
-    var usrs = [
-      { "user_uuid": "SUPERMAN",
-        "role": "STUDENT",
-        "added_by": "BATMAN",
-        "waitlisted": false},
-      { "user_uuid": "AQUAMAN",
-        "role": "STUDENT",
-        "added_by": "WONDER WOMAN",
-        "waitlisted": true } ];
-
-    var list;``
-
-    it('should PUT new list', (done) => {
-      chai
-        .request(server)
-        .put('/lists/' + list_created_uuid)
-        .send(addedUser)
-        .end((err, res) => {
-          res.should.have.status(200);
-          list = res.body.userList;
-          
-          for(var i=0;i<list.length;i++){
-            delete list[i]["_id"];
-          }
-          
-          list[0].should.have.all.members(usrs[0]);
-          list[1].should.have.all.members(usrs[1]);
-
-        });
-      done();  
-      });
-    });
-
-//PATCH - change out the entire userList (SHOULD CHANGE TO PUT)
-describe("[test_list_schema] Pass on full userList Update", function() {
-  var list;
-
- var newUserList = [
-		{
-			"added_by" : "THOR",
-			"user_uuid" : "HULK",
-			"waitlisted" : false,
-			"role" : "STUDENT"
-		},
-		{
-			"added_by" : "IRON MAN",
-			"user_uuid" : "CPT AMERICA",
-			"waitlisted" : true,
-			"role" : "STUDENT"
-		}
-	];
-  
-
-  it('should PATCH new userList', (done) => {
-    chai
-        .request(server)
-        .patch('/lists/' + list_created_uuid + '/userList')
-        .send(newUserList)
-        .end((err, res) => {
-          res.should.have.status(200);
-          list =  res.body.userList;
-          
-          for(var i=0;i<list.length;i++){
-            delete list[i]["_id"];
-          }
-          
-          list[0].should.have.all.members(newUserList[0]);
-          list[1].should.have.all.members(newUserList[1]);
-
-        });
-      done();  
-      });
-
-});
-
-//PUT add a new user to the userList
-describe("[test_list_schema] Pass on User Add", function() {
-  var list;
-  var place;
-
- var newUser =
-		{
-			"added_by" : "BLACK WIDOW",
-			"user_uuid" : "HAWKEYE",
-			"waitlisted" : false,
-			"role" : "STUDENT"
-		};
-  
-  console.log("[test_list_schema] Pass on user add: list_created_uuid: ", list_created_uuid);
-
-  it('should PUT new userList', (done) => {
-    chai
-        .request(server)
-        .put('/lists/' + list_created_uuid + '/userList/' + "HAWKEYE")
-        .send(newUser)
-        .end((err, res) => {
-          res.should.have.status(200);
-          list =  res.body.userList;
-          
-          for(var i=0;i<list.length;i++){
-            delete list[i]["_id"];
-            if (list[i]["user_uuid"] == "HAWKEYE") place = i;
-          }
-          
-          list[place].should.have.all.members(newUser);
-        });
-      done();  
-      });
-
-});
-
-//PATCH a specific user in the userList
-describe("[test_list_schema] Pass on User Update", function() {
-  var list;
-  var place;
-
- var updatedUser =
-		{
-			"added_by" : "BLACK WIDOW",
-			"user_uuid" : "HAWKEYE",
-			"waitlisted" : false,
-			"role" : "INSTRUCTOR"
-		};
-  
-  console.log("[test_list_schema] Pass on  user Update: list_created_uuid: ", list_created_uuid);
-
-  it('should PATCH updated user', (done) => {
-    chai
-        .request(server)
-        .patch('/lists/' + list_created_uuid + '/userList/' + "HAWKEYE")
-        .send(updatedUser)
-        .end((err, res) => {
-          res.should.have.status(200);
-          list =  res.body.userList;
-          
-          for(var i=0;i<list.length;i++){
-            delete list[i]["_id"];
-            if (list[i]["user_uuid"] == "HAWKEYE") {
-              delete list[i]["updated_on"];
-              delete list[i]["created_on"];
-              place = i;
-            }
-          }          
-          list[place].should.have.all.members(updatedUser);
-
-        });
-      done();  
-      });
-});
-
-//GET single item test
-describe("[test_list_schema] Return what we just created", function() {
-    it('should GET correctly', (done) => {
+  it('it should not POST a list without list_visible_start field', (done) => {
     chai
       .request(server)
-      .get('/lists/' + list_created_uuid)
-      .end((err, res) => {
-        res.should.have.status(200);
-    });
-    done();
-  });
-});
+      .post('/lists')
+      .send(badTestNoStartDate)
+      .end(function (err, res) {
+        if (err) {
+          if (debug) console.log('[test_list_schema] should not POST a list without list_visible_start field')
+        }
+        expect(res).to.have.err
+      })
+    done()
+  })
 
-
-//GET collection test
-describe("[test_list_schema] Return the entire lists collection", function() {
-    it('should return the full collection', (done) => {
+  it('it should not POST a list without list_visible_end field', (done) => {
     chai
       .request(server)
-      .get('/lists')
-      .end((err, res) => {
-        res.should.have.status(200);
-    });
-    done();
-  });
-});
+      .post('/lists')
+      .send(badTestNoEndDate)
+      .end(function (err, res) {
+        if (err) {
+          if (debug) console.log('[test_list_schema] should not POST a list without list_visible_end field')
+        }
+        expect(res).to.have.err
+      })
+    done()
+  })
+})
 
-
-//PUT (update) test
-describe("[test_list_schema] Pass on correctly formatted PUT?", function() {
-    it('should PUT (update) item correctly', (done) => {
-    chai
-          .request(server)
-          .put('/lists/' + list_created_uuid)
-          .send(update_list_name)
-          .end((err, res) => {
-            //res.should.be.json;
-            res.body.should.be.a('object');
-            //res.body.should.have.property('UPDATED');
-            res.body.should.have.property('name');
-            res.body.name.should.eql(updated_list_name);
-    });
-    done();
-  });
-});
-
-describe("[test_list_schema] DELETE User", function() {
-  it('should delete the user from the requested List', (done) => {
+describe('[test_list_schema] Pass on correctly formatted POST?', function () {
+  it('should POST correctly', (done) => {
     chai
       .request(server)
-      .delete('/lists/' + list_created_uuid + "/userList/" + "HAWKEYE")
-      .end((err, res) => {
-        res.should.not.have.err;
-        res.should.have.status(200);
-      });
-      done();
-  });
-});
+      .post('/lists')
+      .send(minimumGoodList)
+      .end(function (err, res) {
+        if (err) {
+          if (debug) console.log('[test_list_schema] Pass on correctly formatted POST:\n', err)
+          if (debug) console.log('[test_list_schema] Data POSTed:\n', minimumGoodList)
+        }
+        expect(res.status).to.eql(201)
+      })
+    done()
+  })
+})
 
-//DELETE /lists/:id/userList - removes userList List
-describe("[test_list_schema] DELETE UserList", function() {
-  it('should delete the userList for the requested List', (done) => {
+/*
+ * POST list with Groups
+ */
+describe('[test_list_schema] Pass on correctly formatted POST (WITH Groups/No Users)?', function () {
+  it('should POST correctly', (done) => {
     chai
       .request(server)
-      .delete('/lists/' + list_created_uuid + "/userList")
-      .end((err, res) => {
-        //console.log("\n[test_list_schema DELETE userList] Results: :\n", res.body);
-        res.should.not.have.err;
-        res.should.have.status(200);
-        res.body.userList.length.should.be.eql(0);
-      });
-      done();
-  });
-});
+      .post('/lists')
+      .send(listGroupsNoUsers)
+      .end(function (err, res) {
+        if (err) {
+          if (debug) console.log('[test_list_schema] Pass on correctly formatted POST:\n', err)
+          if (debug) console.log('[test_list_schema] Data POSTed:\n', listGroupsNoUsers)
+        }
+        expect(res.status).to.eql(201)
+      })
+    done()
+  })
+})
 
-describe("[test_list_schema] Delete what we created", function() {
-    it('should delete what we POSTed', (done) => {     
+/*
+ * POST list with Groups and Users
+ */
+describe('[test_list_schema] Pass on correctly formatted POST (WITH Groups and Users)?', function () {
+  it('should POST correctly', (done) => {
     chai
       .request(server)
-      .delete('/lists/' + list_created_uuid)
-      .end((err, res) => {
-        res.should.have.status(204);
-      done();
-    });
-  });
-});
+      .post('/lists')
+      .send(listGroupsWithUsers)
+      .end(function (err, res) {
+        if (err) {
+          if (debug) console.log('[test_list_schema] Pass on correctly formatted POST:\n', err)
+          if (debug) console.log('[test_list_schema] Data POSTed:\n', listGroupsWithUsers)
+        }
+        expect(res.status).to.eql(201)
+      })
+    done()
+  })
+})
 
-//empty DB after tests
+var listToUpdate
+
+// GET Single List Test
+describe('[test_list_schema] Return what we just created', function () {
+  it('should GET correctly', (done) => {
+    chai
+      .request(server)
+      .get('/lists/' + listCreatedUUID)
+      .end((err, res) => {
+        if (err) {
+          if (debug) console.log('[test_list_schema] Pass on correctly formatted POST:\n', err)
+          if (debug) console.log('[test_list_schema] Data POSTed:\n', listGroupsWithUsers)
+        }
+        expect(res.status).to.eql(200)
+      })
+    done()
+  })
+})
+
+
+// PUT (update) an existing List
+describe('[test_list_schema] PUT an updated list', function () {
+  it('should update existing list with a new user for group 2, and add a third group with no users.', (done) => {
+    listToUpdate = listGroupsWithUsers
+    listToUpdate.groupList.push(groupThree)
+    if (debug) console.log('[test_list_schema] Data to PUT on [', listCreatedUUID, '] :\n', listToUpdate)
+    chai
+      .request(server)
+      .put('/lists/' + listCreatedUUID)
+      .send(listToUpdate)
+      .end((err, res) => {
+        if (err) {
+          if (debug) console.log('[test_list_schema] Pass on correctly formatted POST:\n', err)
+          if (debug) console.log('[test_list_schema] Data POSTed:\n', listGroupsWithUsers)
+        }
+        expect(res.status).to.eql(200)
+      })
+    done()
+  })
+})
+
+// DELETE an existing List
+describe('[test_list_schema] Delete what we created', function () {
+  it('should delete what we POSTed', (done) => {
+    chai
+      .request(server)
+      .delete('/lists/' + listCreatedUUID)
+      .end((err, res) => {
+        if (err) {
+          if (debug) console.log('[test_list_schema] Pass on correctly formatted POST:\n', err)
+          if (debug) console.log('[test_list_schema] Data POSTed:\n', listGroupsWithUsers)
+        }
+        expect(res.status).to.eql(204)
+      })
+    done()
+  })
+})
+
+// empty DB after tests
 after(function (done) {
-    console.log('[test_list_schema] Dropping test list collection');
-    mongoose.connection.db.dropCollection('lists');
-    mongoose.connection.close();
-    done();
-});
-
+  console.log('[test_list_schema] Dropping test list collection')
+  mongoose.connection.db.dropCollection('lists')
+  mongoose.connection.close()
+  done()
+})
