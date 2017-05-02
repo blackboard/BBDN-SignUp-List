@@ -61,3 +61,11 @@ jspm_packages
 
 
 # End of https://www.gitignore.io/api/node
+
+.vscode/settings.json
+
+controllers/routes/lists.1.js
+
+test/3 - test_list_schema.1.js
+
+test/5 - test_courses-lists.js

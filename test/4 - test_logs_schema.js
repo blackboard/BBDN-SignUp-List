@@ -8,7 +8,7 @@ var config = require('../config/config');
 var mongoose = require("mongoose");
 const uuidV1 = require('uuid/v1');
 // Use bluebird since mongoose has deprecated mPromise
-//mongoose.Promise = require("bluebird");
+mongoose.Promise = require("bluebird")
 
 chai.use(chaiHttp);
 

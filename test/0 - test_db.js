@@ -7,6 +7,9 @@ var expect = chai.expect;
 
 var config = require('../config/config');
 var mongoose = require('mongoose');
+// Use bluebird since mongoose has deprecated mPromise
+mongoose.Promise = require("bluebird");
+
 
 //test that mongodb is available
 describe("[test_db] Is mongoDB available?", function() {

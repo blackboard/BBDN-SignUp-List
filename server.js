@@ -15,7 +15,7 @@ var lists = require('./controllers/routes/lists');
 var logs = require('./controllers/routes/logs');
 var rest = require('./controllers/routes/rest');
 
-var debug = (config.debug_mode=="true"?true:false);
+var debug = (config.debugMode === 'true')
 
 //set up mongoose
 //determine db path

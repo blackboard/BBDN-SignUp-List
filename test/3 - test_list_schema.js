@@ -9,6 +9,9 @@ const uuidV1 = require('uuid/v1')
 var should = chai.should()
 var expect = chai.expect()
 
+// Use bluebird since mongoose has deprecated mPromise
+mongoose.Promise = require("bluebird");
+
 chai.use(chaiHttp)
 
 // Always use test DB for testing...
@@ -51,6 +54,9 @@ LISTS Collection
  */
 
 // test data
+
+const listUUID = uuidV1()
+
 var badTestNoUUID = {
   'list_name': 'no start date',
   'list_description': 'test post list with no start date',
@@ -59,65 +65,71 @@ var badTestNoUUID = {
 }
 
 var badTestNoName = {
-  'list_uuid': uuidV1(),
+  'list_uuid': listUUID,
   'list_description': 'test post list with no name',
   'list_visible_start': new Date(),
   'list_visible_end': new Date()
 }
 
 var badTestNoDates = {
-  'list_uuid': uuidV1(),
+  'list_uuid': listUUID,
   'list_name': 'no start date',
   'list_description': 'test post list with no start date'
 }
 
 var badTestNoStartDate = {
-  'list_uuid': uuidV1(),
+  'list_uuid': listUUID,
   'list_name': 'no start date',
   'list_description': 'test post list with no start date',
   'list_visible_end': new Date()
 }
 
 var badTestNoEndDate = {
-  'list_uuid': uuidV1(),
+  'list_uuid': listUUID,
   'list_name': 'no start date',
   'list_description': 'test post list with no start date',
   'list_visible_start': new Date()
 }
 
 var listVisibleEndDate = new Date()
-listVisibleEndDate.setDate(listVisibleEndDate.getDate()+7)
+listVisibleEndDate.setDate(listVisibleEndDate.getDate() + 7)
 
 var minimumGoodList = {
-  'list_uuid': uuidV1(),
+  'list_uuid': listUUID,
   'list_name': 'This is the minimum Good List',
   'list_description': 'test post list with minimum data',
   'list_visible_start': new Date(),
   'list_visible_end': listVisibleEndDate,
   'list_state': 'OPEN',
   'student_view': 'false',
-  'group_list': []
+  'list_groups': []
 }
+
 
 var grpEnd = new Date()
 grpEnd.setDate(grpEnd.getDate() + 7)
 var grpOneUUID = uuidV1()
 var grpTwoUUID = uuidV1()
 var grpThreeUUID = uuidV1()
-var listCreatedUUID = uuidV1()
+var grpFourUUID = uuidV1()
+
 var updateListNameJSON = { 'name': 'tsiLtseTamehcStsiLahcom' }
 var updatedListName = 'tsiLtseTamehcStsiLahcom'
 
+var listUUID2 = uuidV1()
+var listUUID3 = uuidV1()
+console.log('****** [test_list_schema] LISTUUID ******: ', listUUID)
+console.log('****** [test_list_schema] LISTUUID2 ******: ', listUUID2)
 
 var listGroupsNoUsers = {
-  'list_uuid': uuidV1(),
+  'list_uuid': listUUID2,
   'list_name': 'This is the minimum Good List',
-  'list_description': 'test post list with minimum data',
+  'list_description': 'test post list with minimum data - Groups/No Users',
   'list_visible_start': new Date(),
   'list_visible_end': listVisibleEndDate,
   'list_state': 'OPEN',
   'student_view': 'false',
-  'groupList': [
+  'list_groups': [
     {
       'grp_uuid': grpOneUUID,
       'grp_name': 'Group One',
@@ -129,7 +141,7 @@ var listGroupsNoUsers = {
       'grp_max_size': 4,
       'grp_max_waitlist': 1,
       'grp_state': 'OPEN',
-      'userList': []
+      'grp_members': []
     },
     {
       'grp_uuid': grpTwoUUID,
@@ -142,20 +154,20 @@ var listGroupsNoUsers = {
       'grp_max_size': 4,
       'grp_max_waitlist': 1,
       'grp_state': 'OPEN',
-      'userList': []
+      'grp_members': []
     }
   ]
 }
 
 var listGroupsWithUsers = { 
-  'list_uuid': listCreatedUUID,
+  'list_uuid': listUUID3,
   'list_name': 'This is the minimum Good List',
   'list_description': 'test post list with minimum data',
   'list_visible_start': new Date(),
   'list_visible_end': listVisibleEndDate,
   'list_state': 'OPEN',
   'student_view': 'false',
-  'groupList': [
+  'list_groups': [
     {
       'grp_uuid': grpOneUUID,
       'grp_name': 'Group One',
@@ -167,7 +179,7 @@ var listGroupsWithUsers = {
       'grp_max_size': 4,
       'grp_max_waitlist': 1,
       'grp_state': 'OPEN',
-      'userList': [
+      'grp_members': [
         { 'user_uuid': 'SUPERMAN',
           'role': 'STUDENT',
           'added_by': 'BATMAN',
@@ -188,7 +200,7 @@ var listGroupsWithUsers = {
       'grp_max_size': 4,
       'grp_max_waitlist': 1,
       'grp_state': 'OPEN',
-      'userList': [
+      'grp_members': [
         { 'user_uuid': 'HAWKEYE',
           'role': 'STUDENT',
           'added_by': 'BLACKWIDOW',
@@ -216,7 +228,34 @@ var groupThree = {
   'grp_max_size': 5,
   'grp_max_waitlist': 2,
   'grp_state': 'OPEN',
-  'userList': [
+  'grp_members': [
+    { 'user_uuid': 'THOR',
+      'role': 'STUDENT',
+      'added_by': 'CAPT AMERICA',
+      'waitlisted': false},
+    { 'user_uuid': 'IRON MAN',
+      'role': 'STUDENT',
+      'added_by': 'JARVIS',
+      'waitlisted': true },
+    { 'user_uuid': 'WOLVERINE ',
+      'role': 'STUDENT',
+      'added_by': 'XAVIER',
+      'waitlisted': true
+    } ]
+}
+
+var groupFour = {
+  'grp_uuid': grpFourUUID,
+  'grp_name': 'Group Four',
+  'grp_description': 'Fourth Group',
+  'grp_location': 'Rm 1313',
+  'grp_start': new Date(),
+  'grp_end': grpEnd,
+  'grp_waitlist_allowed': true,
+  'grp_max_size': 5,
+  'grp_max_waitlist': 2,
+  'grp_state': 'OPEN',
+  'grp_members': [
     { 'user_uuid': 'THOR',
       'role': 'STUDENT',
       'added_by': 'CAPT AMERICA',
@@ -233,14 +272,14 @@ var groupThree = {
 }
 
 var addedUser = {
-        'uuid': listCreatedUUID,
+        'uuid': listUUID3,
         'name': 'This is the minimum Good List',
         'description': 'test post list with minimum data, one user',
         'start': new Date(),
         'max_size': 30,
         'max_waitlist': 3,
         'state': 'OPEN',
-        'userList': [ 
+        'grp_members': [ 
           { 'user_uuid': 'SUPERMAN',
             'role': 'STUDENT',
             'added_by': 'BATMAN',
@@ -251,60 +290,61 @@ var addedUser = {
             'waitlisted': true } ]
 }
 
+var listToUpdate
 var user2Add = { 'user_uuid': 'AQUAMAN', 'role': 'STUDENT', 'added_by': 'WONDER WOMAN', 'waitlisted': true }
 
 
 // POST tests
-describe('[test_list_schema] Fail on incorrectly formatted POST?', function () {
-  it('it should not POST a list without list_name field', (done) => {
+describe('[test_list_schema] FAIL on incorrectly formatted POST?', function () {
+  it('it should FAIL to POST a list without list_name field', (done) => {
     chai
       .request(server)
       .post('/lists')
       .send(badTestNoName)
       .end(function (err, res) {
         if (err) {
-          if (debug) console.log('[test_list_schema] should not POST a list without list_name field')
+          if (debug) console.log('[test_list_schema] should FAIL to POST a list without list_name field')
         }
         expect(res).to.have.err
       })
     done()
   })
-  it('it should not POST a list without list_visible_start and end fields', (done) => {
+  it('it should FAIL to POST a list without list_visible_start and end fields', (done) => {
     chai
       .request(server)
       .post('/lists')
       .send(badTestNoDates)
       .end(function (err, res) {
         if (err) {
-          if (debug) console.log('[test_list_schema] should not POST a list without list_visible_start and end fields')
+          if (debug) console.log('[test_list_schema] should FAIL to POST a list without list_visible_start and end fields')
         }
         expect(res).to.have.err
       })
     done()
   })
 
-  it('it should not POST a list without list_visible_start field', (done) => {
+  it('it should FAIL to POST a list without list_visible_start field', (done) => {
     chai
       .request(server)
       .post('/lists')
       .send(badTestNoStartDate)
       .end(function (err, res) {
         if (err) {
-          if (debug) console.log('[test_list_schema] should not POST a list without list_visible_start field')
+          if (debug) console.log('[test_list_schema] should FAIL to POST a list without list_visible_start field')
         }
         expect(res).to.have.err
       })
     done()
   })
 
-  it('it should not POST a list without list_visible_end field', (done) => {
+  it('it should FAIL to POST a list without list_visible_end field', (done) => {
     chai
       .request(server)
       .post('/lists')
       .send(badTestNoEndDate)
       .end(function (err, res) {
         if (err) {
-          if (debug) console.log('[test_list_schema] should not POST a list without list_visible_end field')
+          if (debug) console.log('[test_list_schema] should FAIL to POST a list without list_visible_end field')
         }
         expect(res).to.have.err
       })
@@ -313,17 +353,17 @@ describe('[test_list_schema] Fail on incorrectly formatted POST?', function () {
 })
 
 describe('[test_list_schema] Pass on correctly formatted POST?', function () {
-  it('should POST correctly', (done) => {
+  it('should POST correctly formatted payload...', (done) => {
     chai
       .request(server)
       .post('/lists')
       .send(minimumGoodList)
       .end(function (err, res) {
         if (err) {
-          if (debug) console.log('[test_list_schema] Pass on correctly formatted POST:\n', err)
-          if (debug) console.log('[test_list_schema] Data POSTed:\n', minimumGoodList)
+          console.log('[test_list_schema] Pass on correctly formatted POST:\n', err)
+          console.log('[test_list_schema] Data POSTed:\n', minimumGoodList)
         }
-        expect(res.status).to.eql(201)
+        expect(res.status).to.eql('201')
       })
     done()
   })
@@ -333,17 +373,17 @@ describe('[test_list_schema] Pass on correctly formatted POST?', function () {
  * POST list with Groups
  */
 describe('[test_list_schema] Pass on correctly formatted POST (WITH Groups/No Users)?', function () {
-  it('should POST correctly', (done) => {
+  it('should POST correctly...', (done) => {
     chai
       .request(server)
       .post('/lists')
       .send(listGroupsNoUsers)
       .end(function (err, res) {
         if (err) {
-          if (debug) console.log('[test_list_schema] Pass on correctly formatted POST:\n', err)
+          if (debug) console.log('Pass on correctly formatted POST (WITH Groups/No Users):\n', err)
           if (debug) console.log('[test_list_schema] Data POSTed:\n', listGroupsNoUsers)
         }
-        expect(res.status).to.eql(201)
+        expect(res.status).to.eql('201')
       })
     done()
   })
@@ -353,7 +393,7 @@ describe('[test_list_schema] Pass on correctly formatted POST (WITH Groups/No Us
  * POST list with Groups and Users
  */
 describe('[test_list_schema] Pass on correctly formatted POST (WITH Groups and Users)?', function () {
-  it('should POST correctly', (done) => {
+  it('should POST: ' + JSON.stringify(listGroupsWithUsers) + '\n correctly...', (done) => {
     chai
       .request(server)
       .post('/lists')
@@ -369,18 +409,17 @@ describe('[test_list_schema] Pass on correctly formatted POST (WITH Groups and U
   })
 })
 
-var listToUpdate
-
-// GET Single List Test
-describe('[test_list_schema] Return what we just created', function () {
-  it('should GET correctly', (done) => {
+/*
+GET All lists test
+*/
+describe('[test_list_schema] Return all lists', function () {
+  it('should GET all lists correctly...', (done) => {
     chai
       .request(server)
-      .get('/lists/' + listCreatedUUID)
+      .get('/lists')
       .end((err, res) => {
         if (err) {
-          if (debug) console.log('[test_list_schema] Pass on correctly formatted POST:\n', err)
-          if (debug) console.log('[test_list_schema] Data POSTed:\n', listGroupsWithUsers)
+          console.log('[test_list_schema] GET err:\n', err)
         }
         expect(res.status).to.eql(200)
       })
@@ -388,16 +427,37 @@ describe('[test_list_schema] Return what we just created', function () {
   })
 })
 
-
-// PUT (update) an existing List
-describe('[test_list_schema] PUT an updated list', function () {
-  it('should update existing list with a new user for group 2, and add a third group with no users.', (done) => {
-    listToUpdate = listGroupsWithUsers
-    listToUpdate.groupList.push(groupThree)
-    if (debug) console.log('[test_list_schema] Data to PUT on [', listCreatedUUID, '] :\n', listToUpdate)
+/*
+GET Single List Test
+*/
+describe('[test_list_schema] Return what we just created', function () {
+  it('should GET ' + listUUID2 + ' correctly...', (done) => {
     chai
       .request(server)
-      .put('/lists/' + listCreatedUUID)
+      .get('/lists/' + listUUID2)
+      .end((err, res) => {
+        if (err) {
+          console.log('[test_list_schema] GET err:\n', err)
+        }
+        res.body.list_uuid.should.eql(listUUID2)
+        expect(res.body.list_description).to.equal('test post list with minimum data - Groups/No Users')
+        expect(res.status).to.eql(200)
+      })
+    done()
+  })
+})
+
+/*
+PUT (update) an existing List
+*/
+describe('[test_list_schema] PUT an updated list', function () {
+  it('should update existing list with a group data.', (done) => {
+    var listToUpdate = listGroupsWithUsers
+    listToUpdate.list_groups.push(groupThree)
+    if (debug) console.log('[test_list_schema] Data to PUT on [', listUUID3, '] :\n', listToUpdate)
+    chai
+      .request(server)
+      .put('/lists/' + listUUID3)
       .send(listToUpdate)
       .end((err, res) => {
         if (err) {
@@ -408,10 +468,181 @@ describe('[test_list_schema] PUT an updated list', function () {
       })
     done()
   })
+
+  it('should get updated list...', (done) => {
+    chai
+      .request(server)
+      .get('/lists/' + listUUID3)
+      .end((err, res) => {
+        if (err) {
+          console.log('[test_list_schema] GET err:\n', err)
+        }
+        res.body.list_uuid.should.eql(listUUID3)
+        expect(res.status).to.eql(200)
+      })
+    done()
+  })
 })
 
+
+
+/*
+ * PUT (create) a new group to an existing List
+ */
+describe('[test_list_schema] PUT (add) a new group to an existing List', function () {
+  it('should create a new group on an existing list.', (done) => {
+    //listToUpdate = listGroupsWithUsers
+    //listToUpdate.groupList.push(groupThree)
+    console.log('[test_list_schema] Group to add to [', listUUID3, '] :\n', groupFour)
+    chai
+      .request(server)
+      .put('/lists/' + listUUID3 + '/groups')
+      .send(groupFour)
+      .end((err, res) => {
+        if (err) {
+          if (debug) console.log('[test_list_schema] Pass on correctly formatted POST:\n', err)
+          if (debug) console.log('[test_list_schema] Data POSTed:\n', groupFour)
+        }
+        expect(res.status).to.eql(200)
+      })
+    done()
+  })
+
+  it('should get updated list...', (done) => {
+    chai
+      .request(server)
+      .get('/lists/' + listUUID3)
+      .end((err, res) => {
+        if (err) {
+          console.log('[test_list_schema] GET err:\n', err)
+        }
+        expect(res.body.list_uuid).to.eql(listUUID3)
+        expect(res.status).to.eql(200)
+      })
+    done()
+  })
+})
+
+
+/*
+ * √ PUT /courses/:id/roster/ - add a complete roster to the SUL course
+ *    --- use PUT to add a user to the roster
+ *    --- use DELETE to remove a user from the roster
+ */
+/*describe('[test_course_schema] Pass on correctly POSTing roster?', function () {
+  var roster = [ {'user_uuid': 'moneil'}, {'user_uuid': 'shurrey'} ]
+  it('should POST correctly', (done) => {
+    chai
+      .request(server)
+      .put('/courses/' + courseUUID1 + '/roster')
+      .send(roster)
+      .end((err, res) => {
+        res.should.have.status(200)
+        if (debug) console.log('\n[test_course_schema] POST SUL Course Roster response: \n', res.body)
+        done()
+      })
+  })
+})
+*/
+/*
+ * √ PATCH /courses/:id/roster/ - add a user to a roster for the SUL course
+ 
+describe('[test_course_schema] Pass on correctly adding a user to a SUL course roster', function () {
+  var usrToAdd = {
+    'user_uuid': 'HAWKEYE'
+  }
+
+  if (debug) console.log('\n[test_course_schema] PATCH (add) the user ('HAWKEYE') to the roster response: \n',usrToAdd )      
+
+  it('should correctly PUT (add) the user ('HAWKEYE') to the roster.',(done) => {
+    chai
+      .request(server)
+      .patch('/courses/' + course_uuid1 + '/roster')
+      .send(usrToAdd)
+      .end((err,res) => {
+        res.should.have.status(200)
+        if (debug) console.log('\n[test_course_schema] PATCH (add) the user ('HAWKEYE') to the roster response: \n',res.body )      
+      done()
+      })
+  })
+})
+ */
+
+/*
+ * √ GET /courses/:id/roster/:user_uuid - gets a specific user from the roster
+
+describe('[test_course_schema] GET specific user from course roster', function () {
+  var user = 'HAWKEYE'
+    it('should return the requested user_uuid',(done) => {
+    chai
+      .request(server)
+      .get('/courses/'+ course_uuid1 + '/roster/' + user)
+      .end((err,res) => {
+        res.should.have.status(200)
+        //res.should.be.json
+        res.body.user_uuid.should.eql('HAWKEYE')
+        if (debug) console.log('\n[test_course_schema] GET specific user (HAWKEYE) response\n',res.body )
+      done()
+    })
+  })
+})
+ */
+
+/*
+// GET /courses/:id/roster - gets the roster from a SUL course
+describe('[test_course_schema] Return the full roster for course', function () {
+  it('should return the course roster containing moneil and shurrey',(done) => {
+    chai
+      .request(server)
+      .get('/courses/' + course_uuid1 + '/roster')
+      .end((err,res) => {
+        res.should.have.status(200)
+        if (debug) console.log('\n[test_course_schema] GET Course roster response\n',res.body )
+      done()
+    })
+  })
+})
+ */
+
+/*
+ * √ DELETE /courses/:id/roster/:user_uuid - delete a user from the roster
+ 
+describe('[test_course_schema] DELETE User from roster', function () {
+  it('should delete the specified user (HAWKEYE) from the roster',(done) => {
+    chai
+      .request(server)
+      .delete('/courses/' + course_uuid1 + '/roster/' + 'HAWKEYE')
+      .end((err,res) => {
+        res.should.not.have.err
+        res.should.have.status(200)
+        res.body.roster.length.should.be.eql(2)
+      })
+      done()
+  })
+})
+ */ 
+
+/*
+ * √ DELETE /courses/:id/roster - delete a whole roster
+
+describe('[test_course_schema] DELETE roster', function () {
+  it('should delete the roster for the requested course',(done) => {
+    chai
+      .request(server)
+      .delete('/courses/' + course_uuid1 + '/roster')
+      .end((err,res) => {
+        res.should.not.have.err
+        res.should.have.status(200)
+        res.body.roster.length.should.be.eql(0)
+        if (debug) console.log('\n[test_course_schema DELETE roster] Results: :\n',res.body)
+      })
+      done()
+  })
+})
+ */
+
 // DELETE an existing List
-describe('[test_list_schema] Delete what we created', function () {
+/*describe('[test_list_schema] Delete what we created', function () {
   it('should delete what we POSTed', (done) => {
     chai
       .request(server)
@@ -426,11 +657,11 @@ describe('[test_list_schema] Delete what we created', function () {
     done()
   })
 })
-
+*/
 // empty DB after tests
-after(function (done) {
+/*after(function (done) {
   console.log('[test_list_schema] Dropping test list collection')
   mongoose.connection.db.dropCollection('lists')
   mongoose.connection.close()
   done()
-})
+})*/

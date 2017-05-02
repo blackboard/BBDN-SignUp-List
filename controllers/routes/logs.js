@@ -3,6 +3,10 @@ var router = express.Router();
 //var mongoose = require('mongoose');
 var Log = require('../models/logs');
 var mongoose = require('bluebird').promisifyAll(require('mongoose'));
+var config = require('../../config/config')
+var debug = (config.debugMode === 'true')
+
+if (debug) mongoose.set('debug', true);
 
 var url = require('url');
 
@@ -76,8 +80,6 @@ router.get('/:id', function(req, res, next) {
  * ?before=ISODate returns all the logs before a specific DATE
  * ?after=ISODate returns all the logs after a specific DATE  
  */
-mongoose.set('debug', true);
-
 router.get('/course/:id', function(req, res, next) {
     //Query the DB and if no errors, return a specific log :id
     var params = url.parse(req.url, true).query;
