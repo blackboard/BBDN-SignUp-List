@@ -1,4 +1,4 @@
-var config = require('../../config/config')
+// var config = require('../../config/config')
 var express = require('express')
 // var session = require('express-session')
 
@@ -239,7 +239,6 @@ router.post('/system/:systemId/course/:courseId/:groupName/user/:userId', functi
   console.log('\n[REST.JS: Add Users to Group]:session.consumer_protocol: ', sess.consumer_protocol)
   console.log('\n[REST.JS: Add Users to Group]:session.consumer_hostname: ', sess.consumer_hostname)
   console.log('\n[REST.JS: Add Users to Group]:session.consumer_port : ', sess.consumer_port)
-
 
   tokenjs.checkToken(system, sess, function (err, token) {
     if (err) console.log(err)

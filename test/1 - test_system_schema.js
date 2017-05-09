@@ -1,6 +1,8 @@
+/* global describe, it, after */
 'use strict'
 var System = require('../controllers/models/systems')
 var chai = require('chai')
+var expect = chai.expect
 var chaiHttp = require('chai-http')
 var server = require('../server')
 var should = chai.should()
@@ -30,12 +32,12 @@ var updatedSystem = {
 }
 
 var systemToDelete = {
-  system_id: "tsetamehcSmetsySahcom"
+  system_id: 'tsetamehcSmetsySahcom'
 }
 
 // POST tests
 describe("[test_system_schema] Fail on incorrectly formatted POST?", function () {
-    it('it should not POST a system without hostname field', (done) => {
+  it('it should not POST a system without hostname field', (done) => {
     chai
       .request(server)
       .post('/systems')
@@ -43,12 +45,12 @@ describe("[test_system_schema] Fail on incorrectly formatted POST?", function ()
       .end(function (err, res) {
         expect(res).to.have.err
       })
-      done()
-    })
+    done()
+  })
 })
 
 describe("[test_system_schema] Fail on incorrectly formatted POST?", function () {
-    it(' should not POST a system without system field', (done) => {
+  it(' should not POST a system without system field', (done) => {
     chai
       .request(server)
       .post('/systems')
@@ -56,8 +58,8 @@ describe("[test_system_schema] Fail on incorrectly formatted POST?", function ()
       .end(function (err, res) {
         expect(res).to.have.err
       })
-      done()
-    })
+    done()
+  })
 })
 
 describe("[test_system_schema] Pass on correctly formatted POST?", function () {
@@ -74,7 +76,7 @@ describe("[test_system_schema] Pass on correctly formatted POST?", function () {
   })
 })
 
-//PUT test
+// PUT test
 describe("[test_system_schema] Pass on correctly formatted PUT?", function () {
   it('should PUT correctly', (done) => {
     chai
@@ -134,9 +136,9 @@ describe("[test_system_schema] Delete what we created", function () {
 
 // empty DB after tests
 after(function (done) {
-    console.log('[test_system_schema] Dropping test system collection')
-// console.log(mongoose.connection.readyState)
-    mongoose.connection.db.dropCollection('systems')
-    mongoose.connection.close()
-    done()
+  console.log('[test_system_schema] Dropping test system collection')
+  // console.log(mongoose.connection.readyState)
+  mongoose.connection.db.dropCollection('systems')
+  mongoose.connection.close()
+  done()
 })

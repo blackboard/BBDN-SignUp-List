@@ -1,19 +1,20 @@
-"use strict";
-var Log = require('../controllers/models/logs');
-var chai = require('chai');
-var chaiHttp = require('chai-http');
-var server = require('../server');
-var should = chai.should();
-var config = require('../config/config');
-var mongoose = require("mongoose");
-const uuidV1 = require('uuid/v1');
+/* global describe, it, after */
+'use strict'
+var Log = require('../controllers/models/logs')
+var chai = require('chai')
+var chaiHttp = require('chai-http')
+var server = require('../server')
+var should = chai.should()
+var config = require('../config/config')
+var mongoose = require('mongoose')
+const uuidV1 = require('uuid/v1')
 // Use bluebird since mongoose has deprecated mPromise
-mongoose.Promise = require("bluebird")
+mongoose.Promise = require('bluebird')
 
-chai.use(chaiHttp);
+chai.use(chaiHttp)
 
-//Always use test DB for testing...
-var db = config.test_db;
+// Always use test DB for testing...
+var db = config.test_db
 /*
 {   uuid: { type: String, required: true, unique: true },
     course_uuid: { type: String, required: true },
@@ -29,8 +30,8 @@ var db = config.test_db;
 */
 
 //test data
-var posted_uuid;
-var good_log = { 
+var postedUUID
+var goodLog = {
   uuid: uuidV1(), 
   course_uuid: "test_course", 
   action_by: "instructor a.", 
@@ -207,8 +208,8 @@ describe("[test_log_schema] Return all logs for a course", function() {
 });
 */
 
-describe("[test_log_schema] Delete what we created", function() {
-    it('should delete what we POSTed', (done) => {     
+describe("[test_log_schema] Delete what we created", function () {
+    it ('should delete what we POSTed', (done) => {
     chai
       .request(server)
       .delete('/logs/' + log_created_uuid)

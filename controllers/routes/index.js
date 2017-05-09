@@ -1,13 +1,13 @@
 var config = require('../../config/config')
 // var db = require('../../config/db')
 var express = require('express')
-// var session = require('cookie-session')
+var session = require('cookie-session')
 var lti = require('ims-lti')
 var _ = require('lodash')
 var path = require('path')
 var jwt = require('jsonwebtoken')
 var uuid = require('uuid')
-var jwtCache = require('./jwtToken')
+var jwtUtils = require('./jwtToken')
 
 // const url = require('url').URL
 
@@ -31,12 +31,12 @@ var systemGUID = ''
 var userRole = ''
 var returnURL = ''
 var sharedCSS = ''
-var launcherURL = ''
+var launcherURL
 
 var sess
 var validSession = false
 
-var jwtClaims = ''
+var jwtClaims
 var jwtToken = ''
 
 /*
@@ -49,7 +49,7 @@ if (debug) console.log('process.env.APP_OAUTH_KEY:: ', process.env.APP_OAUTH_KEY
 if (debug) console.log('process.env.APP_OAUTH_SECRET:: ', process.env.APP_OAUTH_SECRET)
 if (debug) console.log('process.env.MONGO_URI:: ', process.env.MONGO_URI)
 if (debug) {
-  if (ltiKey === config.ltiKey) {
+  if (ltiKey === config.lti_key) {
     console.log('Using lti_key from config.js:', '\x1b[32m', ltiKey, '\x1b[0m')
   } else {
     console.log('Using lti_key from process.env:', '\x1b[32m', ltiKey, '\x1b[0m')
@@ -68,7 +68,7 @@ if (debug) {
   }
 
   if (oauthSecret === config.oauth_secret) {
-    console.log('Using oauth_secret from config.js:', '\x1b[32m', oauthSecret,'\x1b[0m')
+    console.log('Using oauth_secret from config.js:', '\x1b[32m', oauthSecret, '\x1b[0m')
   } else {
     console.log('Using oauth_secret from process.env:', '\x1b[32m', oauthSecret, '\x1b[0m')
   }
@@ -121,14 +121,14 @@ router.post('/lti', function (req, res, next) {
   if (debug) console.log('\nLAUNCHER URL PORT: ', launcherURL.port)
 
   sess = req.session
-  sess.consumer_protocol=launcherURL.protocol
-  sess.consumer_hostname=launcherURL.hostname
+  sess.consumer_protocol = launcherURL.protocol
+  sess.consumer_hostname = launcherURL.hostname
   // Check to see if launch is from DVM, if so default to https and 9877.
   if (launcherURL.hostname === 'localhost' && launcherURL.port === '9876') {
-    sess.consumer_protocol='https:'
-    sess.consumer_port='9877'
+    sess.consumer_protocol = 'https:'
+    sess.consumer_port = '9877'
   } else {
-    sess.consumer_port=(launcherURL.port === undefined) ? ((launcherURL.protocol === 'https:') ? '443' : '80') : launcherURL.port
+    sess.consumer_port = (launcherURL.port === undefined) ? ((launcherURL.protocol === 'https:') ? '443' : '80') : launcherURL.port
   }
 
   if (debug) console.log('\nsession.consumer_protocol: ', sess.consumer_protocol)
@@ -223,6 +223,8 @@ router.post('/lti', function (req, res, next) {
         if (debug) console.log('[jwtClaims]: \n', jwtClaims)
         if (debug) console.log('[jwtSecret]: \n', config.jwtSecret)
         jwtToken = jwt.sign(jwtClaims, config.jwtSecret)
+        jwtToken = jwtUtils.genJWTToken(jwtClaims)
+        // The jwtToken is passed as a cookie during the redirect to /lti/data
         if (debug) console.log('[jwtToken]: \n', jwtToken)
         res.sendFile(path.resolve(__dirname + '/../../public/index.html'))
       }
@@ -240,6 +242,7 @@ router.get('/lti/data', function (req, res, next) {
     err.status = 403
     next(err)
   } else {
+    // we have a valid session and a generated token - hand off to cookie and angular
     var ltidata = {
       'course_uuid': courseUUID,
       'user_uuid': userUUID,
@@ -255,7 +258,7 @@ router.get('/lti/data', function (req, res, next) {
     if (debug) console.log('\nCAPTURED LTI DATA: ')
     if (debug) console.log(JSON.stringify(ltidata))
 
-    jwtCache.cacheJwtToken(jwtClaims.jti, jwtToken, jwtClaims.exp)
+    jwtUtils.cacheJwtToken(jwtClaims.jti, jwtToken, jwtClaims.exp)
     res.cookie('sulToken', jwtToken, { httpOnly: true }) // cookie expires at end of session
     res.json(ltidata)
   }

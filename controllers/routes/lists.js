@@ -1,10 +1,12 @@
+// @ts-check
+
 var express = require('express')
 var router = express.Router()
 // var mongoose = require('bluebird').promisifyAll(require('mongoose'))
 var List = require('../models/lists')
 var config = require('../../config/config')
-
 var debug = (config.debugMode === 'true')
+var jwtToken = require('./jwtToken')
 
 /*
  * LIST SCHEMA ENDPOINTS
@@ -47,22 +49,27 @@ var debug = (config.debugMode === 'true')
  * * Only accessible by AP roles
  */
 router.post('/', function (req, res, next) {
-  var newList = new List(req.body)
-  // Save it into the DB.
-  newList.save((err, list) => {
-    if (err) {
-      if (err.code === '11000') {
-        res.status(409).send(err)
-      } else if (err.name === 'ValidationError') {
-        res.status(400).send(err)
-      } else {
-        res.send(err)
+  var validRoles = ['AP']
+  if (jwtToken.jwtValidRole(req, validRoles)) {
+    var newList = new List(req.body)
+    // Save it into the DB.
+    newList.save((err, list) => {
+      if (err) {
+        if (err.code === '11000') {
+          res.status(409).send(err)
+        } else if (err.name === 'ValidationError') {
+          res.status(400).send(err)
+        } else {
+          res.send(err)
+        }
+      } else { // If no errors, send it back to the client
+        if (debug) console.log('\n[lists.js routes]: post:\n', JSON.stringify(list))
+        res.status(201).json(list)
       }
-    } else { // If no errors, send it back to the client
-      if (debug) console.log('\n[lists.js routes]: post:\n', JSON.stringify(list))
-      res.status(201).json(list)
-    }
-  })
+    })
+  } else {
+    res.status(403)
+  }
 })
 
 /*
@@ -70,13 +77,18 @@ router.post('/', function (req, res, next) {
  * * Accessible by AP and SP roles
  */
 router.get('/', function (req, res, next) {
-  var query = List.find({})
-  query.exec((err, lists) => {
-    if (err) res.send(err)
-    if (debug) console.log('\n[lists.js routes]: get:\n', JSON.stringify(lists))
-    if (debug) console.log('\n')
-    res.status(200).json(lists)
-  })
+  var validRoles = ['AP', 'SP']
+  if (jwtToken.jwtValidRole(req, validRoles)) {
+    var query = List.find({})
+    query.exec((err, lists) => {
+      if (err) res.send(err)
+      if (debug) console.log('\n[lists.js routes]: get:\n', JSON.stringify(lists))
+      if (debug) console.log('\n')
+      res.status(200).json(lists)
+    })
+  } else {
+    res.status(403)
+  }
 })
 
 /*
@@ -84,13 +96,18 @@ router.get('/', function (req, res, next) {
  * * Accessible by AP and SP roles
  */
 router.get('/:id', function (req, res, next) {
-  // Query the DB and if no errors, return all the systems
-  if (debug) console.log('\n[lists.js routes]: get: ' + req.params.id + '\n')
-  List.findOne({'list_uuid': req.params.id}, (err, list) => {
-    if (err) res.send(err)
-    if (debug) console.log('\n[lists.js routes]: get: ' + req.params.id + ':\n', JSON.stringify(list))
-    res.status(200).json(list)
-  })
+  var validRoles = ['AP', 'SP']
+  if (jwtToken.jwtValidRole(req, validRoles)) {
+    // Query the DB and if no errors, return all the systems
+    if (debug) console.log('\n[lists.js routes]: get: ' + req.params.id + '\n')
+    List.findOne({'list_uuid': req.params.id}, (err, list) => {
+      if (err) res.send(err)
+      if (debug) console.log('\n[lists.js routes]: get: ' + req.params.id + ':\n', JSON.stringify(list))
+      res.status(200).json(list)
+    })
+  } else {
+    res.status(403)
+  }
 })
 
 /*
@@ -98,15 +115,20 @@ router.get('/:id', function (req, res, next) {
  * * Only accessible by AP roles
  */
 router.put('/:id', function (req, res, next) {
-  List.findOne({list_uuid: req.params.id}, (err, list) => {
-    if (debug) console.log('[lists.js route] PUT: list: ' + JSON.stringify(list))
-    if (debug) console.log('[lists.js route] PUT: UUID: ' + req.params.id)
-    if (err) res.send(err)
-    Object.assign(list, req.body).save((err, list) => {
+  var validRoles = ['AP']
+  if (jwtToken.jwtValidRole(req, validRoles)) {
+    List.findOne({list_uuid: req.params.id}, (err, list) => {
+      if (debug) console.log('[lists.js route] PUT: list: ' + JSON.stringify(list))
+      if (debug) console.log('[lists.js route] PUT: UUID: ' + req.params.id)
       if (err) res.send(err)
-      res.status(200).json(list)
+      Object.assign(list, req.body).save((err, list) => {
+        if (err) res.send(err)
+        res.status(200).json(list)
+      })
     })
-  })
+  } else {
+    res.status(403)
+  }
 })
 
 /*
@@ -114,82 +136,127 @@ router.put('/:id', function (req, res, next) {
  * * Only accessible by AP roles
  */
 router.put('/:id/groups', function (req, res, next) {
-  if (debug) console.log('\n[Lists/:id/groups]: PUT /lists/' + req.params.id + ' called\n')
-  if (debug) console.log('\n[Lists/:id/groups]: req.body' + toString(req.body) + ' \n')
-  // create a group associated with a list
-  // Use JWT cookie to authorize request
-  // save the group
-  List.findOne({'list_uuid': req.params.id}, function (err, list) {
-    if (err) res.send(err)
-    // add the new group
-    list.list_groups.push(req.body)
-    if (debug) console.log('\n[Lists/:id/groups]: List after adding new groupList : \n' + JSON.stringify(list))
-    list.save((err, list) => {
-    if (err) res.send(err)
-    res.status(200).json(list)
+  var validRoles = ['AP']
+  if (jwtToken.jwtValidRole(req, validRoles)) {
+    if (debug) console.log('\n[Lists/:id/groups]: PUT /lists/' + req.params.id + ' called\n')
+    if (debug) console.log('\n[Lists/:id/groups]: req.body' + req.body.toString() + ' \n')
+    // create a group associated with a list
+    // Use JWT cookie to authorize request
+    // save the group
+    List.findOne({'list_uuid': req.params.id}, function (err, list) {
+      if (err) res.send(err)
+      // add the new group
+      list.list_groups.push(req.body)
+      if (debug) console.log('\n[Lists/:id/groups]: List after adding new groupList : \n' + JSON.stringify(list))
+      list.save((err, list) => {
+        if (err) res.send(err)
+        res.status(200).json(list)
+      })
     })
-   })
+  } else {
+    res.status(403)
+  }
 })
-
 
 /*
  * PUT /lists/:id/groups/:grpId - update a specific list group
  * * Only accessible by AP roles
  */
 router.put('/:id/groups/:grpId', function (req, res, next) {
-  if (debug) console.log('\n[Lists/:id/groups]: PUT /lists/' + req.params.id + '/groups/' + req.params.grpId + 'called\n')
-  if (debug) console.log('\n[Lists/:id/groups]: req.body' + toString(req.body) + ' \n')
-  // create a group associated with a list
-  // Use JWT cookie to authorize request
-  // save the group
-  List.findOne({'list_uuid': req.params.id}, function (err, list) {
-    if (err) res.send(err)
-    // find existing group and replace with incoming
-    for (var i = 0, len = list.list_groups.length; i < len; i++) {
-      if (list.list_groups[i].grp_uuid === req.params.grpId) {
-        list.list_groups[i] = req.body
-      } 
-    }
-    if (debug) console.log('\n[Lists/:id/groups]: List after adding new groupList : \n' + JSON.stringify(list))
-    list.save((err, list) => {
+  var validRoles = ['AP']
+  if (jwtToken.jwtValidRole(req, validRoles)) {
+    if (debug) console.log('\n[Lists/:id/groups]: PUT /lists/' + req.params.id + '/groups/' + req.params.grpId + 'called\n')
+    if (debug) console.log('\n[Lists/:id/groups]: req.body' + req.body.toString() + ' \n')
+    // create a group associated with a list
+    // Use JWT cookie to authorize request
+    // save the group
+    List.findOne({'list_uuid': req.params.id}, function (err, list) {
       if (err) res.send(err)
-      res.status(200).json(list)
+      // find existing group and replace with incoming
+      for (var i = 0, length = list.list_groups.length; i < length; i++) {
+        if (list.list_groups[i].grp_uuid === req.params.grpId) {
+          list.list_groups[i] = req.body
+        }
+      }
+      if (debug) console.log('\n[Lists/:id/groups]: List after adding new groupList : \n' + JSON.stringify(list))
+      list.save((err, list) => {
+        if (err) res.send(err)
+        res.status(200).json(list)
+      })
     })
-  })
+  } else {
+    res.status(403)
+  }
 })
-
 
 /*
  * PUT /lists/:id route to update a single list as a whole.
  * * Only accessible by AP roles
  */
 router.put('/:id', function (req, res, next) {
-  List.findOneAndUpdate({'list_uuid': req.params.id}, req.body, {'new': true}, function (err, list) {
-    if (err) res.send(err)
-    res.status(200).json(list)
-  })
-})
-
-/*
- * POST /lists/:id/groups/:grpId/members creates user in a list group
- * * Accessible by AP and SP roles
- */
-router.post('/:id/groups/:grpId/members', function (req, res, next) {
-  List.findOne({'list_uuid': req.params.id}, function (err, list) {
-    if (err) res.send(err)
-    // find existing group and replace with incoming
-    for (var i = 0, len = list.list_groups.length; i < len; i++) {
-      if (list.list_groups[i].grp_uuid === req.params.grpId) {
-        list.list_groups[i].grp_members.push(req.body)
-        break
-      } 
-    }
-    if (debug) console.log('\n[Lists/:id/groups]: List after adding new groupList : \n' + JSON.stringify(list))
-    list.save((err, list) => {
+  var validRoles = ['AP']
+  if (jwtToken.jwtValidRole(req, validRoles)) {
+    List.findOneAndUpdate({'list_uuid': req.params.id}, req.body, {'new': true}, function (err, list) {
       if (err) res.send(err)
       res.status(200).json(list)
     })
-  })
+  } else {
+    res.status(403)
+  }
+})
+
+/*
+ * POST /lists/:id/groups/:grpId/members creates users in a list group
+ * * Accessible by AP role
+ */
+router.post('/:id/groups/:grpId/members', function (req, res, next) {
+  var validRoles = ['AP']
+  if (jwtToken.jwtValidRole(req, validRoles)) {
+    List.findOne({'list_uuid': req.params.id}, function (err, list) {
+      if (err) res.send(err)
+      // find existing group and replace with incoming
+      for (var i = 0, length = list.list_groups.length; i < length; i++) {
+        if (list.list_groups[i].grp_uuid === req.params.grpId) {
+          list.list_groups[i].grp_members.push(req.body)
+          break
+        }
+      }
+      if (debug) console.log('\n[Lists/:id/groups]: List after adding new groupList : \n' + JSON.stringify(list))
+      list.save((err, list) => {
+        if (err) res.send(err)
+        res.status(200).json(list)
+      })
+    })
+  } else {
+    res.status(403)
+  }
+})
+
+/*
+ * POST /lists/:id/groups/:grpId/members/:mbrId creates users in a list group
+ * * Accessible by AP and SP roles
+ */
+router.post('/:id/groups/:grpId/members', function (req, res, next) {
+  var validRoles = ['AP', 'SP']
+  if (jwtToken.jwtValidRole(req, validRoles)) {
+    List.findOne({'list_uuid': req.params.id}, function (err, list) {
+      if (err) res.send(err)
+      // find existing group and replace with incoming
+      for (var i = 0, length = list.list_groups.length; i < length; i++) {
+        if (list.list_groups[i].grp_uuid === req.params.grpId) {
+          list.list_groups[i].grp_members.push(req.body)
+          break
+        }
+      }
+      if (debug) console.log('\n[Lists/:id/groups]: List after adding new groupList : \n' + JSON.stringify(list))
+      list.save((err, list) => {
+        if (err) res.send(err)
+        res.status(200).json(list)
+      })
+    })
+  } else {
+    res.status(403)
+  }
 })
 
 /*
@@ -197,17 +264,22 @@ router.post('/:id/groups/:grpId/members', function (req, res, next) {
  * * Accessible by AP and SP roles
  */
 router.get('/:id/groups/:grpId/members', function (req, res, next) {
-  List.findOne({ 'list_uuid': req.params.id}, function (err, list) {
-    if (err) res.send(err)
-    // find group and return grp_members
-    for (var i = 0, len = list.list_groups.length; i < len; i++) {
-      if (list.list_groups[i].grp_uuid === req.params.grpId) {
-        res.status(200).json(list.list_groups[i].grp_members)
-      } else {
-        res.status(404)
+  var validRoles = ['AP', 'SP']
+  if (jwtToken.jwtValidRole(req, validRoles)) {
+    List.findOne({'list_uuid': req.params.id}, function (err, list) {
+      if (err) res.send(err)
+      // find group and return grp_members
+      for (var i = 0, length = list.list_groups.length; i < length; i++) {
+        if (list.list_groups[i].grp_uuid === req.params.grpId) {
+          res.status(200).json(list.list_groups[i].grp_members)
+        } else {
+          res.status(404)
+        }
       }
-    }
-  })
+    })
+  } else {
+    res.status(403)
+  }
 })
 
 /*
@@ -215,23 +287,28 @@ router.get('/:id/groups/:grpId/members', function (req, res, next) {
  * * Accessible by AP and SP roles
  */
 router.get('/:id/groups/:grpId/members/:userId', function (req, res, next) {
-  List.findOne({'list_uuid': req.params.id}, function (err, list) {
-    if (err) res.send(err)
-    // find group and return user from the groups grp_members
-    for (var i = 0, len = list.list_groups.length; i < len; i++) {
-      if (list.list_groups[i].grp_uuid === req.params.grpId) {
-        for (var n = 0, len = list.list_groups[i].grp_members; n < len; n++) {
-          if (list.list_groups[i].grp_members[n].user_uuid === req.params.userId) {
-            res.status(200).json(list.list_groups[i].grp_members[n])
-          } else {
-            res.status(404)
+  var validRoles = ['AP', 'SP']
+  if (jwtToken.jwtValidRole(req, validRoles)) {
+    List.findOne({'list_uuid': req.params.id}, function (err, list) {
+      if (err) res.send(err)
+      // find group and return user from the groups grp_members
+      for (var i = 0, len = list.list_groups.length; i < len; i++) {
+        if (list.list_groups[i].grp_uuid === req.params.grpId) {
+          for (var n = 0, length = list.list_groups[i].grp_members; n < length; n++) {
+            if (list.list_groups[i].grp_members[n].user_uuid === req.params.userId) {
+              res.status(200).json(list.list_groups[i].grp_members[n])
+            } else {
+              res.status(404)
+            }
           }
+        } else {
+          res.status(404)
         }
-      } else {
-        res.status(404)
       }
-    }
-  })
+    })
+  } else {
+    res.status(403)
+  }
 })
 
 /*
@@ -239,55 +316,75 @@ router.get('/:id/groups/:grpId/members/:userId', function (req, res, next) {
  * * Accessible by AP and SP roles
  */
 router.put('/:id/groups/:grpId/members/:userId', function (req, res, next) {
-  List.findOne({'list_uuid': req.params.id}, function (err, list) {
-    if (err) res.send(err)
-    // find group and return user from the groups grp_members
-    for (var i = 0, len = list.list_groups.length; i < len; i++) {
-      if (list.list_groups[i].grp_uuid === req.params.grpId) {
-        for (var n = 0, len = list.list_groups[i].grp_members; n < len; n++) {
-          if (list.list_groups[i].grp_members[n].user_uuid === req.params.userId) {
-            list.list_groups[i].grp_members[n] = req.body
-            break
-          } 
+  var validRoles = ['AP', 'SP']
+  // var found = false
+  if (jwtToken.jwtValidRole(req, validRoles)) {
+    List.findOne({'list_uuid': req.params.id}, function (err, list) {
+      if (err) res.send(err)
+      // find group and return user from the groups grp_members
+      for (var i = 0, len = list.list_groups.length; i < len; i++) {
+        if (list.list_groups[i].grp_uuid === req.params.grpId) {
+          for (var n = 0, length = list.list_groups[i].grp_members; n < length; n++) {
+            if (list.list_groups[i].grp_members[n].user_uuid === req.params.userId) {
+              list.list_groups[i].grp_members[n] = req.body
+              // found = true
+              break
+            }
+          }
+          break
+        } else {
+          res.status(404)
         }
-        break
-      } else {
-        res.status(404)
       }
-    }
-    list.save((err, list) => {
-      res.status(200).json(list)
+      // add SP user check if SP and SP.user === member.uuid go
+      list.save((err, list) => {
+        if (err) {
+          // do something
+          res.status(400).send()
+        }
+        res.status(200).json(list)
+      })
     })
-  })
+  } else {
+    res.status(403)
+  }
 })
-
 
 /*
  * DELETE a specific user from a list group
  * * Accessible by AP and SP roles
  */
 router.delete('/:id/groups/:grpId/members/:userId', function (req, res, next) {
-  List.findOne({'list_uuid': req.params.id}, function (err, list) {
-    if (err) res.send(err)
-    // find group and return user from the groups grp_members
-    for (var i = 0, len = list.list_groups.length; i < len; i++) {
-      if (list.list_groups[i].grp_uuid === req.params.grpId) {
-        for (var n = 0, len = list.list_groups[i].grp_members; n < len; n++) {
-          if (list.list_groups[i].grp_members[n].user_uuid === req.params.userId) {
-            delete list.list_groups[i].grp_members[n]
-          } else {
-            res.status(404)
-          }
-        }
-      } else {
-        res.status(404)
-      }
-    }
-    list.save((err, list) => {
+  var validRoles = ['AP', 'SP']
+  if (jwtToken.jwtValidRole(req, validRoles)) {
+    List.findOne({'list_uuid': req.params.id}, function (err, list) {
       if (err) res.send(err)
-      res.status(200).json(list)
+      // find group and return user from the groups grp_members
+      for (var i = 0, len = list.list_groups.length; i < len; i++) {
+        if (list.list_groups[i].grp_uuid === req.params.grpId) {
+          for (var n = 0, length = list.list_groups[i].grp_members; n < length; n++) {
+            if (list.list_groups[i].grp_members[n].user_uuid === req.params.userId) {
+              delete list.list_groups[i].grp_members[n]
+            } else {
+              res.status(404)
+            }
+          }
+        } else {
+          res.status(404)
+        }
+      }
+      // add SP user check if SP and SP.user === member.uuid go
+      list.save((err, list) => {
+        if (err) {
+          // do something
+          res.status(400).send()
+        }
+        res.status(200).json(list)
+      })
     })
-  })
+  } else {
+    res.status(403)
+  }
 })
 
 /* NEED TO REWRITE FOR GROUP SUPPORT => MOVE TO LIST.js and call by /list/:id/group/:groupId
@@ -348,20 +445,28 @@ router.get('/:id/roster/:uuid', function(req, res, next) {
  */
 
 router.delete('/:id/groups/:grpId', function (req, res, next) {
-  List.findOne({'list_uuid': req.params.id}, function (err, list) {
-    if (err) res.send(err)
-    // find existing group and replace with incoming
-    for (var i = 0, len = list.list_groups.length; i < len; i++) {
-      if (list.list_groups[i].grp_uuid === req.params.grpId) {
-        delete list.list_groups[i]
-      } 
-    }
-    if (debug) console.log('\n[Lists/:id/groups]: List after adding new groupList : \n' + JSON.stringify(list))
-    list.save((err, list) => {
+  var validRoles = ['AP']
+  if (jwtToken.jwtValidRole(req, validRoles)) {
+    List.findOne({'list_uuid': req.params.id}, function (err, list) {
       if (err) res.send(err)
-      res.status(200).json(list)
+      // find existing group and replace with incoming
+      for (var i = 0, len = list.list_groups.length; i < len; i++) {
+        if (list.list_groups[i].grp_uuid === req.params.grpId) {
+          delete list.list_groups[i]
+        }
+      }
+      if (debug) console.log('\n[Lists/:id/groups]: List after adding new groupList : \n' + JSON.stringify(list))
+      list.save((err, list) => {
+        if (err) {
+          // do something
+          res.status(400).send()
+        }
+        res.status(200).json(list)
+      })
     })
-  })
+  } else {
+    res.status(403)
+  }
 })
 
 /*
@@ -369,11 +474,20 @@ router.delete('/:id/groups/:grpId', function (req, res, next) {
  * * Only accessible by AP roles
  */
 router.delete('/:id', function (req, res, next) {
-  List.findAndRemove({'list_uuid': req.params.id}, (err, result) => {
-    if (debug) console.log('\n[lists.js] DELETE LIST[' + req.params.id + ']')
-    if (err) res.send(err)
-    res.status(204).send()
-  })
+  var validRoles = ['AP']
+  var token = req.cookies['sulToken']
+  if (jwtToken.jwtValidRole(token, validRoles)) {
+    List.findOneAndRemove({'list_uuid': req.params.id}, (err, result) => {
+      if (debug) console.log('\n[lists.js] DELETE LIST[' + req.params.id + ']')
+      if (err) {
+        // do something
+        res.status(400).send()
+      }
+      res.status(204).send()
+    })
+  } else {
+    res.status(403)
+  }
 })
 
 /*
@@ -381,23 +495,40 @@ router.delete('/:id', function (req, res, next) {
  * * Only accessible by AP roles
  */
 router.delete('/', function (req, res, next) {
-  List.remove({}, (err, result) => {
-    if (debug) console.log('\n[lists.js] DELETE LISTS[]')
-    if (err) res.send(err)
-    res.status(204).send()
-  })
+  var validRoles = ['AP']
+  var token = req.cookies['sulToken']
+  if (jwtToken.jwtValidRole(token, validRoles)) {
+    List.remove({}, (err, result) => {
+      if (debug) console.log('\n[lists.js] DELETE LISTS[]')
+      if (err) {
+        // do something
+        res.status(400).send()
+      }
+      res.status(204).send()
+    })
+  } else {
+    res.status(403)
+  }
 })
-
-
 
 /*
  * DELETE /lists/:id route to delete a single list.
  * * Only accessible by AP roles
  */
 router.delete('/:id', function (req, res, next) {
-  List.findOneAndRemove({'list_uuid': req.params.id}, (err, result) => {
-    res.status(204).send()
-  })
+  var validRoles = ['AP']
+  var token = req.cookies['sulToken']
+  if (jwtToken.jwtValidRole(token, validRoles)) {
+    List.findOneAndRemove({'list_uuid': req.params.id}, (err, result) => {
+      if (err) {
+        // do something
+        res.status(400).send()
+      }
+      res.status(204).send()
+    })
+  } else {
+    res.status(403)
+  }
 })
 
 module.exports = router

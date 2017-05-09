@@ -1,3 +1,4 @@
+/* global describe, it */
 'use strict'
 var mongoose = require("mongoose");
 var List = require('../controllers/models/lists')
@@ -10,7 +11,7 @@ var should = chai.should()
 var expect = chai.expect()
 
 // Use bluebird since mongoose has deprecated mPromise
-mongoose.Promise = require("bluebird");
+mongoose.Promise = require('bluebird')
 
 chai.use(chaiHttp)
 
