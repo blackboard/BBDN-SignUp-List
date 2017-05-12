@@ -19,7 +19,6 @@ var config = {
 
 };
 
-if (config.debug=="true") console.log(config);
+if (config.debug_mode=="true") console.log(config);
 
 module.exports = config;
-

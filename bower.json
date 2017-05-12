@@ -1,0 +1,21 @@
+{
+  "name": "signuplist",
+  "description": "Migration of SignUp Tool Building Block to LTI and REST",
+  "main": "/bin/www",
+  "authors": [
+    "Scott Hurrey <Scott.Hurrey@blackboard.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/shurrey/BBDN-SignUp-List",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-spinkit": "^0.3.4"
+  }
+}

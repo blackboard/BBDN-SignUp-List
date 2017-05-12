@@ -105,7 +105,7 @@ router.post('/lti', function(req, res, next) {
   if (debug) console.log(req.headers);
   if (debug) console.log("\nREQUEST BODY: ");
   if (debug) console.log(req.body);
-  
+
   if (debug) console.log("\nREQUEST launch_presentation_return_url: ", req.body.launch_presentation_return_url);
   if (debug) console.log("\nREQUEST custom_tc_profile_url: ", req.body.custom_tc_profile_url); //seems to be the only consistent URL returned?
 
@@ -130,7 +130,7 @@ router.post('/lti', function(req, res, next) {
     //throw http error 400 with a result....
   }
   */
-
+  
   // Check to see if launch is from DVM, if so default to https and 9877.
   if(launcherURL.hostname == 'localhost' && launcherURL.port == '9876') {
     sess.consumer_protocol='https:';
@@ -167,6 +167,7 @@ router.post('/lti', function(req, res, next) {
          user_role = req.body['roles'];
          system_guid = req.body['tool_consumer_instance_guid'];
        	 return_url = req.body['launch_presentation_return_url'];
+         debug_mode = debug;
 
        	 if(return_url == undefined) {
       	    return_url = 'https://' + sess.consumer_hostname + ':' + sess.consumer_port;
@@ -180,6 +181,7 @@ router.post('/lti', function(req, res, next) {
            '"user_role" :' +  user_role + ',' +
            '"system_guid" :' +  system_guid + ',' +
            '"return_url" :' +  return_url + ',' +
+           '"debug_mode" :' + debug_mode +
          '}');
          }
 
@@ -207,7 +209,7 @@ router.get('/lti/data', function(req, res, next) {
       "rest_host" : config.rest_host,
       "rest_port" : config.rest_port,
       "return_url" : return_url,
-      "debug_mode" : debug_mode
+      "debug_mode" : debug
     };
     if (debug) console.log('\nCAPTURED LTI DATA: ');
     if (debug) console.log(JSON.stringify(ltidata));

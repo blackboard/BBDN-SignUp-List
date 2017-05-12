@@ -154,7 +154,7 @@ router.get('/system/:systemId/course/:courseId', function(req, res, next) {
       var options = {
               hostname: sess.consumer_hostname,
               port: sess.consumer_port,
-              path: '/learn/api/public/v1/courses/uuid:' + uuid + '?fields=uuid,name,ultraStatus',
+              path: '/learn/api/public/v1/courses/uuid:' + uuid + '?fields=uuid,name,ultraStatus,externalId',
               method: 'GET',
               rejectUnauthorized: rejectUnauthorized,
               headers: { "Authorization" : auth_string }
@@ -207,7 +207,6 @@ router.get('/system/:systemId/course/:courseId/roster', function(req, res, next)
               hostname: sess.consumer_hostname,
               port: sess.consumer_port,
               path: '/learn/api/public/v1/courses/uuid:' + uuid + '/users?fields=userId',
-
               method: 'GET',
               rejectUnauthorized: rejectUnauthorized,
               headers: { "Authorization" : auth_string }
@@ -231,7 +230,7 @@ router.get('/system/:systemId/course/:courseId/roster', function(req, res, next)
       });
 
       http_req.end();
-
+      
   });
 });
 

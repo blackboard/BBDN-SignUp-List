@@ -1,32 +1,53 @@
-angular.module('signupApp')
-.factory('apiFactory', ['$http', function($http) {
+/* // dataservice factory
+angular
+    .module('app.core')
+    .factory('dataservice', dataservice);
 
-    var urlBase = '/api';
-    var apiFactory = {};
+dataservice.$inject = ['$http', 'logger'];
 
-    apiFactory.getCourse = function (systemId, courseId) {
-        return $http.get(urlBase + '/system/' + systemId + '/course/' + courseId);
+function dataservice($http, logger) {
+    return {
+        getAvengers: getAvengers
     };
+*/
+angular
+  .module('signupApp')
+  .factory('apiFactory', apiFactory);
 
-    apiFactory.getUser = function (systemId, userId) {
-        return $http.get(urlBase  + '/system/' + systemId + '/user/' + userId);
-    };
+apiFactory.$inject = ['$http'];
 
-    apiFactory.getUserByPk = function (systemId, userId) {
-        return $http.get(urlBase  + '/system/' + systemId + '/user_pk/' + userId);
-    };
+function apiFactory($http) {
+  return {
+    addUsersToGroup: addUsersToGroup,
+    createGroup: createGroup,
+    getCourse: getCourse,
+    getRoster: getRoster,
+    getUser: getUser,
+    getUserByPk: getUserByPk
+  };
 
-    apiFactory.getRoster = function (systemId, courseId) {
-        return $http.get(urlBase  + '/system/' + systemId + '/course/' + courseId + '/roster');
-    };
 
-    apiFactory.createGroup = function (systemId, courseId, groupName) {
-        return $http.post(urlBase  + '/system/' + systemId + '/course/' + courseId + '/group/' + groupName);
-    };
+  function getCourse(systemId, courseId) {
+      return $http.get('/api/system/' + systemId + '/course/' + courseId);
+  }
 
-    apiFactory.addUsersToGroup = function (systemId, courseId, groupId, userId) {
-        return $http.post(urlBase  + '/system/' + systemId + '/course/' + courseId + '/group/' + groupName + '/user/' + userId);
-    };
+  function getUser(systemId, userId) {
+      return $http.get('/api/system/' + systemId + '/user/' + userId);
+  }
 
-    return apiFactory;
-}]);
+  function getUserByPk(systemId, userId) {
+      return $http.get('/api/system/' + systemId + '/user_pk/' + userId);
+  }
+
+  function getRoster(systemId, courseId) {
+      return $http.get('/api/system/' + systemId + '/course/' + courseId + '/roster');
+  }
+
+  function createGroup(systemId, courseId, groupName) {
+      return $http.post('/api/system/' + systemId + '/course/' + courseId + '/group/' + groupName);
+  }
+
+  function addUsersToGroup(systemId, courseId, groupId, userId) {
+      return $http.post('/api/system/' + systemId + '/course/' + courseId + '/group/' + groupName + '/user/' + userId);
+  }
+}
