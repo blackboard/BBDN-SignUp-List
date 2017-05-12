@@ -6,7 +6,7 @@ var server = require('../server')
 var should = chai.should()
 var config = require('../config/config')
 var mongoose = require('mongoose')
-const uuidV1 = require('uuid/v1')
+const uuid = require('uuid')
 // Use bluebird since mongoose has deprecated mPromise
 mongoose.Promise = require('bluebird')
 
@@ -17,8 +17,55 @@ var db = config.test_db
 
 var debug = (config.debugMode === 'true')
 
-// test data
-/*    
+// JWT test data
+var jtiInstructor = uuid.v4()
+var xsrfTokenInstructor = uuid.v4()
+var userUUIDInstructor = 'moneilInstructor'
+var userRoleInstructor = ['instructor']
+var jwtTokenInstructor
+var jtiStudent = uuid.v4()
+var xsrfTokenStudent = uuid.v4()
+var userUUIDStudent = 'moneilStudent'
+var userRoleStudent = ['learner']
+var jwtTokenStudent
+/*
+ * jwtClaims:
+ *  iss: issuer - in this case the SignUp List
+ *  system: system bound to the request eg:www.mount.edu (LTI launch)
+ *  exp: token expiry - in this case one hour
+ *    TBD: expired tokens may be regenerated based on original claims
+ *  iat: when the token was issued
+ *  xsrfToken: used for preventing xsrf compared to stored token
+ *  jti: unique token identifier - used for jwtTokenCache key
+ *  sub: subject of the token - the Learn User UUID (LTI launch)
+ *  userRole: the user's role (LTI launch)
+ *    valid userRoles: 'instructor', 'teachingassistant', 'grader', 'learner', 'administrator'
+ */
+var jwtClaimsInstructor = {
+  'iss': 'SignUp List',
+  'system': 'localhost',
+  'exp': Math.floor(Date.now() / 1000) + (60 * 60),
+  'iat': Date.now(),
+  'xsrfToken': xsrfTokenInstructor,
+  'jti': jtiInstructor,
+  'sub': userUUIDInstructor,
+  'userRole': userRoleInstructor
+}
+
+var jwtClaimsStudent = {
+  'iss': 'SignUp List',
+  'system': 'localhost',
+  'exp': Math.floor(Date.now() / 1000) + (60 * 60),
+  'iat': Date.now(),
+  'xsrfToken': xsrfTokenStudent,
+  'jti': jtiStudent,
+  'sub': userUUIDStudent,
+  'userRole': userRoleStudent
+}
+
+/* 
+ * test data
+   
 {
   uuid: { type: String,required: true, unique: true },
   externalId: { type: String },
@@ -32,8 +79,8 @@ var debug = (config.debugMode === 'true')
 }
 */
 
-var courseUUID1 = uuidV1()
-var courseUUID2 = uuidV1()
+var courseUUID1 = uuid.v4()
+var courseUUID2 = uuid.v4()
 
 var badUUIDTest = { 'ultrafied': false }
 var minimumGoodCourse = { 'uuid': courseUUID1, 'ultrafied': false }
@@ -75,7 +122,7 @@ describe('[test_course_schema] Fail on incorrectly formatted POST?', function ()
 })
 
 // √ POST /courses to create a new SUL course record
-describe('[test_course_schema] Pass on correctly formatted POST?',function () {
+describe('[test_course_schema] Pass on correctly formatted POST?', function () {
   console.log('[test_course_schema] minimum good course: ', minimumGoodCourse)
   it ('should POST correctly', (done) => {
     chai
