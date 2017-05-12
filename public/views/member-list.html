@@ -1,0 +1,24 @@
+<table class="table table-responsive" ng-show="config.showMembers || (list.student_view && config.lti.user_role === 'urn:lti:role:ims/lis/Learner')">
+  <thead class="thead-default">
+    <tr>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Date Joined</th>
+      <th>Added By</th>
+      <th>Waitlisted?</th>
+    </tr>
+  </thead>
+  <tbody ng-repeat="user in list.userList">
+    <tr>
+      <td scope="row">{{member.userInfo[user.user_uuid].first}}</td>
+      <td>{{member.userInfo[user.user_uuid].last}}</td>
+      <td>{{member.userInfo[user.user_uuid].email}}</td>
+      <td>{{user.role}}</td>
+      <td>{{user.created_on | date}}</td>
+      <td>{{user.added_by}}</td>
+      <td>{{user.waitlisted ? "Yes" : ""}}
+    </tr>
+  </tbody>
+</table>

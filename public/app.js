@@ -4,11 +4,3 @@ var app = angular.module('signupApp',
             'ui.bootstrap.datetimepicker'
         ]
     )
-
-/*
-,
-'ltiFactory',
-'apiFactory',
-'listFactory',
-'summaryView'
-*/
