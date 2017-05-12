@@ -88,55 +88,6 @@ router.get('/:id', function(req, res, next) {
 });
 
 /*
- * PUT /courses/:id/roster/ - add a complete roster to the SUL course 
-*/
-router.put('/:id/roster', function(req, res, next) {
-    Course.findOne({uuid: req.params.id}, (err, course) => {
-        if (debug) console.log("[courses.js] PUT: roster: uuid: " + req.params.id);
-        if (debug) console.log("[courses.js] PUT: roster: course: " + course);
-
-        course.roster = req.body;
-        course.save((err, course) => {
-        if (debug) console.log("[courses.js] PUT: roster: updated course: " + course);
-        if(err) {
-            res.send(err);
-        } else { //If no errors, send it back to the client
-           //console.log(req.body);
-           res.status(200).json(req.body);
-        };
-
-        });
-    });
-});
-
-/*
- * √ GET /courses/:id/roster - gets the roster from a SUL course
- */
-router.get('/:id/roster', function(req,res,next) {
-    Course.findOne({"uuid": req.params.id}, function(err, course) {
-        if (debug) console.log("\n\n[courses.js] GET course roster from: \n", req.params.id );
-        if (debug) console.log("\n\n[courses.js] GET course roster: \n" + req.body.roster);
-        if(err) res.send(err);
-        res.status(200).json(req.body.roster);
-    });
-});
-
-
-/*
-DELETE /courses/:id/roster - delete a whole roster
- */
-router.delete('/:id/roster', function(req, res, next) {
-    if (debug) console.log("\n\n[courses.js] DELETE roster from course:  \n", req.params.id);
-    Course.findOneAndUpdate({"uuid": req.params.id}, { $set: { "roster": [] }}, {"new": true}, (err, course) => {
-              if (debug) console.log("\n\n[courses.js] DELETE roster: post delete:\n", course);
-              if (err) {
-                res.status(500).send(err)
-              }
-            res.status(200).json(course);
-    });
-});
-
-/*
  * √ DELETE /courses/:id/lists - delete a whole list of lists
  */
 router.delete('/:id/lists', function(req, res, next) {

@@ -143,6 +143,7 @@ describe("[test_course_schema] Partial update on specific course", function() {
     });
   });
 
+/*
 // GET /courses/:id/roster - gets the roster from a SUL course
 describe("[test_course_schema] Return the full roster for course", function() {
   it('should return the course roster containing moneil and shurrey', (done) => {
@@ -156,7 +157,7 @@ describe("[test_course_schema] Return the full roster for course", function() {
     });
   });
 });
-
+ */
 
 // √ GET /courses to retrieve a collection of all SUL courses
 describe("[test_course_schema] Return the entire courses collection", function() {
@@ -177,7 +178,7 @@ describe("[test_course_schema] Return the entire courses collection", function()
  * √ PUT /courses/:id/roster/ - add a complete roster to the SUL course 
  *    --- use PUT to add a user to the roster
  *    --- use DELETE to remove a user from the roster
-*/
+
 describe("[test_course_schema] Pass on correctly POSTing roster?", function() {
   var roster = [ { "user_uuid":"moneil"}, {"user_uuid":"shurrey"} ];
     it('should POST correctly', (done) => {
@@ -192,10 +193,11 @@ describe("[test_course_schema] Pass on correctly POSTing roster?", function() {
       });
   });
 });
+ */
 
 /*
  * √ PATCH /courses/:id/roster/ - add a user to a roster for the SUL course
- */
+ 
 describe("[test_course_schema] Pass on correctly adding a user to a SUL course roster", function() {
   var usrToAdd = {
     "user_uuid": "HAWKEYE"
@@ -215,11 +217,11 @@ describe("[test_course_schema] Pass on correctly adding a user to a SUL course r
       });
   });
 });
-
+ */
 
 /*
  * √ GET /courses/:id/roster/:user_uuid - gets a specific user from the roster
- */
+
 describe("[test_course_schema] GET specific user from course roster", function() {
   var user = "HAWKEYE";
     it('should return the requested user_uuid', (done) => {
@@ -235,10 +237,11 @@ describe("[test_course_schema] GET specific user from course roster", function()
     });
   });
 });
+ */
 
 /*
  * √ DELETE /courses/:id/roster/:user_uuid - delete a user from the roster
- */  
+ 
 describe("[test_course_schema] DELETE User from roster", function() {
   it('should delete the specified user (HAWKEYE) from the roster', (done) => {
     chai
@@ -252,10 +255,11 @@ describe("[test_course_schema] DELETE User from roster", function() {
       done();
   });
 });
+ */ 
 
 /*
  * √ DELETE /courses/:id/roster - delete a whole roster
- */
+
 describe("[test_course_schema] DELETE roster", function() {
   it('should delete the roster for the requested course', (done) => {
     chai
@@ -270,7 +274,7 @@ describe("[test_course_schema] DELETE roster", function() {
       done();
   });
 });
-
+ */
 
 /*
  * √ DELETE /courses/:id/lists - delete a whole list of lists
