@@ -4,6 +4,7 @@ require('./lists')
 
 // courseSchema schema definition
 var courseSchema = new Schema(
+
   {
     uuid: { type: String, required: true, unique: true },
     externalId: { type: String },

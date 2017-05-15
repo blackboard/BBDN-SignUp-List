@@ -21,4 +21,3 @@ var config = {
 if (config.debugMode === 'true') console.log(config)
 
 module.exports = config
-

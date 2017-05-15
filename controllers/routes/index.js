@@ -39,6 +39,7 @@ var validSession = false
 var jwtClaims
 var jwtToken = ''
 
+<<<<<<< HEAD
 /*
  * key and secret sanity checks - logged on startup
  */
@@ -79,20 +80,6 @@ if (debug) {
     console.log('Using db_URL from process.env:', '\x1b[32m', dbURL, '\x1b[0m')
   }
 
-/*
-  if (restHost === config.rest_host) {
-    console.log('Using rest_host from config.js:', '\x1b[32m', restHost, '\x1b[0m')
-  } else {
-    console.log('Using rest_host from process.env:', '\x1b[32m', restHost, '\x1b[0m')
-  }
-  if (restPort === config.rest_port) {
-    console.log('Using rest_port from config.js:', '\x1b[32m', restPort, '\x1b[0m')
-  } else {
-    console.log('Using rest_port from process.env:', '\x1b[32m', restPort, '\x1b[0m')
-  }
-
-*/
-}
 /* Return home page from LTI Launch. */
 router.post('/lti', function (req, res, next) {
 /*
@@ -257,10 +244,6 @@ router.get('/lti/data', function (req, res, next) {
     }
     if (debug) console.log('\nCAPTURED LTI DATA: ')
     if (debug) console.log(JSON.stringify(ltidata))
-
-    jwtUtils.cacheJwtToken(jwtClaims.jti, jwtToken, jwtClaims.exp)
-    res.cookie('sulToken', jwtToken, { httpOnly: true }) // cookie expires at end of session
-    res.json(ltidata)
   }
 })
 
