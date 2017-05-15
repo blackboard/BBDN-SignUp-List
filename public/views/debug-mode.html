@@ -1,0 +1,23 @@
+<div ng-if="config.lti.debug_mode">
+  <br />
+  <div ng-show="config.lti">
+    <h4>LTI data</h4>
+    <pre>{{config.lti | json}}</pre>
+  </div>
+  <div ng-show="course">
+    <h4>Course</h4>
+    <pre>{{course | json}}</pre>
+  </div>
+  <div ng-show="user">
+    <h4>User</h4>
+    <pre>{{user | json}}</pre>
+  </div>
+  <div>
+    <h4>Config</h4>
+    <pre>{{config | json}}</pre>
+  </div>
+  <div>
+    <h4>Member</h4>
+    <pre>{{member | json}}</pre>
+  </div>
+</div>

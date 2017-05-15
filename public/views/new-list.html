@@ -1,0 +1,85 @@
+<form novalidate >
+  <div class="form-group dropdown">
+    <label for="name" class="col-2 col-form-label">Name</label>
+    <div class="col-10">
+      <input class="form-control" type="text" id="name" ng-model="list.name" />
+    </div>
+  </div>
+  <div class="form-group dropdown">
+    <label for="description" class="col-2 col-form-label">Description</label>
+    <div class="col-10">
+      <input class="form-control" type="text" id="description" ng-model="list.description" />
+    </div>
+  </div>
+  <div class="form-group dropdown">
+    <label for="location" class="col-2 col-form-label">Location</label>
+    <div class="col-10">
+      <input class="form-control" type="text" id="location" ng-model="list.location" />
+    </div>
+  </div>
+  <div class="dropdown form-group">
+    <label>Start Date</label>
+    <a class="dropdown-toggle" id="dropdownStart" role="button" data-toggle="dropdown" data-target="#"
+       href="#">
+        <div class="input-group date">
+            <input type="text" class="form-control" data-ng-model="list.start">
+            <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+        </div>
+    </a>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+        <datetimepicker data-ng-model="dateRangeStart"
+                        data-datetimepicker-config="{ renderOn: 'end-date-changed' }"
+                        data-on-set-time="startDateOnSetTime()"
+                        data-before-render="startDateBeforeRender($dates)"></datetimepicker>
+    </ul>
+  </div>
+
+  <div class="dropdown form-group">
+    <label>End Date</label>
+    <a class="dropdown-toggle" id="dropdownEnd" role="button" data-toggle="dropdown" data-target="#"
+       href="#">
+        <div class="input-group date">
+            <input type="text" class="form-control" data-ng-model="list.end">
+            <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+        </div>
+    </a>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+        <datetimepicker data-ng-model="dateRangeEnd"
+                        data-datetimepicker-config="{ renderOn: 'start-date-changed' }"
+                        data-on-set-time="endDateOnSetTime()"
+                        data-before-render="endDateBeforeRender($view, $dates, $leftDate, $upDate, $rightDate)"></datetimepicker>
+    </ul>
+  </div>
+  <div class="form-group dropdown">
+    <label for="max-size" class="col-2 col-form-label">Maximum Members</label>
+    <div class="col-10">
+      <input class="form-control" type="number" id="max-size" ng-model="list.max_size">
+    </div>
+  </div>
+  <div class="form-check">
+    <label class="form-check-label">
+      <input class="form-check-input" type="checkbox" value="waitlist_allowed" ng-model="list.waitlist_allowed">
+      Allow Waitlist
+    </label>
+  </div>
+  <div class="form-group dropdown" ng-show="list.waitlist_allowed">
+    <label for="max-waitlist" class="col-2 col-form-label">Maximum Waitlist</label>
+    <div class="col-10">
+      <input class="form-control" type="number" id="max-waitlist" ng-model="list.max_waitlist">
+    </div>
+  </div>
+  <div class="form-check">
+    <label class="form-check-label">
+      <input class="form-check-input" type="checkbox" value="student_view" ng-model="list.student_view">
+      Allow Students To View Memberships
+    </label>
+  </div>
+  <div class="form-group dropdown">
+    <label for="group-name" class="col-2 col-form-label">Group Name</label>
+    <div class="col-10">
+      <input class="form-control" type="text" id="group-name" ng-model="list.group">
+    </div>
+  </div>
+  <input class="btn btn-default" type="button" ng-click="config.addList = false" value="Cancel" />
+  <input class="btn btn-default" type="submit" ng-click="addList()" value="Save" />
+</form>

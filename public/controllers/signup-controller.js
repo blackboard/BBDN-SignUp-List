@@ -1,18 +1,23 @@
 angular.module('signupApp')
 .controller('SignupController', [
-    '$scope', '$log', '$q', 'ltiFactory', 'listFactory', 'apiFactory', 'dbFactory',
-    function ($scope, $log, $q, ltiFactory, listFactory, apiFactory, dbFactory) {
+    '$scope', '$log', '$q', '$filter', 'ltiFactory', 'listFactory', 'apiFactory', 'dbFactory',
+    function ($scope, $log, $q, $filter, ltiFactory, listFactory, apiFactory, dbFactory) {
 
         $scope.config = {};
+        $scope.config.add_list = false;
+        $scope.config.showMembers = false;
+        $scope.config.showInfo = false;
+
         $scope.access_token = "";
         $scope.user = {};
         $scope.course = {};
-        $scope.config.debug_mode = false;
-        $scope.config.add_list = false;
+        $scope.member = {};
+        $scope.member.userInfo = [];
+        $scope.list = {};
 
         $scope.getData = getLtiData;
+        $scope.getUserById = getUserById;
         $scope.reserveSpaces = reserveSpaces;
-        $scope.toggleMemberView = toggleMemberView;
         $scope.print =  print;
         $scope.exportList = exportList;
         $scope.createGroup = createGroup;
@@ -25,19 +30,13 @@ angular.module('signupApp')
         $scope.addList = addList;
         $scope.calculateTaken = calculateTaken;
 
-        $scope.permissions = {
-          viewMembers: false,
-          showMembers: false,
-        };
-
-        $scope.list = {};
-
         function getLtiData() {
           ltiFactory.getData()
             .then(function (response) {
                 $scope.config.lti = response.data;
                 getCourse();
                 getUser();
+                loadRoster();
             }, function (error) {
                 $scope.status = 'Unable to load lti data: ' + error.message;
                 $log.log($scope.status);
@@ -47,9 +46,13 @@ angular.module('signupApp')
         function getCourse() {
           apiFactory.getCourse($scope.config.lti.system_guid, $scope.config.lti.course_uuid)
             .then(function (response) {
+                $log.log("getCourse: response=" + JSON.stringify(response));
+                $log.log("getCourse: response=" + JSON.stringify(response.data));
+                $log.log("getCourse: response=" + JSON.stringify(response.data.name));
                 var ultraStatus = response.data.ultraStatus;
                 var ultrafied = ultraStatus === 'Ultra' || ultraStatus === 'UltraPreview' ? true : false;
                 var courseName = response.data.name;
+                $log.log("getCourse: varcheck={ courseName : " + courseName + ", ultraStatus : " + ultraStatus + " }");
                 dbFactory.getCourse($scope.config.lti.course_uuid)
                   .then(function (response) {
                       if(!response.data) {
@@ -57,11 +60,6 @@ angular.module('signupApp')
                       } else {
                         $scope.course = response.data;
                         $scope.course['name'] = courseName;
-                        angular.forEach($scope.course.list, function(value,key) {
-                          angular.forEach(value, function(list, listKey) {
-                            list['showMembers'] = false;
-                          });
-                        });
                       }
                     }, function (error) {
                         $scope.status = 'Unable to load course data from database: ' + error.message;
@@ -79,17 +77,21 @@ angular.module('signupApp')
                 var pkRoster = [];
                 var uuidRoster = [];
                 var i = 0;
-
                 pkRoster = response.data.results;
                 var promises = [];
-
+                $log.log("in createCourse");
                 angular.forEach(pkRoster, function(value, key) {
                   angular.forEach(value,function(pk,jsonKey){//this is nested angular.forEach loop
                     $log.log(jsonKey+":"+pk);
                     var promise = apiFactory.getUserByPk($scope.config.lti.system_guid, pk)
                     .then(function(response) {
-                      uuidRoster.push({ "user_uuid" : response.data.uuid });
-                      console.log("UUIDRoster: " + uuidRoster);
+                      $log.log("createCourse: response=" + JSON.stringify(response));
+                      $log.log("createCourse: response=" + JSON.stringify(response.data));
+                      var course_role = response.data.courseRoleId === 'Instructor' ? 'INSTRUCTOR' : 'STUDENT';
+                      uuidRoster.push({ "user_uuid" : response.data.uuid, "course_role" : course_role });
+                      var userInfo = { "first" : response.data.name.given, "last" : response.data.name.family, "email" : response.data.contact.email, "user_uuid" : response.data.uuid, "course_role" : course_role };
+                      $scope.member.userInfo[response.data.uuid] = userInfo;
+                      console.log("UUIDRoster: " + JSON.stringify(uuidRoster));
                     }, function (error) {
                       $scope.status = 'Unable to load user by pk1 for ' + pk;
 
@@ -126,34 +128,69 @@ angular.module('signupApp')
                 });
             };
 
+            function loadRoster() {
+              apiFactory.getRoster($scope.config.lti.system_guid, $scope.config.lti.course_uuid)
+              .then(function (response) {
+                  var pkRoster = [];
+                  var uuidRoster = [];
+                  var i = 0;
+
+                  pkRoster = response.data.results;
+                  $log.log("In loadRoster");
+                  angular.forEach(pkRoster, function(value, key) {
+                    angular.forEach(value,function(pk,jsonKey){//this is nested angular.forEach loop
+                      $log.log(jsonKey+":"+pk);
+                      apiFactory.getUserByPk($scope.config.lti.system_guid, pk)
+                      .then(function(response) {
+                        var course_role = response.data.courseRoleId === 'Instructor' ? 'INSTRUCTOR' : 'STUDENT';
+                        uuidRoster.push({ "user_uuid" : response.data.uuid, "course_role" : course_role });
+                        var userInfo = { "first" : response.data.name.given, "last" : response.data.name.family, "email" : response.data.contact.email, "user_uuid" : response.data.uuid, "course_role" : course_role };
+                        $scope.member.userInfo[response.data.uuid] = userInfo;
+                        $log.log("UUIDRoster: " + uuidRoster);
+                        $log.log("userInfo: " + $scope.member.userInfo);
+                      }, function (error) {
+                        $scope.status = 'Unable to load user by pk1 for ' + pk;
+
+                        $log.log($scope.status);
+                      });
+                    });
+                  });
+                });
+              };
+
+        function getUserById(uuid) {
+            $log.log("getUserById: UUID = " + uuid);
+            angular.forEach($scope.member.userInfo, function(userInfo,index) {
+              $log.log("getUserById: userInfo.user_uuid = " + userInfo.user_uuid);
+              if( uuid === userInfo.user_uuid) {
+                  $log.log("getUserById: returning");
+                  return userInfo;
+              }
+            });
+        };
+
         function reserveSpaces(list) {
-          return list.max_waitlist - calculateTaken(list,false);
+          var reserves = 0;
+          if(list.waitlist_allowed) {
+              reserves = list.max_waitlist - calculateTaken(list,false);
+          }
+          return reserves;
         };
 
         function calculateTaken(list, main) {
           var count = 0;
-          $log.log("In calculateTaken");
-          angular.forEach(list.userlist, function(value, key) {
-            $log.log("Count: " + count + " key: " + key + " Value: " + value)
-            angular.forEach(value,function(user,userKey){
-              $log.log("Count: " + count + " userKey: " + userKey + " User: " + user)
-              if(main && !user.waitlisted) {
-                count++;
-              } else if (!main && user.waitlisted) {
-                count++;
-              }
-            });
+          angular.forEach(list.userList, function(user, key) {
+            $log.log("calculateTaken: main=" + (main ? "True" : "False") + " waitlisted=" + (user.waitlisted ? "True" : "False"));
+            if(main && !user.waitlisted) {
+              count++;
+              $log.log("main count: " + count);
+            } else if (!main && user.waitlisted) {
+              $log.log("wait count: " + count);
+              count++;
+            }
           });
-          return count;
-        };
 
-        function toggleMemberView(index) {
-          if($scope.list[index].showMembers) {
-            $scope.list[index].showMembers = false
-          }
-          else {
-            $scope.list[index].showMembers = true;
-          }
+          return count;
         };
 
         function print(list) {
@@ -172,18 +209,53 @@ angular.module('signupApp')
         function delUser(list) {
           alert('Deleting User from ' + list.name + '...');
         };
-        function addMe(list) {
-          alert('Adding ' + $scope.user.userName + '...');
+        function addMe(list, needsWaitlist) {
+          var userToAdd = {
+            "user_uuid" : $scope.user.uuid,
+            "role" : $scope.config.lti.user_role === 'urn:lti:role:ims/lis/Instructor' ? 'INSTRUCTOR' : 'STUDENT',
+            "waitlisted" : needsWaitlist,
+            "added_by" : 'self'
+          }
+          $log.log("UserToAdd: " + JSON.stringify(userToAdd));
+          listInCourseScope = $filter('filter')($scope.course.lists, function (d) {return d.uuid === list.uuid;})[0];
+          $log.log("User list length before add: " + list.userList.length);
+          listInCourseScope.userList.push(userToAdd);
+          $log.log("User list length: " + list.userList.length);
+          dbFactory.updateList(list.uuid, list)
+            .then(function (response) {
+              $scope.status = 'User added to list!';
+              $log.log($scope.status);
+            }, function(error) {
+              $scope.status = 'Unable to add user to course: ' + error;
+              $log.log($scope.status);
+            });
+
         };
         function delMe(list) {
-          alert('Deleting ' + $scope.user.userName + '...');
+          $log.log("delMe: User list length before filter: " + list.userList.length);
+          listInCourseScope = $filter('filter')($scope.course.lists, function (d) {return d.uuid === list.uuid;})[0];
+          angular.forEach(listInCourseScope.userList, function(userInfo,index) {
+            $log.log("delMe: userInfo = " + userInfo.user_uuid);
+            if( $scope.config.lti.user_uuid === userInfo.user_uuid) {
+              listInCourseScope.userList.splice(index);
+              $log.log("delMe: User list length: " + list.userList.length);
+            }
+          });
+          dbFactory.updateList(list.uuid, list)
+            .then(function (response) {
+              $scope.status = 'delMe: User deleted from list!';
+              $log.log($scope.status);
+            }, function(error) {
+              $scope.status = 'Unable to delete user from list: ' + error;
+              $log.log($scope.status);
+            });
+          loadRoster();
         };
         function emailList(list) {
           alert('Emailing ' + list.name + '...');
         };
 
         function addList() {
-          //$scope.course.lists.push($scope.list);
           dbFactory.createList($scope.list)
             .then(function (response) {
               $log.log("list id: " + response.data._id);
@@ -194,12 +266,6 @@ angular.module('signupApp')
                   $scope.status = 'List Added.';
                   $log.log($scope.status);
                   $scope.config.addList = false;
-
-                  angular.forEach($scope.course.list, function(value,key) {
-                    angular.forEach(value, function(list, listKey) {
-                      list['showMembers'] = false;
-                    });
-                  });
                   $scope.list = {};
                   getCourse($scope.config.lti.system_guid, $scope.config.lti.course_uuid);
                 }, function (error) {
@@ -213,6 +279,17 @@ angular.module('signupApp')
         };
 
         function userInList(list) {
-          return(false);
+          listInCourseScope = $filter('filter')($scope.course.lists, function (c) {return c.uuid === list.uuid;})[0];
+          if(listInCourseScope.userList.length === 0 ) {
+            $log.log("userInList: returning false");
+            return false;
+          } else {
+            $log.log("userInList: Getting userInListScope");
+            userInListScope = $filter('filter')(listInCourseScope.userList, function (l) {return l.user_uuid === $scope.config.lti.user_uuid;})[0];
+            $log.log("userInListScope: " + JSON.stringify(userInListScope));
+            return userInListScope ? true : false;
+          }
+          $log.log("userInList: Returning the default false. userList exists, but current user is not in it");
+          return false;
         };
     }])

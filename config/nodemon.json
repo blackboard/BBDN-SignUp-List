@@ -2,11 +2,13 @@
   "restartable": "rs",
   "verbose": true,
   "ignore": [
+
     "$HOME/public",
     "$HOME/test",
     "$HOME/node_modules",
     "$HOME/bower_components",
     "$HOME/.git"
+
   ],
   "execMap": {
     "js": "DEBUG=signuplist:* npm start"

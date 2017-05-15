@@ -1,0 +1,35 @@
+<div class="container-fluid"  ng-show="config.lti && course && user">
+  <!-- Brand and toggle get grouped for better mobile display -->
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <h1 class="navbar-brand mb-0 custom-brand">SignUp List</h1>
+  </div>
+
+  <!-- Collect the nav links, forms, and other content for toggling -->
+  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" ng-hide="config.showInfo">
+    <ul ng-if="config.lti.user_role === 'urn:lti:role:ims/lis/Instructor'" class="nav navbar-nav">
+      <li class="divider-vertical"></li>
+      <li><button class="navbar-text custom-nav-text-vcenter"  type="button" ng-click="config.addList = true"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span><span class="sr-only">Create new list</span> New List</button></li>
+      <li><button class="navbar-text custom-nav-text-vcenter"  type="button" ng-show="!config.showMembers" ng-click="config.showMembers = true"><span class="glyphicon glyphicon-expand" aria-hidden="true"></span><span class="sr-only">View All List Members</span> View Members</button></li>
+      <li><button class="navbar-text custom-nav-text-vcenter"  type="button" ng-show="config.showMembers" ng-click="config.showMembers = false"><span class="glyphicon glyphicon-collapse-up" aria-hidden="true"></span><span class="sr-only">Hide All List Members</span> Hide Members</button></li>
+
+    </ul>
+    <p class="navbar-text navbar-right custom-nav-text-vcenter"><a href="{{config.lti.return_url}}"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span><span class="sr-only">Return to Blackboard</span> Exit</a></p>
+    <!--<p class="navbar-text navbar-right custom-nav-text-vcenter"><a href="#" ng-click=""><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span><span class="sr-only">List Information</span> List Info</a></p>
+    --><button class="navbar-text navbar-right custom-nav-text-vcenter"  type="button" ng-click="config.showInfo = true"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span><span class="sr-only">List Information</span> List Info</button>
+    <p class="divider-vertical navbar-right "></p>
+    <p class="navbar-text navbar-right custom-nav-text-vcenter"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="sr-only">Logged in as</span> {{user.name.given}} {{user.name.family}}</p>
+    <p class="navbar-text navbar-right custom-nav-text-vcenter"><span class="glyphicon glyphicon-education" aria-hidden="true"></span><span class="sr-only">Return to Blackboard</span> {{course.name}}</p>
+  </div><!-- /.navbar-collapse -->
+  <div ng-show="config.showInfo">
+    <div class="jumbotron">
+      <h1>List Information</h1>
+      <p><a class="btn btn-default" href="#" ng-click="config.showInfo = false" role="button">Close Info</a></p>
+    </div>
+  </div>
+</div><!-- /.container-fluid -->
