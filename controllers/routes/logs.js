@@ -3,7 +3,10 @@ var router = express.Router()
 var mongoose = require('mongoose')
 var Log = require('../models/logs')
 var config = require('../../config/config')
+var jwtToken = require('./jwtToken')
+
 var debug = (config.debugMode === 'true')
+
 
 if (debug) mongoose.set('debug', true)
 
@@ -27,25 +30,31 @@ var url = require('url')
  * POST /logs to save a new log.
  */
 router.post('/', function (req, res, next) {
-  // console.log("req.body.json: " + JSON.stringify(req.body, null, 4));
+  console.log("req.body.json: " + JSON.stringify(req.body, null, 4));
   var newLog = new Log(req.body)
-
-  // Save it into the DB.
-  newLog.save((err, log) => {
-    if (err) {
-      if (err.code === '11000') {
-        res.status(409).send(err)
-      } else if (err.name === 'ValidationError') {
-        res.status(400).send(err)
-      } else {
-        res.send(err)
+  var validRoles = ['AP']
+  var token = req.cookies['sulToken']
+  if (jwtToken.jwtValidRole(token, validRoles)) {
+    // Save it into the DB.
+    newLog.save((err, log) => {
+      if (err) {
+        if (err.code === '11000') {
+          res.status(409).send(err)
+        } else if (err.name === 'ValidationError') {
+          res.status(400).send()
+        } else {
+          res.send(err)
+        }
+      } else { // If no errors, send it back to the client
+        // console.log(req.body);
+        res.status(201).json(req.body)
       }
-    } else { // If no errors, send it back to the client
-      // console.log(req.body);
-      res.status(201).json(req.body)
-    }
-  })
+    })
+  } else {
+    res.status(403).send()
+  }
 })
+
 
 /*
  * GET /logs route to retrieve all the logs.
@@ -54,11 +63,18 @@ router.post('/', function (req, res, next) {
  */
 router.get('/', function (req, res, next) {
   var query = Log.find({})
-  query.exec((err, logs) => {
-    if (err) res.send(err)
-    // If no errors, send the result back to the client
-    res.json(logs)
-  })
+  var validRoles = ['AP']
+  var token = req.cookies['sulToken']
+  if (jwtToken.jwtValidRole(token, validRoles)) {
+    var query = Log.find({})
+    query.exec((err, logs) => {
+      if (err) res.send(err)
+      // If no errors, send the result back to the client
+      res.json(logs)
+    })
+  } else {
+    res.status(403).send()
+  }
 })
 
 /*
@@ -66,11 +82,17 @@ router.get('/', function (req, res, next) {
  */
 router.get('/:id', function (req, res, next) {
   // Query the DB and if no errors, return a specific log :id
-  Log.findOne({uuid: req.params.id}, (err, log) => {
-    if (err) res.send(err)
-    // If no errors, send them back to the client
-    res.json(log)
-  })
+  var validRoles = ['AP']
+  var token = req.cookies['sulToken']
+  if (jwtToken.jwtValidRole(token, validRoles)) {
+    Log.findOne({uuid: req.params.id}, (err, log) => {
+      if (err) res.send(err)
+      // If no errors, send them back to the client
+      res.json(log)
+    })
+  } else {
+    res.status(403).send()
+  }
 })
 
 /*
@@ -83,29 +105,40 @@ router.get('/course/:id', function (req, res, next) {
   // Query the DB and if no errors, return a specific log :id
   var params = url.parse(req.url, true).query
   var query
-
-  if (params.after) {
-    query = Log.find({'course_uuid': req.params.id, logged_on: {$gte: params.after}})
-  } else if (params.before) {
-    query = Log.find({'course_uuid': req.params.id, logged_on: {$lt: params.before}})
+  var validRoles = ['AP']
+  var token = req.cookies['sulToken']
+  if (jwtToken.jwtValidRole(token, validRoles)) {
+    if (params.after) {
+      query = Log.find({'course_uuid': req.params.id, logged_on: {$gte: params.after}})
+    } else if (params.before) {
+      query = Log.find({'course_uuid': req.params.id, logged_on: {$lt: params.before}})
+    } else {
+      query = Log.find({'course_uuid': req.params.id})
+    }
+    query.exec((err, logs) => {
+      if (err) res.send(err)
+      // If no errors, send the result back to the client
+      res.json(logs)
+    })
   } else {
-    query = Log.find({'course_uuid': req.params.id})
+    res.status(403).send()
   }
-  query.exec((err, logs) => {
-    if (err) res.send(err)
-    // If no errors, send the result back to the client
-    res.json(logs)
-  })
 })
 
 /*
  * DELETE /logs/:log_id route to delete a single log.
  */
 router.delete('/:id', function (req, res, next) {
-  Log.remove({'uuid': req.params.id}, (err, result) => {
-    if (err) res.send(err)
-    res.status(204).send()
-  })
+  var validRoles = ['AP']
+  var token = req.cookies['sulToken']
+  if (jwtToken.jwtValidRole(token, validRoles)) {
+    Log.remove({'uuid': req.params.id}, (err, result) => {
+      if (err) res.send(err)
+      res.status(204).send()
+    })
+  } else {
+    res.status(403).send()
+  }
 })
 
 module.exports = router
