@@ -1,5 +1,6 @@
 'use strict'
 var Course = require('../controllers/models/courses')
+var jwtUtils = require('../controllers/routes/jwtToken.js')
 var chai = require('chai')
 var chaiHttp = require('chai-http')
 var server = require('../server')
@@ -63,9 +64,14 @@ var jwtClaimsStudent = {
   'userRole': userRoleStudent
 }
 
+jwtTokenInstructor = jwtUtils.genJWTToken(jwtClaimsInstructor)
+jwtTokenStudent = jwtUtils.genJWTToken(jwtClaimsStudent)
+
+jwtUtils.cacheJwtToken(jwtClaimsInstructor.jti, jwtTokenInstructor, jwtClaimsInstructor.exp)
+jwtUtils.cacheJwtToken(jwtClaimsStudent.jti, jwtTokenStudent, jwtClaimsStudent.exp)
+
 /* 
  * test data
-   
 {
   uuid: { type: String,required: true, unique: true },
   externalId: { type: String },
@@ -107,12 +113,13 @@ var updatedCourseUUID = 'esruoCtseTamehcSesruoCahcam'
 var courseToDelete = 'esruoCtseTamehcSesruoCahcam'
 
 
+
 // √ FAIL: POST /courses to create a new SUL course record
-describe('[test_course_schema] Fail on incorrectly formatted POST?', function () {
-  it('it should not POST a course without uuid field', (done) => {
+describe('[test_course_schema] Fail on incorrectly formatted POST with AP privileges?', function () {
+  it('it should FAIL - not POST a course without uuid field', (done) => {
     chai
       .request(server)
-      .post('/courses')
+      .post('/courses').set('Cookie', 'sulToken=' + jwtTokenInstructor)
       .send(badUUIDTest)
       .end(function (err, res) {
         expect(res).to.have.err
@@ -122,12 +129,12 @@ describe('[test_course_schema] Fail on incorrectly formatted POST?', function ()
 })
 
 // √ POST /courses to create a new SUL course record
-describe('[test_course_schema] Pass on correctly formatted POST?', function () {
+describe('[test_course_schema] Pass on correctly formatted POST with AP privileges?', function () {
   console.log('[test_course_schema] minimum good course: ', minimumGoodCourse)
-  it ('should POST correctly', (done) => {
+  it ('should PASS - POST correctly for AP Role', (done) => {
     chai
       .request(server)
-      .post('/courses')
+      .post('/courses').set('Cookie', 'sulToken=' + jwtTokenInstructor)
       .send(minimumGoodCourse)
       .end((err, res) => {
         res.should.have.status(201)
@@ -137,14 +144,30 @@ describe('[test_course_schema] Pass on correctly formatted POST?', function () {
   })
 })
 
-// √ GET /courses/:id to retrieve a single SUL course
-describe('[test_course_schema] Return what we just created', function () {
-  it('should GET correctly', (done) => {
+// √ POST /courses to create a new SUL course record
+describe('[test_course_schema] Fail on POST attempt with non-AP privileges?', function () {
+  console.log('[test_course_schema] Fail: ', minimumGoodCourse)
+  it ('should FAIL to POST for SP Role', (done) => {
     chai
       .request(server)
-      .get('/courses/' + courseUUID1)
+      .post('/courses').set('Cookie', 'sulToken=' + jwtTokenStudent)
+      .send(minimumGoodCourse)
       .end((err, res) => {
-        res.should.have.status('200')
+        res.should.have.status(403)
+        if (debug) console.log('\n[test_course_schema] POST SUL Course with SP (fail) response: \n', res.body)
+        done()
+      })
+  })
+})
+
+// √ GET /courses/:id to retrieve a single SUL course
+describe('[test_course_schema] Return what we just created with SP privileges', function () {
+  it('should GET correctly for SP Role', (done) => {
+    chai
+      .request(server)
+      .get('/courses/' + courseUUID1).set('Cookie', 'sulToken=' + jwtTokenStudent)
+      .end((err, res) => {
+        res.should.have.status(200)
         // res.should.be.json
         res.body.should.be.a('object')
         res.body.should.have.property('uuid')
@@ -157,17 +180,29 @@ describe('[test_course_schema] Return what we just created', function () {
 
 // PUT /courses/:id = complete update on a specifc course - must provide complete roster or lists element
 describe('[test_course_schema] Update a specific course', function () {
-  it('should update course with passed data', (done) => {
+  it('should FAIL to update course with passed data and SP privileges', (done) => {
     chai
       .request(server)
-      .put('/courses/' + courseUUID1)
+      .put('/courses/' + courseUUID1).set('Cookie', 'sulToken=' + jwtTokenStudent)
+      .send(completeCourse)
+      .end((err, res) => {
+        res.should.have.status(403)
+        if (debug) console.log('\n[test_course_schema] PUT SUL Course ' + courseUUID1 + ' response:\n', res.body)
+        done()
+      })
+  })
+
+  it('should PASS update course with passed data and AP privileges', (done) => {
+    chai
+      .request(server)
+      .put('/courses/' + courseUUID1).set('Cookie', 'sulToken=' + jwtTokenInstructor)
       .send(completeCourse)
       .end((err, res) => {
         res.should.be.json
         res.body.should.be.a('object')
         res.body.should.have.property('uuid')
         res.body.uuid.should.eql(courseUUID1)
-        res.should.have.status('200')
+        res.should.have.status(200)
         if (debug) console.log('\n[test_course_schema] PUT SUL Course ' + courseUUID1 + ' response:\n', res.body)
         done()
       })
@@ -177,29 +212,54 @@ describe('[test_course_schema] Update a specific course', function () {
 // PATCH /courses/:id - partial update on course record
 describe('[test_course_schema] Partial update on specific course', function () {
   var updateData = { 'ultrafied': true, 'externalId': 'UPDATED COURSE EXTERNALID' }
-  it('should update course with passed data (ultra and externalId)', (done) => {
+  it('should FAIL to update course with passed data (ultra and externalId) and SP Role', (done) => {
     chai 
       .request(server)
-      .patch('/courses/' + courseUUID1)
+      .patch('/courses/' + courseUUID1).set('Cookie', 'sulToken=' + jwtTokenStudent)
       .send(updateData)
       .end((err, res) => {
-        res.should.have.status('200')
+        res.should.have.status(403)
+        if (debug) console.log('\n[test_course_schema] PATCH SUL Course: ' + courseUUID1 + ' response\n', res.body)
+        done()
+      })
+  })
+
+   it('should PASS to update course with passed data (ultra and externalId) and AP Role', (done) => {
+    chai 
+      .request(server)
+      .patch('/courses/' + courseUUID1).set('Cookie', 'sulToken=' + jwtTokenInstructor)
+      .send(updateData)
+      .end((err, res) => {
+        res.should.have.status(200)
         res.body.ultrafied.should.eql(true)
         res.body.externalId.should.eql('UPDATED COURSE EXTERNALID')
         if (debug) console.log('\n[test_course_schema] PATCH SUL Course: ' + courseUUID1 + ' response\n', res.body)
         done()
       })
   })
+
 })
 
 // √ GET /courses to retrieve a collection of all SUL courses
 describe('[test_course_schema] Return the entire courses collection', function () {
-  it('should return the full collection', (done) => {
+  it('should FAIL return the full collection for a SP Role', (done) => {
     chai
       .request(server)
-      .get('/courses')
+      .get('/courses').set('Cookie', 'sulToken=' + jwtTokenStudent)
       .end((err, res) => {
-        res.should.have.status('200')
+        res.should.have.status(403)
+        // res.should.be.json
+        if (debug) console.log('\n[test_course_schema] GET SUL Courses response\n', res.body)
+        done()
+      })
+  })
+
+  it('should PASS return the full collection for a AP Role', (done) => {
+    chai
+      .request(server)
+      .get('/courses').set('Cookie', 'sulToken=' + jwtTokenInstructor)
+      .end((err, res) => {
+        res.should.have.status(200)
         // res.should.be.json
         if (debug) console.log('\n[test_course_schema] GET SUL Courses response\n', res.body)
         done()
@@ -210,14 +270,24 @@ describe('[test_course_schema] Return the entire courses collection', function (
 /*
  * √ DELETE /courses/:id/lists - delete a whole list of lists
  */
-describe('[test_course_schema] DELETE lists', function () {
-  it('should empty the list of lists for the requested course', (done) => {
+describe('[test_course_schema] DELETE lists (AP Role Only)', function () {
+  it('FAIL - SP Role should fail to empty the list of lists for the requested course', (done) => {
     chai
       .request(server)
-      .delete('/courses/' + courseUUID1 + '/lists')
+      .delete('/courses/' + courseUUID1 + '/lists').set('Cookie', 'sulToken=' + jwtTokenStudent)
+      .end((err, res) => {
+        res.should.have.status(403)
+      })
+    done()
+  })
+
+  it('PASS - AP Role should empty the list of lists for the requested course', (done) => {
+    chai
+      .request(server)
+      .delete('/courses/' + courseUUID1 + '/lists').set('Cookie', 'sulToken=' + jwtTokenInstructor)
       .end((err, res) => {
         res.should.not.have.err
-        res.should.have.status('200')
+        res.should.have.status(200)
         res.body.lists.length.should.be.eql(0)
       })
     done()
@@ -229,9 +299,9 @@ describe('[test_course_schema] Delete what we created', function () {
     it('should delete what we POSTed',(done) => {
     chai
       .request(server)
-      .delete('/courses/' + courseUUID1)
+      .delete('/courses/' + courseUUID1).set('Cookie', 'sulToken=' + jwtTokenInstructor)
       .end((err,res) => {
-        res.should.have.status('204')
+        res.should.have.status(204)
       done()
     })
   })
