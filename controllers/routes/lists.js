@@ -50,8 +50,7 @@ var jwtToken = require('./jwtToken')
  */
 router.post('/', function (req, res, next) {
   var validRoles = ['AP']
-  var token = req.cookies['sulToken']
-  if (jwtToken.jwtValidRole(token, validRoles)) {
+  if (jwtToken.jwtValidRole(req, validRoles)) {
     var newList = new List(req.body)
     // Save it into the DB.
     newList.save((err, list) => {
@@ -69,7 +68,7 @@ router.post('/', function (req, res, next) {
       }
     })
   } else {
-    res.send.status(403)
+    res.status(403)
   }
 })
 
@@ -79,8 +78,7 @@ router.post('/', function (req, res, next) {
  */
 router.get('/', function (req, res, next) {
   var validRoles = ['AP', 'SP']
-  var token = req.cookies['sulToken']
-  if (jwtToken.jwtValidRole(token, validRoles)) {
+  if (jwtToken.jwtValidRole(req, validRoles)) {
     var query = List.find({})
     query.exec((err, lists) => {
       if (err) res.send(err)
@@ -89,7 +87,7 @@ router.get('/', function (req, res, next) {
       res.status(200).json(lists)
     })
   } else {
-    res.send.status(403)
+    res.status(403)
   }
 })
 
@@ -99,8 +97,7 @@ router.get('/', function (req, res, next) {
  */
 router.get('/:id', function (req, res, next) {
   var validRoles = ['AP', 'SP']
-  var token = req.cookies['sulToken']
-  if (jwtToken.jwtValidRole(token, validRoles)) {
+  if (jwtToken.jwtValidRole(req, validRoles)) {
     // Query the DB and if no errors, return all the systems
     if (debug) console.log('\n[lists.js routes]: get: ' + req.params.id + '\n')
     List.findOne({'list_uuid': req.params.id}, (err, list) => {
@@ -109,7 +106,7 @@ router.get('/:id', function (req, res, next) {
       res.status(200).json(list)
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -119,8 +116,7 @@ router.get('/:id', function (req, res, next) {
  */
 router.put('/:id', function (req, res, next) {
   var validRoles = ['AP']
-  var token = req.cookies['sulToken']
-  if (jwtToken.jwtValidRole(token, validRoles)) {
+  if (jwtToken.jwtValidRole(req, validRoles)) {
     List.findOne({list_uuid: req.params.id}, (err, list) => {
       if (debug) console.log('[lists.js route] PUT: list: ' + JSON.stringify(list))
       if (debug) console.log('[lists.js route] PUT: UUID: ' + req.params.id)
@@ -131,7 +127,7 @@ router.put('/:id', function (req, res, next) {
       })
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -141,8 +137,7 @@ router.put('/:id', function (req, res, next) {
  */
 router.put('/:id/groups', function (req, res, next) {
   var validRoles = ['AP']
-  var token = req.cookies['sulToken']
-  if (jwtToken.jwtValidRole(token, validRoles)) {
+  if (jwtToken.jwtValidRole(req, validRoles)) {
     if (debug) console.log('\n[Lists/:id/groups]: PUT /lists/' + req.params.id + ' called\n')
     if (debug) console.log('\n[Lists/:id/groups]: req.body' + req.body.toString() + ' \n')
     // create a group associated with a list
@@ -159,7 +154,7 @@ router.put('/:id/groups', function (req, res, next) {
       })
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -169,8 +164,7 @@ router.put('/:id/groups', function (req, res, next) {
  */
 router.put('/:id/groups/:grpId', function (req, res, next) {
   var validRoles = ['AP']
-  var token = req.cookies['sulToken']
-  if (jwtToken.jwtValidRole(token, validRoles)) {
+  if (jwtToken.jwtValidRole(req, validRoles)) {
     if (debug) console.log('\n[Lists/:id/groups]: PUT /lists/' + req.params.id + '/groups/' + req.params.grpId + 'called\n')
     if (debug) console.log('\n[Lists/:id/groups]: req.body' + req.body.toString() + ' \n')
     // create a group associated with a list
@@ -191,7 +185,7 @@ router.put('/:id/groups/:grpId', function (req, res, next) {
       })
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -201,14 +195,13 @@ router.put('/:id/groups/:grpId', function (req, res, next) {
  */
 router.put('/:id', function (req, res, next) {
   var validRoles = ['AP']
-  var token = req.cookies['sulToken']
-  if (jwtToken.jwtValidRole(token, validRoles)) {
+  if (jwtToken.jwtValidRole(req, validRoles)) {
     List.findOneAndUpdate({'list_uuid': req.params.id}, req.body, {'new': true}, function (err, list) {
       if (err) res.send(err)
       res.status(200).json(list)
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -218,8 +211,7 @@ router.put('/:id', function (req, res, next) {
  */
 router.post('/:id/groups/:grpId/members', function (req, res, next) {
   var validRoles = ['AP']
-  var token = req.cookies['sulToken']
-  if (jwtToken.jwtValidRole(token, validRoles)) {
+  if (jwtToken.jwtValidRole(req, validRoles)) {
     List.findOne({'list_uuid': req.params.id}, function (err, list) {
       if (err) res.send(err)
       // find existing group and replace with incoming
@@ -236,7 +228,7 @@ router.post('/:id/groups/:grpId/members', function (req, res, next) {
       })
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -246,8 +238,7 @@ router.post('/:id/groups/:grpId/members', function (req, res, next) {
  */
 router.post('/:id/groups/:grpId/members', function (req, res, next) {
   var validRoles = ['AP', 'SP']
-  var token = req.cookies['sulToken']
-  if (jwtToken.jwtValidRole(token, validRoles)) {
+  if (jwtToken.jwtValidRole(req, validRoles)) {
     List.findOne({'list_uuid': req.params.id}, function (err, list) {
       if (err) res.send(err)
       // find existing group and replace with incoming
@@ -264,7 +255,7 @@ router.post('/:id/groups/:grpId/members', function (req, res, next) {
       })
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -274,8 +265,7 @@ router.post('/:id/groups/:grpId/members', function (req, res, next) {
  */
 router.get('/:id/groups/:grpId/members', function (req, res, next) {
   var validRoles = ['AP', 'SP']
-  var token = req.cookies['sulToken']
-  if (jwtToken.jwtValidRole(token, validRoles)) {
+  if (jwtToken.jwtValidRole(req, validRoles)) {
     List.findOne({'list_uuid': req.params.id}, function (err, list) {
       if (err) res.send(err)
       // find group and return grp_members
@@ -283,12 +273,12 @@ router.get('/:id/groups/:grpId/members', function (req, res, next) {
         if (list.list_groups[i].grp_uuid === req.params.grpId) {
           res.status(200).json(list.list_groups[i].grp_members)
         } else {
-          res.status(404).send()
+          res.status(404)
         }
       }
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -298,8 +288,7 @@ router.get('/:id/groups/:grpId/members', function (req, res, next) {
  */
 router.get('/:id/groups/:grpId/members/:userId', function (req, res, next) {
   var validRoles = ['AP', 'SP']
-  var token = req.cookies['sulToken']
-  if (jwtToken.jwtValidRole(token, validRoles)) {
+  if (jwtToken.jwtValidRole(req, validRoles)) {
     List.findOne({'list_uuid': req.params.id}, function (err, list) {
       if (err) res.send(err)
       // find group and return user from the groups grp_members
@@ -309,16 +298,16 @@ router.get('/:id/groups/:grpId/members/:userId', function (req, res, next) {
             if (list.list_groups[i].grp_members[n].user_uuid === req.params.userId) {
               res.status(200).json(list.list_groups[i].grp_members[n])
             } else {
-              res.status(404).send()
+              res.status(404)
             }
           }
         } else {
-          res.status(404).send()
+          res.status(404)
         }
       }
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -328,8 +317,8 @@ router.get('/:id/groups/:grpId/members/:userId', function (req, res, next) {
  */
 router.put('/:id/groups/:grpId/members/:userId', function (req, res, next) {
   var validRoles = ['AP', 'SP']
-  var token = req.cookies['sulToken']
-  if (jwtToken.jwtValidRole(token, validRoles)) {
+  // var found = false
+  if (jwtToken.jwtValidRole(req, validRoles)) {
     List.findOne({'list_uuid': req.params.id}, function (err, list) {
       if (err) res.send(err)
       // find group and return user from the groups grp_members
@@ -338,12 +327,13 @@ router.put('/:id/groups/:grpId/members/:userId', function (req, res, next) {
           for (var n = 0, length = list.list_groups[i].grp_members; n < length; n++) {
             if (list.list_groups[i].grp_members[n].user_uuid === req.params.userId) {
               list.list_groups[i].grp_members[n] = req.body
+              // found = true
               break
             }
           }
           break
         } else {
-          res.status(404).send()
+          res.status(404)
         }
       }
       // add SP user check if SP and SP.user === member.uuid go
@@ -356,7 +346,7 @@ router.put('/:id/groups/:grpId/members/:userId', function (req, res, next) {
       })
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -366,8 +356,7 @@ router.put('/:id/groups/:grpId/members/:userId', function (req, res, next) {
  */
 router.delete('/:id/groups/:grpId/members/:userId', function (req, res, next) {
   var validRoles = ['AP', 'SP']
-  var token = req.cookies['sulToken']
-  if (jwtToken.jwtValidRole(token, validRoles)) {
+  if (jwtToken.jwtValidRole(req, validRoles)) {
     List.findOne({'list_uuid': req.params.id}, function (err, list) {
       if (err) res.send(err)
       // find group and return user from the groups grp_members
@@ -377,11 +366,11 @@ router.delete('/:id/groups/:grpId/members/:userId', function (req, res, next) {
             if (list.list_groups[i].grp_members[n].user_uuid === req.params.userId) {
               delete list.list_groups[i].grp_members[n]
             } else {
-              res.status(404).send()
+              res.status(404)
             }
           }
         } else {
-          res.status(404).send()
+          res.status(404)
         }
       }
       // add SP user check if SP and SP.user === member.uuid go
@@ -394,9 +383,61 @@ router.delete('/:id/groups/:grpId/members/:userId', function (req, res, next) {
       })
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
+
+/* NEED TO REWRITE FOR GROUP SUPPORT => MOVE TO LIST.js and call by /list/:id/group/:groupId
+ * PATCH /courses/:id/group/:groupId - add a user to a group roster for the SUL course
+ * * Accessible by AP and SP roles
+
+router.patch('/:id/roster', function(req, res, next) {
+    var userToAdd = req.body;
+    if (debug) console.log("\n\n[courses.js] PATCH user: userToAdd: \n", userToAdd )
+
+    Course.findOneAndUpdate({"uuid": req.params.id}, {$addToSet: { "roster": userToAdd } }, {"new": true }, function(err, course) {
+        if(err) res.send(err);
+        if (debug) console.log("\n\n[courses.js] PATCH user: \n", res.body )
+        res.status(200).json(course);
+
+        })
+    })
+ */
+
+/* NEED TO REWRITE FOR GROUP SUPPORT => MOVE TO LIST.js and call by /list/:id/group/:groupId/user/:userId
+ * √ GET /courses/:id/roster/:user_uuid - gets a specific user from the roster
+ * * Accessible by AP and SP roles
+
+router.get('/:id/roster/:uuid', function(req, res, next) {
+
+    var userId = req.params.uuid;
+    var foundUser;
+
+    if (debug) console.log("\n\n[courses.js] GET course roster user from: \n", req.params.id );
+    if (debug) console.log("\n\n[courses.js] GET course roster user: \n" + userId);
+
+    //Course.find({"uuid": req.params.id}, {"roster": {$elemMatch: { "user_uuid": userId } } }, function(err, course) {
+    Course.findOne({"uuid": req.params.id}, function(err, course) {
+        if(err) res.send(err);
+        if (debug) console.log("\n\n[courses.js] Found course: \n" + course);
+        var cRoster = course.roster;
+        if (debug) console.log("\n\n[courses.js] Found course cRoster: \n" + cRoster);
+        for(var i=0;i<cRoster.length;i++){
+            if (cRoster[i]["user_uuid"] == userId) {
+                if (debug) console.log("\n\n[courses.js] Found user: \n", cRoster[i]["user_uuid"]);
+                if (debug) console.log("\n\n[courses.js] Found user: \n", cRoster[i]);
+
+                foundUser = cRoster[i];//["user_uuid"];
+            }
+        }
+
+        //if (debug) console.log("\n\n[courses.js] Found course roster user: \n" + course.roster.user_uuid);
+
+        res.status(200).json(foundUser);
+    });
+
+});
+ */
 
 /*
  * DELETE /lists/:id/groups/:grpId deletes a list group in it's entirety
@@ -405,8 +446,7 @@ router.delete('/:id/groups/:grpId/members/:userId', function (req, res, next) {
 
 router.delete('/:id/groups/:grpId', function (req, res, next) {
   var validRoles = ['AP']
-  var token = req.cookies['sulToken']
-  if (jwtToken.jwtValidRole(token, validRoles)) {
+  if (jwtToken.jwtValidRole(req, validRoles)) {
     List.findOne({'list_uuid': req.params.id}, function (err, list) {
       if (err) res.send(err)
       // find existing group and replace with incoming
@@ -425,7 +465,7 @@ router.delete('/:id/groups/:grpId', function (req, res, next) {
       })
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -446,7 +486,7 @@ router.delete('/:id', function (req, res, next) {
       res.status(204).send()
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -467,7 +507,7 @@ router.delete('/', function (req, res, next) {
       res.status(204).send()
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -487,7 +527,7 @@ router.delete('/:id', function (req, res, next) {
       res.status(204).send()
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 

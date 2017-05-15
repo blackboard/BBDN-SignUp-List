@@ -30,7 +30,6 @@ var debug = (config.debugMode === 'true')
 router.post('/', function (req, res, next) {
   var validRoles = ['AP']
   var token = req.cookies['sulToken']
-  console.log('[COURSES.JS]: post: incomming token: ', token)
   if (jwtToken.jwtValidRole(token, validRoles)) {
     // res.send('post courses requested');
     var newCourse = new Course(req.body)
@@ -50,7 +49,7 @@ router.post('/', function (req, res, next) {
       }
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -75,7 +74,7 @@ router.get('/', function (req, res, next) {
       }
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -102,7 +101,7 @@ router.get('/:id', function (req, res, next) {
       }
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -122,7 +121,7 @@ router.delete('/:id/lists', function (req, res, next) {
       res.status(200).json(course)
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -144,7 +143,7 @@ router.put('/:id', function (req, res, next) {
       })
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -179,7 +178,7 @@ router.patch('/:id/', function (req, res, next) {
       })
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 
@@ -198,7 +197,7 @@ router.delete('/:id', function (req, res, next) {
       res.status(204).send()
     })
   } else {
-    res.status(403).send()
+    res.status(403)
   }
 })
 

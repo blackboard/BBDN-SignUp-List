@@ -1,18 +1,15 @@
 /* global describe, it, after */
 'use strict'
 var Log = require('../controllers/models/logs')
-var jwtUtils = require('../controllers/routes/jwtToken.js')
 var chai = require('chai')
 var chaiHttp = require('chai-http')
 var server = require('../server')
 var should = chai.should()
 var config = require('../config/config')
 var mongoose = require('mongoose')
-const uuid = require('uuid')
-
+const uuidV1 = require('uuid/v1')
 // Use bluebird since mongoose has deprecated mPromise
 mongoose.Promise = require('bluebird')
-
 
 chai.use(chaiHttp)
 
@@ -35,7 +32,7 @@ var db = config.test_db
 //test data
 var postedUUID
 var goodLog = {
-  uuid: uuid.v4(), 
+  uuid: uuidV1(), 
   course_uuid: "test_course", 
   action_by: "instructor a.", 
   action_on: "student b.",
@@ -50,13 +47,13 @@ var bad_test_no_uuid = {
 };
 
 var bad_test_no_course_uuid = { 
-  uuid: uuid.v4(),
+  uuid: uuidV1(),
   action_by: "mark", 
   comments: "test" 
 };
 
 var minimum_good_log = { 
-  uuid: uuid.v4(), 
+  uuid: uuidV1(), 
   course_uuid: "test_course 12", 
   action_by: "mark" 
 };
@@ -66,64 +63,12 @@ var comments = "updated comments";
 
 var update_log_comments = { comments: "test post log with full data" };
 
-// JWT test data
-var jtiInstructor = uuid.v4()
-var xsrfTokenInstructor = uuid.v4()
-var userUUIDInstructor = 'moneilInstructor'
-var userRoleInstructor = ['instructor']
-var jwtTokenInstructor
-var jtiStudent = uuid.v4()
-var xsrfTokenStudent = uuid.v4()
-var userUUIDStudent = 'moneilStudent'
-var userRoleStudent = ['learner']
-var jwtTokenStudent
-/*
- * jwtClaims:
- *  iss: issuer - in this case the SignUp List
- *  system: system bound to the request eg:www.mount.edu (LTI launch)
- *  exp: token expiry - in this case one hour
- *    TBD: expired tokens may be regenerated based on original claims
- *  iat: when the token was issued
- *  xsrfToken: used for preventing xsrf compared to stored token
- *  jti: unique token identifier - used for jwtTokenCache key
- *  sub: subject of the token - the Learn User UUID (LTI launch)
- *  userRole: the user's role (LTI launch)
- *    valid userRoles: 'instructor', 'teachingassistant', 'grader', 'learner', 'administrator'
- */
-var jwtClaimsInstructor = {
-  'iss': 'SignUp List',
-  'system': 'localhost',
-  'exp': Math.floor(Date.now() / 1000) + (60 * 60),
-  'iat': Date.now(),
-  'xsrfToken': xsrfTokenInstructor,
-  'jti': jtiInstructor,
-  'sub': userUUIDInstructor,
-  'userRole': userRoleInstructor
-}
-
-var jwtClaimsStudent = {
-  'iss': 'SignUp List',
-  'system': 'localhost',
-  'exp': Math.floor(Date.now() / 1000) + (60 * 60),
-  'iat': Date.now(),
-  'xsrfToken': xsrfTokenStudent,
-  'jti': jtiStudent,
-  'sub': userUUIDStudent,
-  'userRole': userRoleStudent
-}
-
-jwtTokenInstructor = jwtUtils.genJWTToken(jwtClaimsInstructor)
-jwtTokenStudent = jwtUtils.genJWTToken(jwtClaimsStudent)
-
-jwtUtils.cacheJwtToken(jwtClaimsInstructor.jti, jwtTokenInstructor, jwtClaimsInstructor.exp)
-jwtUtils.cacheJwtToken(jwtClaimsStudent.jti, jwtTokenStudent, jwtClaimsStudent.exp)
-
 //POST tests
 describe("[test_log_schema] Fail on incorrectly formatted POST?", function() {
     it('it should not POST a log without uuid field', (done) => {
       chai
         .request(server)
-        .post('/logs').set('Cookie', 'sulToken=' + jwtTokenInstructor)
+        .post('/logs')
         .send(bad_test_no_uuid)
         .end(function(err, res) {
           expect(res).to.have.err;
@@ -134,7 +79,7 @@ describe("[test_log_schema] Fail on incorrectly formatted POST?", function() {
     it('it should not POST a log with no bad_test_no_course_uuid', (done) => {
       chai
         .request(server)
-        .post('/logs').set('Cookie', 'sulToken=' + jwtTokenInstructor)
+        .post('/logs')
         .send(bad_test_no_course_uuid)
         .end(function(err, res) {
           expect(res).to.have.err;
@@ -148,7 +93,7 @@ describe("[test_log_schema] Pass on correctly formatted POSTs?", function() {
     it('should POST minimum data correctly', (done) => {
     chai
       .request(server)
-      .post('/logs').set('Cookie', 'sulToken=' + jwtTokenInstructor)
+      .post('/logs')
       .send(minimum_good_log)
       .end((err, res) => {
         res.should.have.status(201);
@@ -178,7 +123,7 @@ describe("[test_log_schema] Return the entire logs collection", function() {
     it('should return the full collection', (done) => {
     chai
       .request(server)
-      .get('/logs').set('Cookie', 'sulToken=' + jwtTokenInstructor)
+      .get('/logs')
       .end((err, res) => {
         res.should.have.status(200);
         res.should.be.json;
@@ -194,7 +139,7 @@ describe("[test_log_schema] Return what we just created", function() {
     it('should GET correctly', (done) => {
     chai
       .request(server)
-      .get('/logs/' + log_created_uuid).set('Cookie', 'sulToken=' + jwtTokenInstructor)
+      .get('/logs/' + log_created_uuid)
       .end((err, res) => {
         res.should.have.status(200);
         res.should.be.json;
@@ -209,7 +154,7 @@ describe("[test_log_schema] Return what we just created", function() {
     it('should GET correctly', (done) => {
     chai
       .request(server)
-      .get('/logs/' + log_created_uuid).set('Cookie', 'sulToken=' + jwtTokenInstructor)
+      .get('/logs/' + log_created_uuid)
       .end((err, res) => {
         res.should.have.status(200);
         res.should.be.json;
@@ -267,7 +212,7 @@ describe("[test_log_schema] Delete what we created", function () {
     it ('should delete what we POSTed', (done) => {
     chai
       .request(server)
-      .delete('/logs/' + log_created_uuid).set('Cookie', 'sulToken=' + jwtTokenInstructor)
+      .delete('/logs/' + log_created_uuid)
       .end((err, res) => {
         res.should.have.status(204);
       done();
