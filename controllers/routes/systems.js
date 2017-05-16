@@ -3,40 +3,44 @@ var router = express.Router()
 var System = require('../models/systems')
 var system = {}
 
+var config = require('../../config/config')
+var debug = (config.debugMode === 'true')
+
+
 /*
  * Add systemJSON to save a new system.
  */
 system.addSystem = function (systemJSON, next) {
-  console.log('[SYSTEM.JS] Incomming systemJSON:\n', systemJSON)
+  if (debug) console.log('[SYSTEM.JS] Incomming systemJSON:\n', systemJSON)
   var resJSON = {}
   var newSystem = new System(systemJSON)
-  // console.log('[SYSTEM.JS] newSystem:\n', newSystem)
+  // if (debug) console.log('[SYSTEM.JS] newSystem:\n', newSystem)
   // Save it into the DB.
   newSystem.save(function (err, sys) {
     if (err) {
-      // console.log('[SYSTEM.JS] save err', err)
+      // if (debug) console.log('[SYSTEM.JS] save err', err)
       if (err.code === '11000') {
-        // console.log('[SYSTEM.JS] SAVE err.code', err.code)
+        // if (debug) console.log('[SYSTEM.JS] SAVE err.code', err.code)
         resJSON = {'err': 409}
         next(err, {'err': 409})
-        // console.log('[SYSTEM.JS] SAVE 11000 resJSON: ', resJSON)
+        // if (debug) console.log('[SYSTEM.JS] SAVE 11000 resJSON: ', resJSON)
       } else if (err.name === 'ValidationError') {
-        // console.log('[SYSTEM.JS] SAVE err.name: ', err.name)
+        // if (debug) console.log('[SYSTEM.JS] SAVE err.name: ', err.name)
         resJSON = {'err': 400}
         next(err, {'err': 400})
-        // console.log('[SYSTEM.JS] SAVE ValidationError resJSON: ', resJSON)
+        // if (debug) console.log('[SYSTEM.JS] SAVE ValidationError resJSON: ', resJSON)
       } else {
         resJSON = {'err': 418}
         next(err, {'err': 418})
-        // console.log('[SYSTEM.JS] SAVE teapot?: ', resJSON)
+        // if (debug) console.log('[SYSTEM.JS] SAVE teapot?: ', resJSON)
       }
     } else { // If no errors, send it back to the client
-      // console.log('[SYSTEM.JS] SAVE system:\n', system)
+      // if (debug) console.log('[SYSTEM.JS] SAVE system:\n', system)
       resJSON = sys
       next(err, sys)
-      // console.log('[SYSTEM.JS] SAVE system\n', resJSON)
+      // if (debug) console.log('[SYSTEM.JS] SAVE system\n', resJSON)
     }
-    console.log('[SYSTEM.JS] addSystem resJSON:\n', resJSON)
+    if (debug) console.log('[SYSTEM.JS] addSystem resJSON:\n', resJSON)
     return resJSON
   })
 }
@@ -45,13 +49,13 @@ system.addSystem = function (systemJSON, next) {
  * Retrieve all systems.
  */
 system.getSystems = function (next) {
-  console.log('[SYSTEM.JS] GET systems collection...')
+  if (debug) console.log('[SYSTEM.JS] GET systems collection...')
 
   var query = System.find({})
   query.exec(function (err, systems) {
-    console.log('[SYSTEM.JS] GET systems collection:\n', systems)
+    if (debug) console.log('[SYSTEM.JS] GET systems collection:\n', systems)
     if (!err) {
-      console.log('\n[SYSTEMS.JS:getSystems]: :', systems)
+      if (debug) console.log('\n[SYSTEMS.JS:getSystems]: :', systems)
       next(err, systems)    
     } else {
       console.log('ERROR: ', err)

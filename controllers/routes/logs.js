@@ -30,7 +30,7 @@ var url = require('url')
  * POST /logs to save a new log.
  */
 router.post('/', function (req, res, next) {
-  console.log("req.body.json: " + JSON.stringify(req.body, null, 4));
+  if (debug) console.log("req.body.json: " + JSON.stringify(req.body, null, 4));
   var newLog = new Log(req.body)
   var validRoles = ['AP']
   var token = req.cookies['sulToken']

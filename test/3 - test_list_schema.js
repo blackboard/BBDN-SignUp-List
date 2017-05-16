@@ -120,6 +120,7 @@ var updatedListName = 'tsiLtseTamehcStsiLahcom'
 
 var listUUID2 = uuid.v4()
 var listUUID3 = uuid.v4()
+var listUUID4 = uuid.v4()
 if (debug) console.log('****** [test_list_schema] LISTUUID ******: ', listUUID)
 if (debug) console.log('****** [test_list_schema] LISTUUID2 ******: ', listUUID2)
 
@@ -161,7 +162,7 @@ var listGroupsNoUsers = {
   ]
 }
 
-var listGroupsWithUsers = { 
+var listGroupsWithUsers = {
   'list_uuid': listUUID3,
   'list_name': 'This is the minimum Good List',
   'list_description': 'test post list with minimum data',
@@ -169,6 +170,64 @@ var listGroupsWithUsers = {
   'list_visible_end': listVisibleEndDate,
   'list_state': 'OPEN',
   'student_view': 'false',
+  'list_groups': [
+    {
+      'grp_uuid': grpOneUUID,
+      'grp_name': 'Group One',
+      'grp_description': 'First Group',
+      'grp_location': 'Rm 1313',
+      'grp_start': new Date(),
+      'grp_end': grpEnd,
+      'grp_waitlist_allowed': true,
+      'grp_max_size': 4,
+      'grp_max_waitlist': 1,
+      'grp_state': 'OPEN',
+      'grp_members': [
+        { 'user_uuid': 'SUPERMAN',
+          'role': 'STUDENT',
+          'added_by': 'BATMAN',
+          'waitlisted': false},
+        { 'user_uuid': 'AQUAMAN',
+          'role': 'STUDENT',
+          'added_by': 'WONDER WOMAN',
+          'waitlisted': true } ]
+    },
+    {
+      'grp_uuid': grpTwoUUID,
+      'grp_name': 'Group Two',
+      'grp_description': 'Second Group',
+      'grp_location': 'Rm 1313',
+      'grp_start': new Date(),
+      'grp_end': grpEnd,
+      'grp_waitlist_allowed': true,
+      'grp_max_size': 4,
+      'grp_max_waitlist': 1,
+      'grp_state': 'OPEN',
+      'grp_members': [
+        { 'user_uuid': 'HAWKEYE',
+          'role': 'STUDENT',
+          'added_by': 'BLACKWIDOW',
+          'waitlisted': false},
+        { 'user_uuid': 'HULK',
+          'role': 'STUDENT',
+          'added_by': 'BRUCE BANNER',
+          'waitlisted': true },
+        { 'user_uuid': 'CAPT AMERICA',
+          'role': 'STUDENT',
+          'added_by': 'IRON MAN',
+          'waitlisted': true
+        } ]
+    } ]
+}
+
+var grpMbrTest = {
+  'list_uuid': listUUID4,
+  'list_name': 'This is the minimum Good List',
+  'list_description': 'test post list with minimum data',
+  'list_visible_start': new Date(),
+  'list_visible_end': listVisibleEndDate,
+  'list_state': 'OPEN',
+  'student_view': 'true',
   'list_groups': [
     {
       'grp_uuid': grpOneUUID,
@@ -245,6 +304,7 @@ var groupThree = {
       'waitlisted': true
     } ]
 }
+
 
 var groupFour = {
   'grp_uuid': grpFourUUID,
@@ -464,6 +524,21 @@ describe('[test_list_schema] Pass on correctly formatted POST?', function () {
       })
     done()
   })
+
+  it('should POST correctly formatted payload...', (done) => {
+    chai
+      .request(server)
+      .post('/lists').set('Cookie', 'sulToken=' + jwtTokenInstructor)
+      .send(grpMbrTest)
+      .end(function (err, res) {
+        if (err) {
+          if (debug) console.log('[test_list_schema] Pass on correctly formatted POST:\n', err)
+          if (debug) console.log('[test_list_schema] Data POSTed:\n', grpMbrTest)
+        }
+        expect(res.status).to.eql('201')
+      })
+    done()
+  })
 })
 
 /*
@@ -638,29 +713,146 @@ describe('[test_list_schema] PUT (create) a new group to an existing List', func
 })
 
 /*
- * PUT /lists/:id/groups/:grpId - update a specific list group
+ * PUT /lists/:id/groups/:grpId - fully update a specific list group
  * * Only accessible by AP roles
-  * * * Not Implemented
-*/
-
-/*
- * POST /lists/:id/groups/:grpId/members creates users in a list group
- * * Accessible by AP role
  */
+describe('[test_list_schema] POST a full set of group memberships', function () {
+  it('POST should FAIL to post full group list if the requestor Role is SP', (done) => {
+    chai
+      .request(server)
+      .put('/lists/' + listUUID2 + '/groups/' + grpTwoUUID).set('Cookie', 'sulToken=' + jwtTokenStudent)
+      .send('{doesnt:matteritshouldfail}')
+      .end((err, res) => {
+        expect(res.status).to.eql(403)
+      })
+    done()
+  })
+  it('POST should SUCCEED to post full group list if the requestor Role is AP', (done) => {
+    chai
+      .request(server)
+      .put('/lists/' + listUUID2 + '/groups/' + grpTwoUUID).set('Cookie', 'sulToken=' + jwtTokenInstructor)
+      .send(groupFour)
+      .end((err, res) => {
+        expect(res.status).to.eql(403)
+      })
+    done()
+  })
+})
 
 /*
- * POST /lists/:id/groups/:grpId/members/:mbrId creates a user in the specified list group
+ * POST /lists/:id/groups/:grpId/members creates set of memberships in a list group
+ * * Accessible by AP role
+ * * Overwrites existing group memberships
+ */
+describe('[test_list_schema] POST a full set of group memberships', function () {
+  it('POST should FAIL to post full memberships list if the requestor Role is SP', (done) => {
+    chai
+      .request(server)
+      .put('/lists/' + listUUID2 + '/groups/' + grpTwoUUID + '/members').set('Cookie', 'sulToken=' + jwtTokenStudent)
+      .send('{doesnt:matteritshouldfail}')
+      .end((err, res) => {
+        expect(res.status).to.eql(403)
+      })
+    done()
+  })
+
+  it('PUT should SUCCEED to post memberships if the requestor Role is AP', (done) => {
+
+    chai
+      .request(server)
+      .put('/lists/' + listUUID2 + '/groups/' + grpOneUUID + '/members').set('Cookie', 'sulToken=' + jwtTokenInstructor)
+      .send(groupFour)
+      .end((err, res) => {
+        expect(res.status).to.eql(403)
+      })
+    done()
+  })
+})
+
+
+/*
+ * PUT /lists/:id/groups/:grpId/members/:mbrId creates a user in the specified list group
  * * Accessible by AP and SP roles
  * * SP sub must match target or a 403 will be issued
  */
+describe('[test_list_schema] PUT a single group membership', function () {
+  var newGroupUser = { 'user_uuid': 'WOLVERINE',
+    'role': 'STUDENT',
+    'added_by': 'WONDER WOMAN',
+    'waitlisted': true }
+
+  it('PUT should FAIL to post memberships if the requestor Role is SP and membership user_uuid does not match the poster user_uuid', (done) => {
+    chai
+      .request(server)
+      .put('/lists/' + listUUID2 + '/groups/' + grpTwoUUID + '/members').set('Cookie', 'sulToken=' + jwtTokenStudent)
+      .send(newGroupUser)
+      .end((err, res) => {
+        expect(res.status).to.eql(403)
+      })
+    done()
+  })
+  
+  it('PUT should SUCCEED to post memberships if the requestor Role is SP and membership user_uuid matches the poster user_uuid', (done) => {
+    chai
+      .request(server)
+      .put('/lists/' + listUUID2 + '/groups/' + grpTwoUUID + '/members').set('Cookie', 'sulToken=' + wolverineToken)
+      .send(newGroupUser)
+      .end((err, res) => {
+        expect(res.status).to.eql(201)
+      })
+    done()
+  })
+  
+  it('POST should SUCCEED to post memberships if the requestor Role is AP', (done) => {
+    chai
+      .request(server)
+      .put('/lists/' + listUUID4 + '/groups/' + grpTwoUUID + '/members').set('Cookie', 'sulToken=' + jwtTokenInstructor)
+      .send(newGroupUser)
+      .end((err, res) => {
+        expect(res.status).to.eql(201)
+      })
+    done()
+  })
+  
+})
+
 
 /*
  * GET /lists/:id/groups/:grpId/members gets users in a list group
  * * Accessible by AP and SP roles
- * * * Not Implemented
  * * * SP can only retrieve if list.student_view === true
  */
+describe('[test_list_schema] Get a single groups memberships', function () {
+  it('GET should FAIL to get memberships if the requestor Role is SP and list is set to student_view FALSE', (done) => {
+    chai
+      .request(server)
+      .get('/lists/' + listUUID2 + '/groups/' + grpTwoUUID + '/members').set('Cookie', 'sulToken=' + jwtTokenStudent)
+      .end((err, res) => {
+        expect(res.status).to.eql(403)
+      })
+    done()
+  })
 
+  it('GET should SUCCEED to get memberships if the requestor Role is SP and list is set to student_view TRUE', (done) => {
+      chai
+      .request(server)
+      .get('/lists/' + listUUID4 + '/groups/' + grpTwoUUID + '/members').set('Cookie', 'sulToken=' + jwtTokenStudent)
+      .end((err, res) => {
+        expect(res.status).to.eql(200)
+      })
+    done()
+  })
+
+  it('GET should SUCCEED to get memberships if the requestor Role is AP regardless of student_view setting', (done) => {
+      chai
+      .request(server)
+      .get('/lists/' + listUUID3 + '/groups/' + grpOneUUID + '/members').set('Cookie', 'sulToken=' + jwtTokenInstructor)
+      .end((err, res) => {
+        expect(res.status).to.eql(200)
+      })
+    done()
+  })
+})
 
 /*
  * GET /lists/:id/groups/:grpId/members/:userId gets a specific User in a list group
@@ -672,7 +864,7 @@ describe('[test_list_schema] Get a single group membership', function () {
     var target = 'HAWKEYE'
     chai
       .request(server)
-      .get('/lists/' + listUUID2 + '/groups/' + grpTwoUUID + '/members/' + target).set('Cookie', 'sulToken=' + jwtTokenStudent)
+      .get('/lists/' + listUUID3 + '/groups/' + grpTwoUUID + '/members/' + target).set('Cookie', 'sulToken=' + jwtTokenStudent)
       .end((err, res) => {
         expect(res.status).to.eql(403)
       })
@@ -683,26 +875,29 @@ describe('[test_list_schema] Get a single group membership', function () {
     var target = 'HAWKEYE'
     chai
       .request(server)
-      .get('/lists/' + listUUID2 + '/groups/' + grpTwoUUID + '/members/' + target).set('Cookie', 'sulToken=' + hawkeyeToken)
+      .get('/lists/' + listUUID3 + '/groups/' + grpTwoUUID + '/members/' + target).set('Cookie', 'sulToken=' + hawkeyeToken)
       .end((err, res) => {
+        console.log('SUCCEED (as hawkeye): ', res.body)
         expect(res.status).to.eql(200)
       })
     done()
   })
 
   it('GET should SUCCEED to get a membership if the requestor Role is AP', (done) => {
-    var target = 'HAWKEYE'
+    var target = 'SUPERMAN'
     chai
       .request(server)
-      .get('/lists/' + listUUID2 + '/groups/' + grpTwoUUID + '/members/' + target).set('Cookie', 'sulToken=' + jwtTokenInstructor)
+      .get('/lists/' + listUUID3 + '/groups/' + grpOneUUID + '/members/' + target).set('Cookie', 'sulToken=' + jwtTokenInstructor)
       .end((err, res) => {
         if (err) {
           // console.log('[test_list_schema] GET err:\n', err)
         }
+        console.log('SUCCEED (as instructor): ', res.body)
         expect(res.status).to.eql(200)
       })
     done()
   })
+
 })
 
 
@@ -723,6 +918,7 @@ describe('[test_list_schema] UPDATE a single group membership', function () {
       .put('/lists/' + listUUID3 + '/groups/' + grpThreeUUID + '/members/' + target).set('Cookie', 'sulToken=' + wolverineToken)
       .send(membershipForSPUpdate)
       .end((err, res) => {
+        expect(err)
         expect(res.status).to.eql(403)
       })
     done()
@@ -739,6 +935,7 @@ describe('[test_list_schema] UPDATE a single group membership', function () {
       .put('/lists/' + listUUID3 + '/groups/' + grpThreeUUID + '/members/' + target).set('Cookie', 'sulToken=' + thorToken)
       .send(membershipForSPUpdate)
       .end((err, res) => {
+        expect(err)
         expect(res.status).to.eql(200)
       })
     done()

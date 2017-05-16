@@ -12,6 +12,8 @@ var should = chai.should()
 var config = require('../config/config')
 var mongoose = require('mongoose')
 const uuid = require('uuid')
+var debug = (config.debugMode === 'true')
+
 
 // Use bluebird since mongoose has deprecated mPromise
 mongoose.Promise = require('bluebird')
@@ -48,8 +50,8 @@ var systemToDelete = {
 describe('[test_system_schema] Fail on incorrectly formatted System?', function () {
   it('it should not add a system without hostname field', function (done) {
     systemAPI.addSystem(badSystemIdOnly, function (err, result) {
-      console.log('[test_system_schema] Fails on incorrectly formatted system JSON. Result: ', result)
-      console.log('testing system add: FAIL')
+      if (debug) console.log('[test_system_schema] Fails on incorrectly formatted system JSON. Result: ', result)
+      if (debug) console.log('testing system add: FAIL')
       chai.expect(result).to.have.property('err')
         .and.equal(400)
       done()
@@ -60,8 +62,8 @@ describe('[test_system_schema] Fail on incorrectly formatted System?', function 
 describe('[test_system_schema] Fail on incorrectly formatted System?', function () {
   it(' should not add a system without system field', function (done) {
     systemAPI.addSystem(badHostnameOnly, function (err, result) {
-      console.log('[test_system_schema] Fails on incorrectly formatted system JSON. Result: ', result)
-      console.log('testing system add: FAIL')
+      if (debug) console.log('[test_system_schema] Fails on incorrectly formatted system JSON. Result: ', result)
+      if (debug) console.log('testing system add: FAIL')
       chai.expect(result).to.have.property('err')
         .and.equal(400)
       done()
@@ -72,8 +74,8 @@ describe('[test_system_schema] Fail on incorrectly formatted System?', function 
 describe('[test_system_schema] Pass on correctly formatted System?', function () {
   it('should add a correctly formatted system', function (done) {
     systemAPI.addSystem(goodSystem, function (err, result) {
-      console.log('[test_system_schema] Succeeds on correctly formatted system JSON. Result: ', result)
-      console.log('testing system add: SUCCESS')
+      if (debug) console.log('[test_system_schema] Succeeds on correctly formatted system JSON. Result: ', result)
+      if (debug) console.log('testing system add: SUCCESS')
       chai.expect(result).not.to.have.property('err')
       done()
     })
@@ -83,8 +85,8 @@ describe('[test_system_schema] Pass on correctly formatted System?', function ()
 describe('[test_system_schema] Return what we just created', function () {
   it('should GET correctly', function (done) {
     systemAPI.getSystem(goodUUID, function (err, result) {
-      console.log('[test_system_schema] Succeeds on correctly retrieving system JSON. Result: ', result)
-      console.log('testing system add: SUCCESS')
+      if (debug) console.log('[test_system_schema] Succeeds on correctly retrieving system JSON. Result: ', result)
+      if (debug) console.log('testing system add: SUCCESS')
       chai.expect(result).to.have.property('system_id')
       chai.expect(result.system_id).to.eql(goodUUID)
       chai.expect(result.hostname).to.eql('testSystemSchemaHost')
@@ -110,7 +112,7 @@ describe('[test_system_schema] Pass on correctly formatted update?', function ()
 describe('[test_system_schema] Return the entire systems collection', function () {
   it('should return the full collection', function (done) {
     systemAPI.getSystems( function (err, results) {
-    console.log('[test_system_schema] Return the entire systems collection result:\n', results)
+    if (debug) console.log('[test_system_schema] Return the entire systems collection result:\n', results)
     done()
     })
   })
@@ -129,8 +131,8 @@ describe('[test_system_schema] Delete what we created', function () {
 
 // empty DB after tests
 after(function (done) {
-  console.log('[test_system_schema] Dropping test system collection')
-  // console.log(mongoose.connection.readyState)
+  if (debug) console.log('[test_system_schema] Dropping test system collection')
+  // if (debug) console.log(mongoose.connection.readyState)
   mongoose.connection.db.dropCollection('systems')
   mongoose.connection.close()
   done()

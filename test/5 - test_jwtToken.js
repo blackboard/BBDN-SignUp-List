@@ -11,6 +11,7 @@ var config = require('../config/config')
 const uuid = require('uuid')
 var jwt = require('jsonwebtoken')
 var jwtUtils = require('../controllers/routes/jwtToken.js')
+var debug = (config.debugMode === 'true')
 
 var should = chai.should()
 // var expect = chai.expect()
@@ -82,7 +83,7 @@ describe('JWT Util tests', function () {
   describe('Create an "Instructor" token (VISUAL PASS)', function () {
     it('creates an instructor token (VISUAL PASS)', function () {
       jwtTokenInstructor = jwtUtils.genJWTToken(jwtClaimsInstructor)
-      console.log('\n[TEST_JWTTOKEN]: gen Instructor Token: claims:', jwtClaimsInstructor)
+      if (debug) console.log('\n[TEST_JWTTOKEN]: gen Instructor Token: claims:', jwtClaimsInstructor)
       console.log('\n[TEST_JWTTOKEN]: gen Instructor Token: token:', jwtTokenInstructor)
     })
   })
@@ -90,7 +91,7 @@ describe('JWT Util tests', function () {
   describe('Create a "Student" token (VISUAL PASS)', function () {
     it('creates an instructor token (VISUAL PASS)', function () {
       jwtTokenStudent = jwtUtils.genJWTToken(jwtClaimsStudent)
-      console.log('\n[TEST_JWTTOKEN]: gen Student Token: claims:', jwtClaimsStudent)
+      if (debug) console.log('\n[TEST_JWTTOKEN]: gen Student Token: claims:', jwtClaimsStudent)
       console.log('\n[TEST_JWTTOKEN]: gen Student Token: token:', jwtTokenStudent)
    })
   })
@@ -101,18 +102,18 @@ describe('JWT Util tests', function () {
   describe('Cache created Instructor token (VISUAL PASS)', function () {
     it('caches an instructor token (VISUAL PASS)', function () {
       jwtUtils.cacheJwtToken(jwtClaimsInstructor.jti, jwtTokenInstructor, jwtClaimsInstructor.exp)
-      console.log('\n[TEST_JWTTOKEN]: Cache Instructor Token: jti:', jwtClaimsInstructor.jti)
+      if (debug) console.log('\n[TEST_JWTTOKEN]: Cache Instructor Token: jti:', jwtClaimsInstructor.jti)
       console.log('\n[TEST_JWTTOKEN]: Cache Instructor Token: token:', jwtTokenInstructor)
-      console.log('\n[TEST_JWTTOKEN]: Cache Instructor Token: exp:', jwtClaimsInstructor.exp)
+      if (debug) console.log('\n[TEST_JWTTOKEN]: Cache Instructor Token: exp:', jwtClaimsInstructor.exp)
     })
   })
 
   describe('Cache created Student token (VISUAL PASS)', function () {
     it('caches an student token (VISUAL PASS)', function () {
       jwtUtils.cacheJwtToken(jwtClaimsStudent.jti, jwtTokenStudent, jwtClaimsStudent.exp)
-      console.log('\n[TEST_JWTTOKEN]: Cache Student Token: jti:', jwtClaimsStudent.jti)
+      if (debug) console.log('\n[TEST_JWTTOKEN]: Cache Student Token: jti:', jwtClaimsStudent.jti)
       console.log('\n[TEST_JWTTOKEN]: Cache Student Token: token:', jwtTokenStudent)
-      console.log('\n[TEST_JWTTOKEN]: Cache Student Token: exp:', jwtClaimsStudent.exp)
+      if (debug) console.log('\n[TEST_JWTTOKEN]: Cache Student Token: exp:', jwtClaimsStudent.exp)
     })
   })
 
@@ -171,10 +172,10 @@ describe('JWT Util tests', function () {
   describe('Test jwtGetUserUUID on token (COMPARE PASS)', function () {
     it('should return sub (userUUID) (COMPARE PASS)', function () {
       var userUUID = jwtUtils.jwtGetUserUUID(jwtTokenStudent)
-      console.log('\n[TEST_JWTTOKEN]: jwtGetUserUUID Student:', userUUID)
+      if (debug) console.log('\n[TEST_JWTTOKEN]: jwtGetUserUUID Student:', userUUID)
       userUUID.should.eql('moneilStudent')
       userUUID = jwtUtils.jwtGetUserUUID(jwtTokenInstructor)
-      console.log('\n[TEST_JWTTOKEN]: jwtGetUserUUID Instructor:', userUUID)
+      if (debug) console.log('\n[TEST_JWTTOKEN]: jwtGetUserUUID Instructor:', userUUID)
       userUUID.should.eql('moneilInstructor')
     })
   })

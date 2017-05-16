@@ -30,7 +30,7 @@ var debug = (config.debugMode === 'true')
 router.post('/', function (req, res, next) {
   var validRoles = ['AP']
   var token = req.cookies['sulToken']
-  console.log('[COURSES.JS]: post: incomming token: ', token)
+  if (debug) console.log('[COURSES.JS]: post: incomming token: ', token)
   if (jwtToken.jwtValidRole(token, validRoles)) {
     // res.send('post courses requested');
     var newCourse = new Course(req.body)
@@ -97,7 +97,7 @@ router.get('/:id', function (req, res, next) {
         if (debug) console.log('[courses.js route]: send 204')
         res.sendStatus(204)
       } else {
-        console.log('\n[courses.js route] found course: ' + req.params.id + '\n' + course)
+        if (debug) console.log('\n[courses.js route] found course: ' + req.params.id + '\n' + course)
         res.status(200).json(course)
       }
     })

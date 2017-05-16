@@ -9,6 +9,8 @@ var should = chai.should()
 var config = require('../config/config')
 var mongoose = require('mongoose')
 const uuid = require('uuid')
+var debug = (config.debugMode === 'true')
+
 
 // Use bluebird since mongoose has deprecated mPromise
 mongoose.Promise = require('bluebird')
@@ -152,7 +154,7 @@ describe('[test_log_schema] Pass on correctly formatted POSTs?', function () {
       .end((err, res) => {
         res.should.have.status(201)
         logCreatedUUID = res.body.uuid
-        console.log('[test_log_schema]: ' + logCreatedUUID)
+        if (debug) console.log('[test_log_schema]: ' + logCreatedUUID)
         done()
       })
   })
@@ -272,8 +274,7 @@ describe('[test_log_schema] Delete what we created', function () {
 
 // empty DB after tests
 after(function (done) {
-  console.log('[test_log_schema] Dropping test log collection')
-//    console.log(mongoose.connection.readyState)
+  if (debug) console.log('[test_log_schema] Dropping test log collection')
   mongoose.connection.on('open', function () {
     mongoose.connection.db.dropCollection('logs')
     mongoose.connection.close()

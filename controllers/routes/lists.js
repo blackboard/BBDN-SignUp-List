@@ -166,7 +166,8 @@ router.put('/:id/groups', function (req, res, next) {
 })
 
 /*
- * PUT /lists/:id/groups/:grpId - update a specific list group
+ * INPROGRESS
+ * PUT /lists/:id/groups/:grpId - fully update a specific list group
  * * Only accessible by AP roles
  */
 router.put('/:id/groups/:grpId', function (req, res, next) {
@@ -175,9 +176,6 @@ router.put('/:id/groups/:grpId', function (req, res, next) {
   if (jwtToken.jwtValidRole(token, validRoles)) {
     if (debug) console.log('\n[Lists/:id/groups]: PUT /lists/' + req.params.id + '/groups/' + req.params.grpId + 'called\n')
     if (debug) console.log('\n[Lists/:id/groups]: req.body' + req.body.toString() + ' \n')
-    // create a group associated with a list
-    // Use JWT cookie to authorize request
-    // save the group
     List.findOne({'list_uuid': req.params.id}, function (err, list) {
       if (err) res.send(err)
       // find existing group and replace with incoming
@@ -185,6 +183,7 @@ router.put('/:id/groups/:grpId', function (req, res, next) {
         if (list.list_groups[i].grp_uuid === req.params.grpId) {
           list.list_groups[i] = req.body
         }
+        break
       }
       if (debug) console.log('\n[Lists/:id/groups]: List after updating specific groupList : \n' + JSON.stringify(list))
       list.save((err, list) => {
@@ -215,8 +214,9 @@ router.put('/:id', function (req, res, next) {
 })
 
 /*
- * POST /lists/:id/groups/:grpId/members creates users in a list group
+ * POST /lists/:id/groups/:grpId/members creates set of memberships in a list group
  * * Accessible by AP role
+ * * Overwrites existing group memberships
  */
 router.post('/:id/groups/:grpId/members', function (req, res, next) {
   var validRoles = ['AP']
@@ -227,7 +227,7 @@ router.post('/:id/groups/:grpId/members', function (req, res, next) {
       // find existing group and replace with incoming
       for (var i = 0, length = list.list_groups.length; i < length; i++) {
         if (list.list_groups[i].grp_uuid === req.params.grpId) {
-          list.list_groups[i].grp_members.push(req.body)
+          list.list_groups[i].grp_members = req.body
           break
         }
       }
@@ -243,23 +243,32 @@ router.post('/:id/groups/:grpId/members', function (req, res, next) {
 })
 
 /*
- * POST /lists/:id/groups/:grpId/members/:mbrId creates users in a list group
+ * PUT /lists/:id/groups/:grpId/members creates user in a list group
  * * Accessible by AP and SP roles
+ * * Requires SP user_uuid and membership user_uuid match
  */
-router.post('/:id/groups/:grpId/members', function (req, res, next) {
+router.put('/:id/groups/:grpId/members', function (req, res, next) {
   var validRoles = ['AP', 'SP']
   var token = req.cookies['sulToken']
-  if (jwtToken.jwtValidRole(token, validRoles)) {
+  var requestorsUserUUID = jwtToken.jwtGetUserUUID(token)
+  var reqUUID = req.body.user_uuid
+  var grpFound = false
+  var requestorRole = jwtToken.jwtGetRole(token)
+
+  if (debug) console.log('MEMBERUUID: [' + reqUUID + ']')
+  if (debug) console.log('REQUESTORTOKENUUID: [' + requestorsUserUUID + ']')
+  if (debug) console.log('REQUESTORSUSERROLE: [' + requestorRole + ']')
+  if ((jwtToken.jwtValidRole(token, validRoles)) && ((requestorsUserUUID === reqUUID) || (requestorRole === 'AP'))) {
+    // if (jwtToken.jwtValidRole(token, validRoles)) {
     List.findOne({'list_uuid': req.params.id}, function (err, list) {
       if (err) res.send(err)
-      // find existing group and replace with incoming
       for (var i = 0, length = list.list_groups.length; i < length; i++) {
         if (list.list_groups[i].grp_uuid === req.params.grpId) {
+          grpFound = true
           list.list_groups[i].grp_members.push(req.body)
-          break
         }
+        if (grpFound) break
       }
-      if (debug) console.log('\n[Lists/:id/groups]: List after adding new groupList : \n' + JSON.stringify(list))
       list.save((err, list) => {
         if (err) res.send(err)
         res.status(200).json(list)
@@ -272,26 +281,37 @@ router.post('/:id/groups/:grpId/members', function (req, res, next) {
 
 /*
  * GET /lists/:id/groups/:grpId/members gets users in a list group
- * * Accessible by AP and SP roles (SP requires list.student_view === true)
+ * * Accessible by AP and SP roles
+ * * * SP can only retrieve if list.student_view === true
  */
 router.get('/:id/groups/:grpId/members', function (req, res, next) {
   var validRoles = ['AP']
   var token = req.cookies['sulToken']
+  var membershipsFound = false
+  if (debug) console.log('GET MEMBER LIST: [' + req.params.id + ']')
+  if (debug) console.log('GET MEMBER GROUP: [' + req.params.grpId + ']')
   if (jwtToken.jwtValidRole(token, validRoles)) {
     List.findOne({'list_uuid': req.params.id}, function (err, list) {
       if (err) res.send(err)
       // find group and return grp_members
+      if (debug) console.log('LIST STUDENT_VIEW: ', list.student_view)
       if (jwtToken.jwtGetRole(token) === 'AP' || list.student_view === true) {
+        if (debug) console.log('SEARCHING FOR GROUP')
         for (var i = 0, length = list.list_groups.length; i < length; i++) {
           if (list.list_groups[i].grp_uuid === req.params.grpId) {
+            if (debug) console.log('FOUND GROUP:' + list.list_groups[i].grp_uuid)
+            if (debug) console.log('FOUND MEMBERS:\n', list.list_groups[i].grp_members)
+            membershipsFound = true
             res.status(200).json(list.list_groups[i].grp_members)
-          } else {
-            res.status(404)
           }
+        }
+        if (!membershipsFound) {
+          res.status(404)
         }
       }
     })
   } else {
+    console.log('INSUFFICIENT PRIVILEGES for GET /lists/:id/groups/:grpId/members')
     res.status(403).send()
   }
 })
@@ -301,25 +321,53 @@ router.get('/:id/groups/:grpId/members', function (req, res, next) {
  * * Accessible by AP and SP roles
  */
 router.get('/:id/groups/:grpId/members/:userId', function (req, res, next) {
+  if (debug) console.log('GET MEMBER LIST: [' + req.params.id + ']')
+  if (debug) console.log('GET MEMBER GROUP: [' + req.params.grpId + ']')
+  if (debug) console.log('GET MEMBER USER: [' + req.params.userId + ']')
   var validRoles = ['AP', 'SP']
   var token = req.cookies['sulToken']
+  var role = jwtToken.jwtGetRole(token)
+  var tokenUser = jwtToken.jwtGetUserUUID(token)
+  if (debug) console.log('GET MEMBER USER: REQUESTOR [' + tokenUser + ']')
+
+  var usrFound = false
+  var grpFound = false
+  var foundUser
   if (jwtToken.jwtValidRole(token, validRoles)) {
     List.findOne({'list_uuid': req.params.id}, function (err, list) {
       if (err) res.send(err)
       // find group and return user from the groups grp_members
       for (var i = 0, len = list.list_groups.length; i < len; i++) {
         if (list.list_groups[i].grp_uuid === req.params.grpId) {
-          for (var n = 0, length = list.list_groups[i].grp_members.length; n < length; n++) {
-            if (list.list_groups[i].grp_members[n].user_uuid === req.params.userId) {
-              console.log(list.list_groups[i].grp_members[n])
-              res.status(200).json(list.list_groups[i].grp_members[n])
-            } else {
-              res.status(404)
+          // this is our group
+          var grpPos = i
+          grpFound = true
+          if (debug) console.log('GET USER FROM GROUP: FOUND GROUP AT: ', grpPos)
+          if (debug) console.log('GET USER FROM GROUP: FOUND GROUP MEMBERS: \n', list.list_groups[grpPos].grp_members)
+          for (var n = 0, length = list.list_groups[grpPos].grp_members.length; n < length; n++) {
+            if (debug) console.log('GET USER FROM GROUP: FOUND GROUP MEMBER: \n', list.list_groups[grpPos].grp_members[n])
+            if (list.list_groups[grpPos].grp_members[n].user_uuid === req.params.userId) {
+              // this is our user
+              if (debug) console.log('GET USER FROM GROUP: MEMBER FOUND AT: ', n)
+              usrFound = true
+              if (list.list_groups.grp_uuid[grpPos].grp_members[n].user_uuid === tokenUser) {
+                foundUser = list.list_groups[grpPos].grp_members[n]
+                res.status(200).json(foundUser)
+              }
+              console.log('GET USER FROM GROUP: MEMBER FOUND: ', list.list_groups[grpPos].grp_members[n])
             }
+          //  if (usrFound) break
           }
-        } else {
-          res.status(404).send()
         }
+       // if (grpFound) break
+      }
+      if (!grpFound) {
+        console.log('GET MEMBERSHIP: GROUP ' + req.params.grpId + ' NOT FOUND')
+        res.status(404)
+      }
+      if (!usrFound) {
+        console.log('GET MEMBERSHIP: USR ' + req.params.userId + ' NOT FOUND IN GROUP ' + req.params.grpId)
+        res.status(404)
       }
     })
   } else {
