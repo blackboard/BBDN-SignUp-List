@@ -50,8 +50,8 @@ exports.checkJWTToken = function (token) {
   // decrypt to get JTI
   var decodedToken = jwt.verify(token, config.jwtSecret)
   var isCached = false
-  console.log('\n[JWTTOKEN.JS:checkJWTToken]: decodedToken: %j', decodedToken)
-  console.log('\n[JWTTOKEN.JS:checkJWTToken]: jti:', decodedToken.jti)
+  if (debug) console.log('\n[JWTTOKEN.JS:checkJWTToken]: decodedToken: %j', decodedToken)
+  if (debug) console.log('\n[JWTTOKEN.JS:checkJWTToken]: jti:', decodedToken.jti)
   // check if jti key in cache
   // var jti = jwtTokenCache.get(decodedToken.jti)
 
@@ -100,6 +100,27 @@ exports.jwtValidRole = function (token, roles) {
   }
 
   return validRole
+}
+
+exports.jwtGetRole = function (token) {
+  var decodedToken = jwt.verify(token, config.jwtSecret)
+  var role
+  if (this.checkJWTToken(token)) {
+    // good token how about role?
+    // valid userRoles: 'instructor', 'teachingassistant', 'grader', 'learner', 'administrator'
+    if (decodedToken.userRole.includes('instructor') ||
+        decodedToken.userRole.includes('teachingassistant') ||
+        decodedToken.userRole.includes('grader') ||
+        decodedToken.userRole.includes('administrator')) {
+      role = 'AP'
+      if (debug) console.log('\n[jwtToken:jwtValidRole]: Role: ', role)
+    } else {
+      role = 'SP'
+    }
+  } else {
+    console.log('\n[jwtToken:jwtValidRole]: Error validating token. Token: ', token)
+  }
+  return role
 }
 
 exports.jwtGetUserUUID = function (token) {
