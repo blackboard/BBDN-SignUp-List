@@ -1,78 +1,120 @@
-var express = require('express');
-var router = express.Router();
-//var mongoose = require('mongoose');
-var System = require('../models/systems');
-var mongoose = require('bluebird').promisifyAll(require('mongoose'));
+var express = require('express')
+var router = express.Router()
+var System = require('../models/systems')
+var system = {}
+
+var config = require('../../config/config')
+var debug = (config.debugMode === 'true')
+
 
 /*
- * POST /systems to save a new system.
+ * Add systemJSON to save a new system.
  */
-router.post('/', function(req, res, next) {
-    //console.log("req.body.json: " + JSON.stringify(req.body, null, 4));
-    var newSystem = new System(req.body);
+system.addSystem = function (systemJSON, next) {
+  if (debug) console.log('[SYSTEM.JS] Incomming systemJSON:\n', systemJSON)
+  var resJSON = {}
+  var newSystem = new System(systemJSON)
+  // if (debug) console.log('[SYSTEM.JS] newSystem:\n', newSystem)
+  // Save it into the DB.
+  newSystem.save(function (err, sys) {
+    if (err) {
+      // if (debug) console.log('[SYSTEM.JS] save err', err)
+      if (err.code === '11000') {
+        // if (debug) console.log('[SYSTEM.JS] SAVE err.code', err.code)
+        resJSON = {'err': 409}
+        next(err, {'err': 409})
+        // if (debug) console.log('[SYSTEM.JS] SAVE 11000 resJSON: ', resJSON)
+      } else if (err.name === 'ValidationError') {
+        // if (debug) console.log('[SYSTEM.JS] SAVE err.name: ', err.name)
+        resJSON = {'err': 400}
+        next(err, {'err': 400})
+        // if (debug) console.log('[SYSTEM.JS] SAVE ValidationError resJSON: ', resJSON)
+      } else {
+        resJSON = {'err': 418}
+        next(err, {'err': 418})
+        // if (debug) console.log('[SYSTEM.JS] SAVE teapot?: ', resJSON)
+      }
+    } else { // If no errors, send it back to the client
+      // if (debug) console.log('[SYSTEM.JS] SAVE system:\n', system)
+      resJSON = sys
+      next(err, sys)
+      // if (debug) console.log('[SYSTEM.JS] SAVE system\n', resJSON)
+    }
+    if (debug) console.log('[SYSTEM.JS] addSystem resJSON:\n', resJSON)
+    return resJSON
+  })
+}
 
-    //Save it into the DB.
-    newSystem.save((err, system) => {
-        if(err) {
-            if (err.code == '11000') { res.status(409).send(err); }
-            else if ( err.name == "ValidationError" ) {
-                res.status(400).send(err); 
-            }
-            else { res.send(err); }
+/*
+ * Retrieve all systems.
+ */
+system.getSystems = function (next) {
+  if (debug) console.log('[SYSTEM.JS] GET systems collection...')
+
+  var query = System.find({})
+  query.exec(function (err, systems) {
+    if (debug) console.log('[SYSTEM.JS] GET systems collection:\n', systems)
+    if (!err) {
+      if (debug) console.log('\n[SYSTEMS.JS:getSystems]: :', systems)
+      next(err, systems)    
+    } else {
+      console.log('ERROR: ', err)
+      next(err, { 'err': 400 })
+    }
+  })
+}
+
+/*
+ * Retrieve system based on system_id route to retrieve a single system.
+ */
+system.getSystem = function (systemId, next) {
+  // Query the DB and if no errors, return all the systems
+  console.log('\n[SYSTEMS.JS:getSystem]: :', systemId)
+  System.findOne({'system_id': systemId}, function (err, sys) {
+    if (!err) {
+      console.log('\n[SYSTEMS.JS:getSystem]: :', sys)
+      next(err, sys)
+      // return system
+    } else {
+      console.log('ERROR: ', err)
+      next(err, { 'err': 400 })
+    }
+  })
+}
+
+
+/*
+ * Update system based on system_id route to update a single system.
+ */
+system.updateSystem = function (systemId, systemJSON, next) {
+  System.findOne({'system_id': systemId}, (err, system) => {
+    if (!err) {
+      Object.assign(system, systemJSON).save((err, savedsystem) => {
+        if (!err) {
+          console.log('\n[SYSTEMS.JS:updateSystem]: :', savedsystem)
+          next(err, savedsystem)
+        } else {
+          console.log('ERROR: ', err)
+          next(err, { 'err': 400 })  
         }
-        else { //If no errors, send it back to the client
-           //console.log(req.body);
-           res.status(201).json(req.body);
-        }
-    });
-});
-
+      })
+    }
+  })
+}
 
 /*
- * GET /systems route to retrieve all the systems.
+ * deleteSystem(systemId) to delete a single system.
  */
-router.get('/', function(req, res, next) {
-    var query = System.find({});
-    query.exec((err, systems) => {
-        if(err) res.send(err);
-        //If no errors, send them back to the client
-        res.json(systems);
-    });
-});
+system.deleteSystem = function (systemId, next) {
+  System.remove({'system_id': systemId}, (err, result) => {
+    if (!err) {
+      console.log('\n[SYSTEMS.JS:deleteSystem]:result status :', result.result)
+      next(err, true)
+    } else {
+      console.log('\n[SYSTEMS.JS:deleteSystem] error:', err)
+      next(err, false)
+    }
+  })
+}
 
-/*
- * GET /systems/:system_id route to retrieve a single system.
- */
-router.get('/:id', function(req, res, next) {
-    //Query the DB and if no errors, return all the systems
-    System.findOne({system_id: req.params.id}, (err, system) => {
-        if(err) res.send(err);
-        //If no errors, send them back to the client
-        res.json(system);
-    });
-});
-
-/*
- * PUT /systems/:system_id route to update a single system.
- */
-router.put('/:id', function(req, res, next) {
-    System.findOne({system_id: req.params.id}, (err, system) => {
-        if(err) res.send(err);
-        Object.assign(system, req.body).save((err, system) => {
-            if(err) res.send(err);
-            res.json(system);
-        }); 
-    });
-});
-
-/*
- * DELETE /systems/:system_id route to delete a single system.
- */
-router.delete('/:id', function(req, res, next) {
-    System.remove({system_id : req.params.id}, (err, result) => {
-        res.status(204).send();
-    });
-});
-
-
-module.exports = router;
+module.exports = system
