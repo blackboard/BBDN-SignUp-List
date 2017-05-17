@@ -9,13 +9,13 @@ var session = require('cookie-session');
 
 var index = require('./controllers/routes/index');
 var users = require('./controllers/routes/users');
-var systems = require('./controllers/routes/systems');
+// var systems = require('./controllers/routes/systems');
 var courses = require('./controllers/routes/courses');
 var lists = require('./controllers/routes/lists');
 var logs = require('./controllers/routes/logs');
 var rest = require('./controllers/routes/rest');
 
-var debug = (config.debug_mode=="true"?true:false);
+var debug = (config.debugMode === 'true')
 
 //set up mongoose
 //determine db path
@@ -76,7 +76,7 @@ app.use('/ask', express.static(path.join(__dirname, '/bower_components/angular-s
 
 app.use('/', index);
 app.use('/users', users);
-app.use('/systems', systems);
+// app.use('/systems', systems);
 app.use('/courses', courses);
 app.use('/lists', lists);
 app.use('/logs', logs);

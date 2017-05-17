@@ -1,142 +1,139 @@
-"use strict";
-var System = require('../controllers/models/systems');
-var chai = require('chai');
-var chaiHttp = require('chai-http');
-var server = require('../server');
-var should = chai.should();
-var config = require('../config/config');
-var mongoose = require("mongoose");
+/* global describe, it, after */
+'use strict'
+var assert = require('assert') // core module
+
+var System = require('../controllers/models/systems')
+var systemAPI = require('../controllers/routes/systems.js')
+var chai = require('chai')
+var expect = chai.expect
+var chaiHttp = require('chai-http')
+var server = require('../server')
+var should = chai.should()
+var config = require('../config/config')
+var mongoose = require('mongoose')
+const uuid = require('uuid')
+var debug = (config.debugMode === 'true')
+
+
 // Use bluebird since mongoose has deprecated mPromise
-//mongoose.Promise = require("bluebird");
+mongoose.Promise = require('bluebird')
 
-chai.use(chaiHttp);
+chai.use(chaiHttp)
 
-//Always use test DB for testing...
-var db = config.test_db;
+// Always use test DB for testing...
+var db = config.test_db
+var badUUID = uuid.v4()
+var badUUID2 = uuid.v4()
+var goodUUID = uuid.v4()
 
-//test data
-var bad_system_id_only = {
-  system_id: "mochaSystemSchemaTest"
-};
-var bad_hostname_only = {
-  hostname: "testSystemSchemaHost"
-};
-var good_system = {
-  system_id: "mochaSystemSchemaTest",
-  hostname: "testSystemSchemaHost"
-};
-var updated_system = {
-  system_id: "tsetamehcSmetsySahcom"
+// test data
+var badSystemIdOnly = {
+  'system_id': badUUID
+}
+var badHostnameOnly = {
+  'hostname': 'testSystemSchemaHost'
+}
+var goodSystem = {
+  'system_id': goodUUID,
+  'hostname': 'testSystemSchemaHost'
+}
+var updatedSystem = {
+  'system_id': goodUUID,
+  'hostname': 'tsetamehcSmetsySahcom'
 }
 
-var system_to_delete = {
-  system_id: "tsetamehcSmetsySahcom"
+var systemToDelete = {
+  'system_id': goodUUID
 }
 
-//POST tests
-describe("[test_system_schema] Fail on incorrectly formatted POST?", function() {
-    it('it should not POST a system without hostname field', (done) => {
-    chai
-      .request(server)
-      .post('/systems')
-      .send(bad_system_id_only)
-      .end(function(err, res) {
-        expect(res).to.have.err;
-      });
-      done();
-    });
-  });
+// Add tests
+describe('[test_system_schema] Fail on incorrectly formatted System?', function () {
+  it('it should not add a system without hostname field', function (done) {
+    systemAPI.addSystem(badSystemIdOnly, function (err, result) {
+      if (debug) console.log('[test_system_schema] Fails on incorrectly formatted system JSON. Result: ', result)
+      if (debug) console.log('testing system add: FAIL')
+      chai.expect(result).to.have.property('err')
+        .and.equal(400)
+      done()
+    })
+  })
+})
 
-describe("[test_system_schema] Fail on incorrectly formatted POST?", function() {
-    it(' should not POST a system without system field', (done) => {
-    chai
-      .request(server)
-      .post('/systems')
-      .send(bad_hostname_only)
-      .end(function(err, res) {
-        expect(res).to.have.err;
-      });
-      done();
-    });
-  });
+describe('[test_system_schema] Fail on incorrectly formatted System?', function () {
+  it(' should not add a system without system field', function (done) {
+    systemAPI.addSystem(badHostnameOnly, function (err, result) {
+      if (debug) console.log('[test_system_schema] Fails on incorrectly formatted system JSON. Result: ', result)
+      if (debug) console.log('testing system add: FAIL')
+      chai.expect(result).to.have.property('err')
+        .and.equal(400)
+      done()
+    })
+  })
+})
 
-describe("[test_system_schema] Pass on correctly formatted POST?", function() {
-     it('should POST correctly', (done) => {
-    chai
-      .request(server)
-      .post('/systems')
-      .send(good_system)
-      .end((err, res) => {
-        res.should.have.status(201);
-        JSON.stringify(res.body).should.be.eql('{"system_id":"mochaSystemSchemaTest","hostname":"testSystemSchemaHost"}');
-      done();
-    });
-  });
-});
+describe('[test_system_schema] Pass on correctly formatted System?', function () {
+  it('should add a correctly formatted system', function (done) {
+    systemAPI.addSystem(goodSystem, function (err, result) {
+      if (debug) console.log('[test_system_schema] Succeeds on correctly formatted system JSON. Result: ', result)
+      if (debug) console.log('testing system add: SUCCESS')
+      chai.expect(result).not.to.have.property('err')
+      done()
+    })
+  })
+})
 
-//PUT test
-describe("[test_system_schema] Pass on correctly formatted PUT?", function() {
-    it('should PUT correctly', (done) => {
-    chai
-      .request(server)
-      .put('/systems/mochaSystemSchemaTest')
-      .send(updated_system)
-      .end((err, res) => {
-        res.should.be.json;
-        res.body.should.be.a('object');
-        res.body.should.have.property('system_id');
-        res.body.system_id.should.eql('tsetamehcSmetsySahcom');
-      done();
-    });
-  });
-});
+describe('[test_system_schema] Return what we just created', function () {
+  it('should GET correctly', function (done) {
+    systemAPI.getSystem(goodUUID, function (err, result) {
+      if (debug) console.log('[test_system_schema] Succeeds on correctly retrieving system JSON. Result: ', result)
+      if (debug) console.log('testing system add: SUCCESS')
+      chai.expect(result).to.have.property('system_id')
+      chai.expect(result.system_id).to.eql(goodUUID)
+      chai.expect(result.hostname).to.eql('testSystemSchemaHost')
+      done()
+    })
+  })
+})
 
-describe("[test_system_schema] Return what we just created", function() {
-    it('should GET correctly', (done) => {
-    chai
-      .request(server)
-      .get('/systems/tsetamehcSmetsySahcom')
-      .end((err, res) => {
-        res.should.have.status(200);
-        res.should.be.json;
-        res.body.should.be.a('object');
-        res.body.should.have.property('system_id');
-        res.body.system_id.should.eql('tsetamehcSmetsySahcom');
-      done();
-    });
-  });
-});
 
-describe("[test_system_schema] Return the entire systems collection", function() {
-    it('should return the full collection', (done) => {
-    chai
-      .request(server)
-      .get('/systems')
-      .end((err, res) => {
-        res.should.have.status(200);
-        res.should.be.json;
-      done();
-    });
-  });
-});
+// Update test
+describe('[test_system_schema] Pass on correctly formatted update?', function () {
+  it('should update correctly', function (done) {
+    systemAPI.updateSystem(goodUUID, updatedSystem, function (err, result) {
+    chai.expect(result).to.have.property('system_id')
+    chai.expect(result.system_id).to.eql(goodUUID)
+    chai.expect(result.hostname).to.eql('tsetamehcSmetsySahcom')
+    done()
+    })
+  })
+})
 
-describe("[test_system_schema] Delete what we created", function() {
-    it('should delete what we POSTed', (done) => {
-    chai
-      .request(server)
-      .delete('/systems/' + system_to_delete)
-      .end((err, res) => {
-        res.should.have.status(204);
-      done();
-    });
-  });
-});
 
-//empty DB after tests
+describe('[test_system_schema] Return the entire systems collection', function () {
+  it('should return the full collection', function (done) {
+    systemAPI.getSystems( function (err, results) {
+    if (debug) console.log('[test_system_schema] Return the entire systems collection result:\n', results)
+    done()
+    })
+  })
+})
+
+
+describe('[test_system_schema] Delete what we created', function () {
+  it('should delete what we created', function (done) {
+    systemAPI.deleteSystem(goodUUID, function (err, result) {
+    chai.expect(result).to.eql(true)
+    done()
+    })
+  })
+})
+
+
+// empty DB after tests
 after(function (done) {
-    console.log('[test_system_schema] Dropping test system collection');
-//    console.log(mongoose.connection.readyState);
-    mongoose.connection.db.dropCollection('systems');
-    mongoose.connection.close();
-    done();
-});
+  if (debug) console.log('[test_system_schema] Dropping test system collection')
+  // if (debug) console.log(mongoose.connection.readyState)
+  mongoose.connection.db.dropCollection('systems')
+  mongoose.connection.close()
+  done()
+})

@@ -24,10 +24,42 @@
 
         <list-view></list-view>
 
+
+      <div ng-if="config.debug_mode">
+        <div ng-show="config.lti">
+          <h1>Here is the provided LTI data</h1>
+          <ul>
+            <li>Course UUID : {{config.lti.course_uuid}}</li>
+            <li>User UUID : {{config.lti.user_uuid}}</li>
+            <li>User Role : {{config.lti.user_role}}</li>
+            <li>System GUID : {{config.lti.system_guid}}</li>
+            <li>Host : {{config.lti.rest_host}}</li>
+            <li>Port : {{config.lti.rest_port}}</li>
+            <li>Return URL : {{config.lti.return_url}}</li>
+            <li>Shared CSS : {{lti.shared_css}}</li>
+            <li>jwtClaims : {{lti.jwtClaims}}</li>
+            <li>jwtToken: {{lti.jwtToken}}<li>
+          </ul>
+        </div>
+        <div ng-show="course">
+          <h4>Course</h4>
+          <pre>{{course | json}}</pre>
+        </div>
+        <div ng-show="user">
+          <h4>User</h4>
+          <pre>{{user | json}}</pre>
+        </div>
+        <h4>Lists</h4>
+        <pre>{{lists | json}}</pre>
+
+        <h4>Permissions</h4>
+        <pre>{{permissions | json}}</pre>
       </div>
+      <!-- <div ng-controller="SignUpSummaryController">
+        <summary-view></summary-view>
+      </div> -->
     </div>
 
-    <debug-mode></debug-mode>
 
     <!-- Angular Includes-->
     <script src="/moment/moment.js"></script>
