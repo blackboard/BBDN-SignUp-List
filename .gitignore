@@ -67,5 +67,3 @@ jspm_packages
 controllers/routes/lists.1.js
 
 test/3 - test_list_schema.1.js
-
-test/5 - test_courses-lists.js
