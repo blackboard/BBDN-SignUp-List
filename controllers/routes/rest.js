@@ -185,6 +185,7 @@ router.get('/system/:systemId/course/:courseId/roster', function (req, res, next
   })
 })
 
+
 /* Create Course Group */
 router.post('/system/:systemId/course/:courseId/:groupName', function (req, res, next) {
   var uuid = req.params.courseId

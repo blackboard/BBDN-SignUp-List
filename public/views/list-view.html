@@ -1,19 +1,22 @@
-<div id="printMe" ng-repeat="list in course.lists">
+<div id="printMe" ng-repeat="list in signups.course.lists">
   <div class="panel" ng-class="calculateTaken(list, true) < list.max_size ? 'panel-default' : 'panel-danger'">
     <div class="panel-heading clearfix">
       <div class="row">
         <div class="text-left h3 col-md-4" style="margin-top:0px; margin-bottom: 0px;">{{list.name}}</div>
-        <div class="btn-group pull-right" style="margin-right: 10px;" ng-show="config.lti.user_role === 'urn:lti:role:ims/lis/Instructor'">
-          <button class="btn btn-default" ng-click="createGroup(list)">Create Group</button>
-          <button class="btn btn-default" ng-click="addUser(list)">Add User</button>
-          <button class="btn btn-default" ng-click="delUser(list)">Remove User</button>
-          <button class="btn btn-default" ng-click="emailList(list)">Email List</button>
+        <div class="btn-group pull-right" style="margin-right: 10px;" ng-show="signups.config.lti.user_role === 'urn:lti:role:ims/lis/Instructor'">
+          <button class="btn btn-default" ng-click="signups.createGroup(list)">Create Group</button>
+          <button class="btn btn-default" ng-click="signups.pickUser = true;">Add User</button>
+          <div ng-show="signups.pickUser">
+            <member-picker></member-picker>
+          </div>
+          <button class="btn btn-default" ng-click="signups.delUser(list)">Remove User</button>
+          <button class="btn btn-default" ng-click="signups.emailList(list)">Email List</button>
           <button ng-print print-element-id="printMe" class="btn btn-default" >Print List</button>
-          <button class="btn btn-default" ng-click="exportList(list)">Export List</button>
+          <button class="btn btn-default" ng-click="signups.exportList(list)">Export List</button>
         </div>
-        <div ng-show="config.lti.user_role === 'urn:lti:role:ims/lis/Learner'" class="col-lg-8 col-md-8 col-sm-8 col-xs-8 text-right">
-          <button ng-disabled="(calculateTaken(list, true) >= list.max_size) && (reserveSpaces(list) === 0)" ng-class="(calculateTaken(list, true) < list.max_size) || (calculateTaken(list, false) < list.max_waitlist) ? 'btn btn-default' : 'btn btn-default disabled'" ng-show="!userInList(list)" ng-click="addMe(list, (calculateTaken(list, true) >= list.max_size) && (reserveSpaces(list) > 0) ? true : false)">Join</button>
-          <button class="btn" ng-show="userInList(list)" ng-click="delMe(list)">Unjoin</button>
+        <div ng-show="signups.config.lti.user_role === 'urn:lti:role:ims/lis/Learner'" class="col-lg-8 col-md-8 col-sm-8 col-xs-8 text-right">
+          <button ng-disabled="(signups.calculateTaken(list, true) >= list.max_size) && (signups.reserveSpaces(list) === 0)" ng-class="(calculateTaken(list, true) < list.max_size) || (signups.calculateTaken(list, false) < list.max_waitlist) ? 'btn btn-default' : 'btn btn-default disabled'" ng-show="!signups.userInList(list)" ng-click="signups.addMe(list, (signups.calculateTaken(list, true) >= list.max_size) && (signups.reserveSpaces(list) > 0) ? true : false)">Join</button>
+          <button class="btn" ng-show="signups.userInList(list)" ng-click="signups.delMe(list)">Unjoin</button>
         </div>
       </div>
     </div>
@@ -28,12 +31,9 @@
     </div>
     <div class="panel-footer">
       <div class="row">
-        <div class="text-left col-md-6">{{calculateTaken(list, true)}}/{{list.max_size}} places taken</div>
-        <div class="text-right col-md-6">{{reserveSpaces(list)}} reserve places</div>
+        <div class="text-left col-md-6">{{signups.calculateTaken(list, true)}}/{{list.max_size}} places taken</div>
+        <div class="text-right col-md-6">{{signups.reserveSpaces(list)}} reserve places</div>
       </div>
     </div>
-  </div>
-  <div ng-show="!config.lti || !course || !user">
-    <p>Loading...</p>
   </div>
 </div>

@@ -2,19 +2,19 @@
   <div class="form-group dropdown">
     <label for="name" class="col-2 col-form-label">Name</label>
     <div class="col-10">
-      <input class="form-control" type="text" id="name" ng-model="list.name" />
+      <input class="form-control" type="text" id="name" ng-model="signups.list.name" />
     </div>
   </div>
   <div class="form-group dropdown">
     <label for="description" class="col-2 col-form-label">Description</label>
     <div class="col-10">
-      <input class="form-control" type="text" id="description" ng-model="list.description" />
+      <input class="form-control" type="text" id="description" ng-model="signups.list.description" />
     </div>
   </div>
   <div class="form-group dropdown">
     <label for="location" class="col-2 col-form-label">Location</label>
     <div class="col-10">
-      <input class="form-control" type="text" id="location" ng-model="list.location" />
+      <input class="form-control" type="text" id="location" ng-model="signups.list.location" />
     </div>
   </div>
   <div class="dropdown form-group">
@@ -22,13 +22,13 @@
     <a class="dropdown-toggle" id="dropdownStart" role="button" data-toggle="dropdown" data-target="#"
        href="#">
         <div class="input-group date">
-            <input type="text" class="form-control" data-ng-model="list.start">
+            <input type="text" class="form-control" data-ng-model="signups.list.start">
             <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
         </div>
     </a>
     <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
         <datetimepicker data-ng-model="dateRangeStart"
-                        data-datetimepicker-config="{ renderOn: 'end-date-changed' }"
+                        data-datetimepicker-config="{ renderOn: 'start-date-changed' }"
                         data-on-set-time="startDateOnSetTime()"
                         data-before-render="startDateBeforeRender($dates)"></datetimepicker>
     </ul>
@@ -39,13 +39,13 @@
     <a class="dropdown-toggle" id="dropdownEnd" role="button" data-toggle="dropdown" data-target="#"
        href="#">
         <div class="input-group date">
-            <input type="text" class="form-control" data-ng-model="list.end">
+            <input type="text" class="form-control" data-ng-model="signups.list.end">
             <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
         </div>
     </a>
     <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
         <datetimepicker data-ng-model="dateRangeEnd"
-                        data-datetimepicker-config="{ renderOn: 'start-date-changed' }"
+                        data-datetimepicker-config="{ renderOn: 'end-date-changed' }"
                         data-on-set-time="endDateOnSetTime()"
                         data-before-render="endDateBeforeRender($view, $dates, $leftDate, $upDate, $rightDate)"></datetimepicker>
     </ul>
@@ -53,33 +53,33 @@
   <div class="form-group dropdown">
     <label for="max-size" class="col-2 col-form-label">Maximum Members</label>
     <div class="col-10">
-      <input class="form-control" type="number" id="max-size" ng-model="list.max_size">
+      <input class="form-control" type="number" id="max-size" ng-model="signups.list.max_size">
     </div>
   </div>
   <div class="form-check">
     <label class="form-check-label">
-      <input class="form-check-input" type="checkbox" value="waitlist_allowed" ng-model="list.waitlist_allowed">
+      <input class="form-check-input" type="checkbox" value="waitlist_allowed" ng-model="signups.list.waitlist_allowed">
       Allow Waitlist
     </label>
   </div>
-  <div class="form-group dropdown" ng-show="list.waitlist_allowed">
+  <div class="form-group dropdown" ng-show="signups.list.waitlist_allowed">
     <label for="max-waitlist" class="col-2 col-form-label">Maximum Waitlist</label>
     <div class="col-10">
-      <input class="form-control" type="number" id="max-waitlist" ng-model="list.max_waitlist">
+      <input class="form-control" type="number" id="max-waitlist" ng-model="signups.list.max_waitlist">
     </div>
   </div>
   <div class="form-check">
     <label class="form-check-label">
-      <input class="form-check-input" type="checkbox" value="student_view" ng-model="list.student_view">
+      <input class="form-check-input" type="checkbox" value="student_view" ng-model="signups.list.student_view">
       Allow Students To View Memberships
     </label>
   </div>
   <div class="form-group dropdown">
     <label for="group-name" class="col-2 col-form-label">Group Name</label>
     <div class="col-10">
-      <input class="form-control" type="text" id="group-name" ng-model="list.group">
+      <input class="form-control" type="text" id="group-name" ng-model="signups.list.group">
     </div>
   </div>
-  <input class="btn btn-default" type="button" ng-click="config.addList = false" value="Cancel" />
-  <input class="btn btn-default" type="submit" ng-click="addList()" value="Save" />
+  <input class="btn btn-default" type="button" ng-click="signups.config.addList = false" value="Cancel" />
+  <input class="btn btn-default" type="submit" ng-click="signups.addList()" value="Save" />
 </form>

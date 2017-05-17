@@ -1,11 +1,15 @@
-angular.module('signupApp')
-.factory('ltiFactory', ['$http', function ($http) {
-  var urlBase = '/lti/data';
-  var ltiFactory = {};
+angular
+  .module('signupApp')
+  .factory('ltiFactory', ltiFactory);
 
-  ltiFactory.getData = function () {
-      return $http.get(urlBase);
+ltiFactory.$inject = ['$http', '$log'];
+
+function ltiFactory($http, $log) {
+  return {
+    getData: getData
   };
 
-  return ltiFactory;
-}]);
+  function getData() {
+      return $http.get('/lti/data');
+  }
+}

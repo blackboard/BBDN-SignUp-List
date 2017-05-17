@@ -72,6 +72,7 @@ app.use(session({
 app.use(express.static(path.join(__dirname, '/public')));
 app.use('/datetimepicker', express.static(path.join(__dirname, '/node_modules/angular-bootstrap-datetimepicker/src/')));
 app.use('/moment', express.static(path.join(__dirname, '/node_modules/moment')));
+app.use('/ask', express.static(path.join(__dirname, '/bower_components/angular-spinkit/build')));
 
 app.use('/', index);
 app.use('/users', users);

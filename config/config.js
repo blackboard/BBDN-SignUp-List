@@ -18,6 +18,7 @@ var config = {
   debugMode: 'true'
 }
 
+
 if (config.debugMode === 'true') console.log(config)
 
 module.exports = config

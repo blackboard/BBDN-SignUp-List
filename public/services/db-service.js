@@ -1,27 +1,35 @@
-angular.module('signupApp')
-.factory('dbFactory', ['$http', function($http) {
+angular
+  .module('signupApp')
+  .factory('dbFactory', dbFactory);
 
-    var dbFactory = {};
+dbFactory.$inject = ['$http'];
 
-    dbFactory.getCourse = function (courseId) {
-        return $http.get('/courses/' + courseId);
-    };
+function dbFactory($http) {
+  return {
+    createCourse: createCourse,
+    createList: createList,
+    getCourse: getCourse,
+    updateCourse: updateCourse,
+    updateList: updateList
+  };
 
-    dbFactory.createCourse = function (course) {
-        return $http.post('/courses', course);
-    };
+  function getCourse(courseId) {
+      return $http.get('/courses/' + courseId);
+  }
 
-    dbFactory.updateCourse = function (courseId, course) {
-        return $http.put('/courses/' + courseId, course);
-    };
+  function createCourse(course) {
+      return $http.post('/courses', course);
+  }
 
-    dbFactory.createList = function (list) {
-        return $http.post('/lists', list);
-    };
+  function updateCourse(courseId, course) {
+      return $http.put('/courses/' + courseId, course);
+  }
 
-    dbFactory.updateList = function (listId, list) {
-        return $http.put('/lists/' + listId, list);
-    };
+  function createList(list) {
+      return $http.post('/lists', list);
+  }
 
-    return dbFactory;
-}]);
+  function updateList(listId, list) {
+      return $http.put('/lists/' + listId, list);
+  }
+}

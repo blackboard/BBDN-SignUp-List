@@ -107,10 +107,12 @@ router.post('/lti', function (req, res, next) {
   var provider = new lti.Provider(ltiKey, ltiSecret)
   req.body = _.omit(req.body, '__proto__')
 
+
   if (debug) console.log('REQUEST HEADERS: ')
   if (debug) console.log(req.headers)
   if (debug) console.log('\nREQUEST BODY: ')
   if (debug) console.log(req.body)
+
 
   if (debug) console.log('\nREQUEST launch_presentation_return_url: ', req.body.launch_presentation_return_url)
   if (debug) console.log('\nREQUEST custom_tc_profile_url: ', req.body.custom_tc_profile_url) // seems to be the only consistent URL returned?
@@ -198,6 +200,7 @@ router.post('/lti', function (req, res, next) {
           userRole = 'administrator'
         }
 
+
 /*
  * jwtClaims:
  *  iss: issuer - in this case the SignUp List
@@ -242,6 +245,7 @@ router.get('/lti/data', function (req, res, next) {
     var err = new Error('No valid session found. Application can only be accessed via LTI.')
     err.status = 403
     next(err)
+
   } else {
     // we have a valid session and a generated token - hand off to cookie and angular
     var ltidata = {
@@ -262,6 +266,7 @@ router.get('/lti/data', function (req, res, next) {
     jwtUtils.cacheJwtToken(jwtClaims.jti, jwtToken, jwtClaims.exp)
     res.cookie('sulToken', jwtToken, { httpOnly: true }) // cookie expires at end of session
     res.json(ltidata)
+
   }
 })
 
