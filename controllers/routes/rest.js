@@ -1,35 +1,14 @@
-// var config = require('../../config/config')
 var express = require('express')
-// var session = require('express-session')
 
 var https = require('https')
-// var lti = require('ims-lti')
-// var _ = require('lodash')
-// var path = require('path')
 
 var tokenjs = require('./token')
-
-// var ltiKey = process.env.LTI_KEY || config.lti_key
-// var ltiSecret = process.env.LTI_SECRET || config.lti_secret
-// var oauthKey = process.env.OAUTH_KEY || config.oauth_key
-// var oauthSecret = process.env.OAUTH_SECRET || config.oauth_secret
-// var restHost = process.env.APP_TARGET_URL || config.rest_host
-// var restPort = process.env.APP_TARGET_PORT || config.rest_port
 
 var router = express.Router()
 var sess
 
 // set false to allow self-signed certs with local Learn
 var rejectUnauthorized = false
-
-// var courseUUID = ''
-// var userUUID = ''
-// var system_guid = ''
-// var shared_css = ''
-// var return_url = ''
-// var user_role = ''
-
-// var valid_session = false
 
 /* Get User Information by UUID. */
 router.get('/system/:systemId/user/:userId', function (req, res, next) {

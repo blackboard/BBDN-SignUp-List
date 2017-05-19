@@ -1,18 +1,7 @@
 var config = require('../../config/config')
-// var express = require('express');
 var https = require('https')
-// var lti = require('ims-lti');
-// var _ = require('lodash')
-// var path = require('path');
-
-// var ltiKey = process.env.LTI_KEY || config.lti_key
-// var ltiSecret = process.env.LTI_SECRET || config.lti_secret
 var oauthKey = process.env.APP_OAUTH_KEY || config.oauth_key
 var oauthSecret = process.env.APP_OAUTH_SECRET || config.oauth_secret
-// var rest_host = process.env.APP_TARGET_URL || config.rest_host;
-// var rest_port = process.env.APP_TARGET_PORT || config.rest_port;
-
-// var router = express.Router()
 
 const NodeCache = require('node-cache')
 const tokenCache = new NodeCache()
@@ -20,16 +9,6 @@ const tokenCache = new NodeCache()
 // set false to allow self-signed certs with local Learn
 var rejectUnauthorized = false
 var debug = (config.debugMode === 'true')
-
-// var courseUUID = ''
-// var userUUID = ''
-// var systemGUID = ''
-// var sharedCSS = ''
-// var returnURL = ''
-// var userRole = ''
-
-// var validSession = false
-// var success = ''
 
 /*
  * Check the cache for a token based on system Id.
