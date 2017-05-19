@@ -2,7 +2,6 @@
 
 var express = require('express')
 var router = express.Router()
-// var mongoose = require('bluebird').promisifyAll(require('mongoose'))
 var List = require('../models/lists')
 var config = require('../../config/config')
 var debug = (config.debugMode === 'true')
@@ -479,7 +478,7 @@ router.delete('/:id/groups/:grpId/members/:userId', function (req, res, next) {
         for (var n = 0, length = list.list_groups[foundGrpPos].grp_members.length; n < length; n++) {
               if (debug) console.log(i + ') USER FROM LIST:', list.list_groups[foundGrpPos].grp_members + '\nSearching for User: ' + req.params.userId)
               if (debug) console.log('DOES THE USER ID MATCH?: ', list.list_groups[foundGrpPos].grp_members[n].user_uuid === req.params.userId)
-          
+
               if (list.list_groups[foundGrpPos].grp_members[n].user_uuid === req.params.userId) {
                 usrFound = true
                 if (debug) console.log('BEFORE DELETING USER: \n', list.list_groups[foundGrpPos])
