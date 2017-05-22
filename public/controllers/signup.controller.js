@@ -5,10 +5,10 @@
         .module('signupApp')
         .controller('SignupController', SignupController);
 
-    SignupController.$inject = ['$scope', '$log', '$q', '$filter', 'ltiFactory', 'listFactory', 'apiFactory', 'dbFactory', '$uibModal'];
+    SignupController.$inject = ['$scope', '$log', '$q', '$filter', 'courseService', 'groupService', 'ltiService', 'listService', 'membershipService', 'rosterService', '$uibModal'];
 
     /* @ngInject */
-    function SignupController($scope, $log, $q, $filter, ltiFactory, listFactory, apiFactory, dbFactory, $uibModal) {
+    function SignupController($scope, $log, $q, $filter, courseService, groupService, ltiService, listService, membershipService, rosterService, $uibModal) {
       var vm = this;
 
       vm.access_token = "";
@@ -44,7 +44,7 @@
       }
 
       function getLtiData() {
-        ltiFactory.getData()
+        ltiService.getData()
           .then(function (response) {
               $log.log("Got Response Yo!");
               vm.config.lti = response.data;
@@ -59,7 +59,7 @@
       };
 
       function getCourse() {
-        apiFactory.getCourse(vm.config.lti.system_guid, vm.config.lti.course_uuid)
+        courseService.getCourseFromLearn(vm.config.lti.system_guid, vm.config.lti.course_uuid)
           .then(function (response) {
               $log.log("getCourse: response=" + JSON.stringify(response));
               $log.log("getCourse: response=" + JSON.stringify(response.data));
@@ -68,7 +68,7 @@
               var ultrafied = ultraStatus === 'Ultra' || ultraStatus === 'UltraPreview' ? true : false;
               var courseName = response.data.name;
               $log.log("getCourse: varcheck={ courseName : " + courseName + ", ultraStatus : " + ultraStatus + " }");
-              dbFactory.getCourse(vm.config.lti.course_uuid)
+              courseService.getCourse(vm.config.lti.course_uuid)
                 .then(function (response) {
                     if(!response.data) {
                       createCourse(ultrafied,courseName);
@@ -87,7 +87,7 @@
         };
 
         function createCourse(ultrafied,courseName) {
-          apiFactory.getRoster(vm.config.lti.system_guid, vm.config.lti.course_uuid)
+          rosterService.getRosterFromLearn(vm.config.lti.system_guid, vm.config.lti.course_uuid)
           .then(function (response) {
               var pkRoster = [];
               var uuidRoster = [];
@@ -98,7 +98,7 @@
               angular.forEach(pkRoster, function(value, key) {
                 angular.forEach(value,function(pk,jsonKey){//this is nested angular.forEach loop
                   $log.log(jsonKey+":"+pk);
-                  var promise = apiFactory.getUserByPk(vm.config.lti.system_guid, pk)
+                  var promise = rosterService.getUserByPk(vm.config.lti.system_guid, pk)
                   .then(function(response) {
                     $log.log("createCourse: response=" + JSON.stringify(response));
                     $log.log("createCourse: response=" + JSON.stringify(response.data));
@@ -112,6 +112,7 @@
 
                     $log.log(vm.status);
                   });
+                  $log.log("Pushing Promise");
                   promises.push(promise);
                 });
               });
@@ -125,7 +126,7 @@
                 };
                 $log.log(body);
 
-                dbFactory.createCourse(body);
+                courseService.createCourse(body);
 
                 vm.course = body;
                 vm.course['name'] = courseName;
@@ -134,7 +135,7 @@
         };
 
         function getUser() {
-          apiFactory.getUser(vm.config.lti.system_guid, vm.config.lti.user_uuid)
+          rosterService.getUserFromLearn(vm.config.lti.system_guid, vm.config.lti.user_uuid)
             .then(function (response) {
                 vm.user = response.data;
               }, function (error) {
@@ -144,7 +145,7 @@
           };
 
           function loadRoster() {
-            apiFactory.getRoster(vm.config.lti.system_guid, vm.config.lti.course_uuid)
+            rosterService.getRosterFromLearn(vm.config.lti.system_guid, vm.config.lti.course_uuid)
             .then(function (response) {
                 var pkRoster = [];
                 var uuidRoster = [];
@@ -155,7 +156,7 @@
                 angular.forEach(pkRoster, function(value, key) {
                   angular.forEach(value,function(pk,jsonKey){//this is nested angular.forEach loop
                     $log.log(jsonKey+":"+pk);
-                    apiFactory.getUserByPk(vm.config.lti.system_guid, pk)
+                    rosterService.getUserByPk(vm.config.lti.system_guid, pk)
                     .then(function(response) {
                       var course_role = response.data.courseRoleId === 'Instructor' ? 'INSTRUCTOR' : 'STUDENT';
                       uuidRoster.push({ "user_uuid" : response.data.uuid, "course_role" : course_role });
@@ -245,7 +246,7 @@
         $log.log("User list length before add: " + list.userList.length);
         listInCourseScope.userList.push(userToAdd);
         $log.log("User list length: " + list.userList.length);
-        dbFactory.updateList(list.uuid, list)
+        membershipService.addGroupMember(list.uuid, group.uuid, userToAdd)
           .then(function (response) {
             vm.status = 'User added to list!';
             $log.log(vm.status);
@@ -265,7 +266,7 @@
             $log.log("delMe: User list length: " + list.userList.length);
           }
         });
-        dbFactory.updateList(list.uuid, list)
+        membershipService.deleteGroupMember(list.uuid, group.uuid, vm.config.lti.user_uuid)
           .then(function (response) {
             vm.status = 'delMe: User deleted from list!';
             $log.log(vm.status);
@@ -280,12 +281,12 @@
       };
 
       function addList() {
-        dbFactory.createList(vm.list)
+        dbService.createList(vm.list)
           .then(function (response) {
             $log.log("list id: " + response.data._id);
             vm.course.lists.push({ "_id": response.data._id });
             $log.log(vm.course.lists);
-            dbFactory.updateCourse(vm.config.lti.course_uuid, vm.course)
+            dbService.updateCourse(vm.config.lti.course_uuid, vm.course)
               .then(function (response) {
                 vm.status = 'List Added.';
                 $log.log(vm.status);

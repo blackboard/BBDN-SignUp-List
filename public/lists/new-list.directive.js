@@ -2,7 +2,7 @@ angular
   .module('signupApp')
   .directive('newList', function() {
     return {
-    templateUrl: '../views/new-list.html'
+    templateUrl: '/lists/new-list.html'
     }
   }
 );

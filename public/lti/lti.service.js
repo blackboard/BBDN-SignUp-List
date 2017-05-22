@@ -1,10 +1,11 @@
+// LTI Factory
 angular
   .module('signupApp')
-  .factory('ltiFactory', ltiFactory);
+  .factory('ltiService', ltiService);
 
-ltiFactory.$inject = ['$http', '$log'];
+ltiService.$inject = ['$http', '$log'];
 
-function ltiFactory($http, $log) {
+function ltiService($http, $log) {
   return {
     getData: getData
   };

@@ -8,7 +8,6 @@ var bodyParser = require('body-parser');
 var session = require('cookie-session');
 
 var index = require('./controllers/routes/index');
-var users = require('./controllers/routes/users');
 // var systems = require('./controllers/routes/systems');
 var courses = require('./controllers/routes/courses');
 var lists = require('./controllers/routes/lists');
@@ -75,7 +74,6 @@ app.use('/moment', express.static(path.join(__dirname, '/node_modules/moment')))
 app.use('/ask', express.static(path.join(__dirname, '/bower_components/angular-spinkit/build')));
 
 app.use('/', index);
-app.use('/users', users);
 // app.use('/systems', systems);
 app.use('/courses', courses);
 app.use('/lists', lists);
