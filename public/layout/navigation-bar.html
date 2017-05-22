@@ -12,7 +12,7 @@
 
   <!-- Collect the nav links, forms, and other content for toggling -->
   <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" ng-hide="config.showInfo">
-    <ul ng-if="signups.config.lti.user_role === 'urn:lti:role:ims/lis/Instructor'" class="nav navbar-nav">
+    <ul ng-if="signups.config.lti.user_role === 'instructor'" class="nav navbar-nav">
       <li class="divider-vertical"></li>
       <li><button class="navbar-text custom-nav-text-vcenter"  type="button" ng-click="signups.config.addList = true"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span><span class="sr-only">Create new list</span> New List</button></li>
       <li><button class="navbar-text custom-nav-text-vcenter"  type="button" ng-show="!signups.config.showMembers" ng-click="signups.config.showMembers = true"><span class="glyphicon glyphicon-expand" aria-hidden="true"></span><span class="sr-only">View All List Members</span> View Members</button></li>

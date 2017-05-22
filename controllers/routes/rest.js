@@ -49,14 +49,14 @@ router.get('/system/:systemId/user/:userId', function (req, res, next) {
   })
 })
 
-/* Get User Information by UUID. */
+/* Get User Information by PK. */
 router.get('/system/:systemId/user_pk/:userId', function (req, res, next) {
   var pk = req.params.userId
   var system = req.params.systemId
   sess = req.session
-  console.log('[REST.JS: get user by UUID]:session.consumer_protocol: ', sess.consumer_protocol)
-  console.log('[REST.JS: get user by UUID]:session.consumer_hostname: ', sess.consumer_hostname)
-  console.log('[REST.JS: get user by UUID]:session.consumer_port : ', sess.consumer_port)
+  console.log('[REST.JS: get user by PK]:session.consumer_protocol: ', sess.consumer_protocol)
+  console.log('[REST.JS: get user by PK]:session.consumer_hostname: ', sess.consumer_hostname)
+  console.log('[REST.JS: get user by PK]:session.consumer_port : ', sess.consumer_port)
   tokenjs.checkToken(system, sess, function (err, token) {
     if (err) console.log(err)
     var authString = 'Bearer ' + token
@@ -64,7 +64,7 @@ router.get('/system/:systemId/user_pk/:userId', function (req, res, next) {
     var options = {
       'hostname': sess.consumer_hostname,
       'port': sess.consumer_port,
-      'path': '/learn/api/public/v1/users/' + pk + '?fields=uuid',
+      'path': '/learn/api/public/v1/users/' + pk + '?fields=uuid,name.given,name.family,contact.email',
       'method': 'GET',
       'rejectUnauthorized': rejectUnauthorized,
       'headers': { 'Authorization': authString }

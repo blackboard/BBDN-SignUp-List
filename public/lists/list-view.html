@@ -3,7 +3,7 @@
     <div class="panel-heading clearfix">
       <div class="row">
         <div class="text-left h3 col-md-4" style="margin-top:0px; margin-bottom: 0px;">{{list.name}}</div>
-        <div class="btn-group pull-right" style="margin-right: 10px;" ng-show="signups.config.lti.user_role === 'urn:lti:role:ims/lis/Instructor'">
+        <div class="btn-group pull-right" style="margin-right: 10px;" ng-show="signups.config.lti.user_role === 'instructor'">
           <button class="btn btn-default" ng-click="signups.createGroup(list)">Create Group</button>
           <button class="btn btn-default" ng-click="signups.pickUser = true;">Add User</button>
           <div ng-show="signups.pickUser">
