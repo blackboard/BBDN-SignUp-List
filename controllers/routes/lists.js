@@ -4,7 +4,7 @@ var express = require('express')
 var router = express.Router()
 var List = require('../models/lists')
 var config = require('../../config/config')
-var debug = (config.debugMode === 'true')
+var debug = true//(config.debugMode === 'true')
 var jwtToken = require('./jwtToken')
 
 /*
@@ -173,18 +173,20 @@ router.put('/:id/groups/:grpId', function (req, res, next) {
   var validRoles = ['AP']
   var token = req.cookies['sulToken']
   if (jwtToken.jwtValidRole(token, validRoles)) {
-    if (debug) console.log('\n[Lists/:id/groups]: PUT /lists/' + req.params.id + '/groups/' + req.params.grpId + 'called\n')
-    if (debug) console.log('\n[Lists/:id/groups]: req.body' + req.body.toString() + ' \n')
+    if (debug) console.log('\n[Lists/:id/groups]: PUT /lists/' + req.params.id + '/groups/' + req.params.grpId + ' called\n')
+    if (debug) console.log('\n[Lists/:id/groups]: req.body' + JSON.stringify(req.body, null, 2) + ' \n')
     List.findOne({'list_uuid': req.params.id}, function (err, list) {
       if (err) res.send(err)
       // find existing group and replace with incoming
       for (var i = 0, length = list.list_groups.length; i < length; i++) {
+        console.log("i: " + i + " length: " + length + " grp_uuid: " + list.list_groups[i].grp_uuid + " grpId: " +  req.params.grpId);
         if (list.list_groups[i].grp_uuid === req.params.grpId) {
           list.list_groups[i] = req.body
+          break
         }
-        break
+
       }
-      if (debug) console.log('\n[Lists/:id/groups]: List after updating specific groupList : \n' + JSON.stringify(list))
+      if (debug) console.log('\n[Lists/:id/groups]: List after updating specific groupList : \n' + JSON.stringify(list, null, 2))
       list.save((err, list) => {
         if (err) res.send(err)
         res.status(200).json(list)

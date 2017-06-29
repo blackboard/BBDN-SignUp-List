@@ -2,6 +2,7 @@
   <br />
   <div ng-show="signups.config.lti">
     <h4>LTI data</h4>
+    <pre>userToAdd: {{signups.userToAdd}}</pre>
     <pre>{{signups.config.lti | json}}</pre>
   </div>
   <div ng-show="signups.course">
@@ -17,7 +18,11 @@
     <pre>{{signups.config | json}}</pre>
   </div>
   <div>
-    <h4>Member</h4>
-    <pre>{{signups.member | json}}</pre>
+    <h4>List</h4>
+    <pre>{{signups.list | json}}</pre>
+  </div>
+  <div>
+    <h4>Course Roster</h4>
+    <pre>{{signups.courseRoster | json}}</pre>
   </div>
 </div>

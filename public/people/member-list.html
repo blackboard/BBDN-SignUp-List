@@ -1,4 +1,4 @@
-<table class="table table-responsive" ng-show="signups.config.showMembers || (list.student_view && signups.config.lti.user_role === 'urn:lti:role:ims/lis/Learner')">
+<table class="table table-responsive" ng-show="signups.config.showMembers || (list.student_view && signups.config.lti.user_role === 'learner')">
   <thead class="thead-default">
     <tr>
       <th>First Name</th>
@@ -8,17 +8,23 @@
       <th>Date Joined</th>
       <th>Added By</th>
       <th>Waitlisted?</th>
+      <th>Actions</th>
     </tr>
   </thead>
-  <tbody ng-repeat="user in list.userList">
+  <tbody ng-repeat="user in group.grp_members">
     <tr>
-      <td scope="row">{{signups.member.userInfo[user.user_uuid].first}}</td>
-      <td>{{signups.member.userInfo[user.user_uuid].last}}</td>
-      <td>{{signups.member.userInfo[user.user_uuid].email}}</td>
+      <td scope="row">{{signups.getUserById(user.user_uuid).first}}</td>
+      <td>{{signups.getUserById(user.user_uuid).last}}</td>
+      <td>{{signups.getUserById(user.user_uuid).email}}</td>
       <td>{{user.role}}</td>
       <td>{{user.created_on | date}}</td>
       <td>{{user.added_by}}</td>
-      <td>{{user.waitlisted ? "Yes" : ""}}
+      <td>{{user.waitlisted ? "Yes" : ""}}</td>
+      <td>
+        <div class="btn-group btn-group-xs" role="group" aria-label="Instructor tools for user manipulation">
+          <button class="btn btn-default" ng-click="signups.delUser(group, list, user.user_uuid)"><i class="glyphicon glyphicon-remove-sign"></i></button>
+        </div>
+      </td>
     </tr>
   </tbody>
 </table>

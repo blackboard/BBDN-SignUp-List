@@ -72,6 +72,10 @@ app.use(express.static(path.join(__dirname, '/public')));
 app.use('/datetimepicker', express.static(path.join(__dirname, '/node_modules/angular-bootstrap-datetimepicker/src/')));
 app.use('/moment', express.static(path.join(__dirname, '/node_modules/moment')));
 app.use('/ask', express.static(path.join(__dirname, '/bower_components/angular-spinkit/build')));
+app.use('/dialogs', express.static(path.join(__dirname, '/bower_components/angular-dialog-service/dist')));
+app.use('/uib', express.static(path.join(__dirname, '/node_modules/angular-ui-bootstrap')));
+app.use('/ngSanitize', express.static(path.join(__dirname, '/node_modules/angular-sanitize')));
+app.use('/ngCsv', express.static(path.join(__dirname, '/node_modules/ng-csv/build')));
 
 app.use('/', index);
 // app.use('/systems', systems);

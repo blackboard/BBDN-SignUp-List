@@ -142,7 +142,7 @@ router.get('/system/:systemId/course/:courseId/roster', function (req, res, next
     var options = {
       'hostname': sess.consumer_hostname,
       'port': sess.consumer_port,
-      'path': '/learn/api/public/v1/courses/uuid:' + uuid + '/users?fields=userId',
+      'path': '/learn/api/public/v1/courses/uuid:' + uuid + '/users?fields=userId,courseRoleId',
       'method': 'GET',
       'rejectUnauthorized': rejectUnauthorized,
       'headers': { 'Authorization': authString }

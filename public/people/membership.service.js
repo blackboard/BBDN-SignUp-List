@@ -41,8 +41,8 @@ function membershipService($http) {
     return $http.delete('/courses/' + courseId);
   }
 
-  function deleteGroupMember(courseId) {
-    return $http.get('/courses/' + courseId);
+  function deleteGroupMember(listId, groupId, userId) {
+    return $http.delete('/lists/' + listId + '/groups/' + groupId + '/members/' + userId);
   }
 
   function deleteGroupMemberInLearn(courseId) {

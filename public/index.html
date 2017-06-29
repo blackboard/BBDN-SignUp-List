@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="/datetimepicker/css/datetimepicker.css"/>
     <link rel="stylesheet" href="./stylesheets/style.css"/>
     <link rel="stylesheet" href="/ask/angular-spinkit.min.css">
+    <link href="./components/ngPrint/ngPrint.min.css">
+
 
   </head>
   <body ng-controller="SignupController as signups" data-ng-init="getData()">
@@ -33,10 +35,12 @@
     <script src="/moment/moment.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular-resource.min.js"></script>
-    <script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.js"></script>
+    <script src="/uib/dist/ui-bootstrap.js"></script>
+    <script src="/uib/dist/datetime-picker.min.js"></script>
     <script src="/ask/angular-spinkit.min.js"></script>
-    <script src="/datetimepicker/js/datetimepicker.js"></script>
-    <script src="/datetimepicker/js/datetimepicker.templates.js"></script>
+    <script src="./components/ngPrint/ngPrint.min.js"></script>
+    <script src="/ngSanitize/angular-sanitize.min.js"></script>
+    <script src="/ngCsv/ng-csv.min.js"></script>
 
 
     <!-- Angular Application -->
@@ -47,18 +51,23 @@
 
     <!-- Service Factories -->
     <script src="./courses/course.service.js"></script>
-    <script src="./groups/group.service.js"></script>
+    <script src="./groups/group.service.js"></script>5
+    <script src="./groups/modal.service.js"></script>
     <script src="./lists/list.service.js"></script>
     <script src="./lti/lti.service.js"></script>
     <script src="./people/membership.service.js"></script>
     <script src="./people/roster.service.js"></script>
 
     <!-- Directives -->
+    <script src="./groups/group-view.directive.js"></script>
+    <script src="./groups/new-group.directive.js"></script>
+    <script src="./groups/group-list.directive.js"></script>
     <script src="./lists/new-list.directive.js"></script>
     <script src="./layout/navigation-bar.directive.js"></script>
     <script src="./lists/list-view.directive.js"></script>
     <script src="./people/member-list.directive.js"></script>
     <script src="./layout/debug-mode.directive.js"></script>
     <script src="./people/member-picker.directive.js"></script>
+
   </body>
 </html>
