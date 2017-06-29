@@ -1,0 +1,16 @@
+<div class="well">
+  <!--<pre>{{ signups.groups | json}}</pre>-->
+  <uib-accordion close-others="oneAtATime" ng-repeat="group in signups.groups">
+
+    <div uib-accordion-group class="panel" is-open="group.isOpen">
+      <uib-accordion-heading> {{ group.grp_name }}
+          <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': group.isOpen, 'glyphicon-chevron-right': !group.isOpen}"></i>
+      </uib-accordion-heading>
+      <pre>{{ group | json }}</pre>
+      <button class="pull-right glyphicon glyphicon-trash custom-grp-btn-right" ng-click="signups.removeGroup(group.grp_uuid)"></button>
+      <button class="pull-right glyphicon glyphicon-pencil custom-grp-btn-right" ng-click="signups.editGroup(group.grp_uuid)"></button>
+    </div>
+  </uib-accordion>
+
+  <button class="btn btn-default" ng-click="signups.addGroup(list,false)"><i class="glyphicon glyphicon-plus"></i></button>
+</div>

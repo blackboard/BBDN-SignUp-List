@@ -30,3 +30,19 @@
   color: gray;
   text-decoration: none;
 }
+
+.custom-grp-btn-right {
+  margin-right: 5px;
+  color: gray;
+  text-decoration: none;
+}
+
+.custom-cal {
+  color: gray;
+  text-decoration: none;
+}
+
+.custom-cal a:hover {
+  color: lightgray;
+  text-decoration: underline;
+}

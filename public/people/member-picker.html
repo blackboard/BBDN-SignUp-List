@@ -1,15 +1,35 @@
-<div class="modal-header">
-    <h3 class="modal-title" id="modal-title">I'm a modal!</h3>
-</div>
-<div class="modal-body" id="modal-body">
-    <ul>
-        <li ng-repeat="user in vm.member.userInfo">
-            <a href="#" ng-click="$event.preventDefault(); vm.member.selected = user">{{ user.email }} ({{ user.first name}} {{ user.last}})</a>
-        </li>
-    </ul>
-    Selected: <b>{{ $ctrl.selected.item }}</b>
-</div>
-<div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="vm.userPicked()"> OK </button>
-    <button class="btn btn-warning" type="button" ng-click="vm.noUserPicked()"> Cancel </button>
+<div class="modal-content">
+  <form novalidate>
+    <div class="modal-header">
+      <h3>{{modelOptions.headerText}}</h3>
+    </div>
+    <div class="modal-body">
+      <table class="table table-responsive">
+        <thead class="thead-default">
+          <tr>
+            <th></th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody ng-repeat="user in signups.courseRoster">
+          <tr ng-if="!signups.userInList(signups.list,signups.group,user.user_uuid)">
+            <td scope="row"><input type="radio" name="userToAdd" ng-model="signups.userToAdd" value={{user.user_uuid}} />
+            <td>{{user.first}}</td>
+            <td>{{user.last}}</td>
+            <td>{{user.email}}</td>
+            <td>{{user.course_role}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="modal-footer">
+      <button type="button" class="btn"
+          data-ng-click="modalOptions.close()">{{modalOptions.closeButtonText}}</button>
+      <button class="btn btn-primary"
+          data-ng-click="modalOptions.ok();">{{modalOptions.actionButtonText}}</button>
+    </div>
+  </div>
+</form>
 </div>

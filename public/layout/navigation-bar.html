@@ -12,24 +12,16 @@
 
   <!-- Collect the nav links, forms, and other content for toggling -->
   <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" ng-hide="config.showInfo">
-    <ul ng-if="signups.config.lti.user_role === 'instructor'" class="nav navbar-nav">
+    <ul class="nav navbar-nav">
       <li class="divider-vertical"></li>
-      <li><button class="navbar-text custom-nav-text-vcenter"  type="button" ng-click="signups.config.addList = true"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span><span class="sr-only">Create new list</span> New List</button></li>
-      <li><button class="navbar-text custom-nav-text-vcenter"  type="button" ng-show="!signups.config.showMembers" ng-click="signups.config.showMembers = true"><span class="glyphicon glyphicon-expand" aria-hidden="true"></span><span class="sr-only">View All List Members</span> View Members</button></li>
-      <li><button class="navbar-text custom-nav-text-vcenter"  type="button" ng-show="signups.config.showMembers" ng-click="signups.config.showMembers = false"><span class="glyphicon glyphicon-collapse-up" aria-hidden="true"></span><span class="sr-only">Hide All List Members</span> Hide Members</button></li>
+      <li ng-if="signups.config.lti.user_role === 'instructor'"><button class="navbar-text custom-nav-text-vcenter"  type="button" ng-click="signups.newList()"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span><span class="sr-only">Create new list</span> New List</button></li>
+      <li ng-if="signups.config.lti.user_role === 'instructor' || (signups.config.lti.user_role === 'learner' && signups.list.student_view)"><button class="navbar-text custom-nav-text-vcenter"  type="button" ng-show="!signups.config.showMembers" ng-click="signups.config.showMembers = true"><span class="glyphicon glyphicon-expand" aria-hidden="true"></span><span class="sr-only">View All List Members</span> View Members</button></li>
+      <li ng-if="signups.config.lti.user_role === 'instructor' || (signups.config.lti.user_role === 'learner' && signups.list.student_view)"><button class="navbar-text custom-nav-text-vcenter"  type="button" ng-show="signups.config.showMembers" ng-click="signups.config.showMembers = false"><span class="glyphicon glyphicon-collapse-up" aria-hidden="true"></span><span class="sr-only">Hide All List Members</span> Hide Members</button></li>
 
     </ul>
     <p class="navbar-text navbar-right custom-nav-text-vcenter"><a href="{{signups.config.lti.return_url}}"><span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span><span class="sr-only">Return to Blackboard</span> Exit</a></p>
-    <!--<p class="navbar-text navbar-right custom-nav-text-vcenter"><a href="#" ng-click=""><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span><span class="sr-only">List Information</span> List Info</a></p>
-    --><button class="navbar-text navbar-right custom-nav-text-vcenter"  type="button" ng-click="signups.config.showInfo = true"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span><span class="sr-only">List Information</span> List Info</button>
     <p class="divider-vertical navbar-right "></p>
     <p class="navbar-text navbar-right custom-nav-text-vcenter"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="sr-only">Logged in as</span> {{signups.user.name.given}} {{signups.user.name.family}}</p>
-    <p class="navbar-text navbar-right custom-nav-text-vcenter"><span class="glyphicon glyphicon-education" aria-hidden="true"></span><span class="sr-only">Return to Blackboard</span> {{signups.course.name}}</p>
+    <p class="navbar-text navbar-right custom-nav-text-vcenter"><span class="glyphicon glyphicon-education" aria-hidden="true"></span><span class="sr-only">Course Name</span> {{signups.course.externalId}}</p>
   </div><!-- /.navbar-collapse -->
-  <div ng-show="signups.config.showInfo">
-    <div class="jumbotron">
-      <h1>List Information</h1>
-      <p><a class="btn btn-default" href="#" ng-click="signups.config.showInfo = false" role="button">Close Info</a></p>
-    </div>
-  </div>
 </div><!-- /.container-fluid -->

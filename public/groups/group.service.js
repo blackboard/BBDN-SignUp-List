@@ -20,7 +20,7 @@ function groupService($http) {
   };
 
   function addGroup(listId, group) {
-    return $http.post('/lists/' + listId + '/groups', group);
+    return $http.put('/lists/' + listId + '/groups', group);
   }
 
   function addGroupInLearn(systemId, courseId, group) {
@@ -51,8 +51,8 @@ function groupService($http) {
     return $http.patch('/courses/' + courseId, course);
   }
 
-  function updateGroup(courseId, course) {
-    return $http.put('/courses/' + courseId, course);
+  function updateGroup(listId, group) {
+    return $http.put('/lists/' + listId + '/groups/' + group.grp_uuid, group);
   }
 
   function updateGroupInLearn(courseId, course) {

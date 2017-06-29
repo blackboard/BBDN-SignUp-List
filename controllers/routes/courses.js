@@ -33,10 +33,12 @@ router.post('/', function (req, res, next) {
   if (debug) console.log('[COURSES.JS]: post: incomming token: ', token)
   if (jwtToken.jwtValidRole(token, validRoles)) {
     // res.send('post courses requested');
+    console.log("New Course: " + JSON.stringify(req.body));
     var newCourse = new Course(req.body)
     // Save it into the DB.
     newCourse.save((err, course) => {
       if (err) {
+        console.log("Error saving course. " + JSON.stringify(err));
         if (err.code === '11000') {
           res.status(409).send(err)
         } else if (err.name === 'ValidationError') {

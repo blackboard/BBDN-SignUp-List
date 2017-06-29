@@ -1,38 +1,46 @@
-<div id="printMe" ng-repeat="list in signups.course.lists">
+<div id="printMe" ng-if="signups.config.lti.user_role === 'instructor'">
+  <uib-accordion close-others="oneAtATime" ng-repeat="list in signups.course.lists">
+    <div uib-accordion-group class="panel panel-default" is-open="list.isOpen">
+      <uib-accordion-heading> {{ list.list_name }}
+          <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': group.isOpen, 'glyphicon-chevron-right': !group.isOpen}"></i>
+          <p></p>
+          <p class="lead" style="margin-left: 5px;"> {{list.list_description}}</p>
+          <p style="margin-left: 5px;"><strong>Closes on {{list.list_visible_end | date : "EEEE, MMMM d, y 'at' h:mm a"}}</p>
+      </uib-accordion-heading>
+
+      <group-view></group-view>
+      <p></p>
+      <div class="row" style="margin-left: 5px;">
+        <button tooltip="Add a new group" class="btn btn-default" ng-click="signups.addGroup(list, true)"><i class="glyphicon glyphicon-plus"></i></button>
+        </div>
+      </div>
+    </div>
+  </uib-accourdion>
+</div>
+<div id="printMe" ng-if="signups.config.lti.user_role === 'learner'">
+  <uib-accordion close-others="oneAtATime" ng-repeat="list in signups.course.lists">
   <div class="panel" ng-class="calculateTaken(list, true) < list.max_size ? 'panel-default' : 'panel-danger'">
     <div class="panel-heading clearfix">
       <div class="row">
-        <div class="text-left h3 col-md-4" style="margin-top:0px; margin-bottom: 0px;">{{list.name}}</div>
+        <div class="text-left h3 col-md-4" style="margin-top:0px; margin-bottom: 0px;">{{list.list_name}}</div>
         <div class="btn-group pull-right" style="margin-right: 10px;" ng-show="signups.config.lti.user_role === 'instructor'">
-          <button class="btn btn-default" ng-click="signups.createGroup(list)">Create Group</button>
-          <button class="btn btn-default" ng-click="signups.pickUser = true;">Add User</button>
-          <div ng-show="signups.pickUser">
-            <member-picker></member-picker>
-          </div>
-          <button class="btn btn-default" ng-click="signups.delUser(list)">Remove User</button>
           <button class="btn btn-default" ng-click="signups.emailList(list)">Email List</button>
           <button ng-print print-element-id="printMe" class="btn btn-default" >Print List</button>
           <button class="btn btn-default" ng-click="signups.exportList(list)">Export List</button>
-        </div>
-        <div ng-show="signups.config.lti.user_role === 'urn:lti:role:ims/lis/Learner'" class="col-lg-8 col-md-8 col-sm-8 col-xs-8 text-right">
-          <button ng-disabled="(signups.calculateTaken(list, true) >= list.max_size) && (signups.reserveSpaces(list) === 0)" ng-class="(calculateTaken(list, true) < list.max_size) || (signups.calculateTaken(list, false) < list.max_waitlist) ? 'btn btn-default' : 'btn btn-default disabled'" ng-show="!signups.userInList(list)" ng-click="signups.addMe(list, (signups.calculateTaken(list, true) >= list.max_size) && (signups.reserveSpaces(list) > 0) ? true : false)">Join</button>
-          <button class="btn" ng-show="signups.userInList(list)" ng-click="signups.delMe(list)">Unjoin</button>
         </div>
       </div>
     </div>
     <div class="panel-body">
       <div class="row">
         <div>
-          <p class="lead" style="margin-left: 5px;"> {{list.description}}</p>
-          <p style="margin-left: 5px;"><strong>Location</strong>: {{list.location}}</p>
+          <p class="lead" style="margin-left: 25px;"> {{list.list_description}}</p>
+          <p style="margin-left: 25px;"><strong>Closes on {{list.list_visible_end | date : "EEEE, MMMM d, y 'at' h:mm a"}}</p>
         </div>
       </div>
-      <member-list></member-list>
-    </div>
-    <div class="panel-footer">
+      <group-view></group-view>
+    <div class="panel-footer" style="padding: 30px;">
       <div class="row">
-        <div class="text-left col-md-6">{{signups.calculateTaken(list, true)}}/{{list.max_size}} places taken</div>
-        <div class="text-right col-md-6">{{signups.reserveSpaces(list)}} reserve places</div>
+        <button class="btn btn-default" ng-click="signups.addGroup(list, true)"><i class="glyphicon glyphicon-plus"></i></button>
       </div>
     </div>
   </div>

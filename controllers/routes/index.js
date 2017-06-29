@@ -31,6 +31,7 @@ var systemGUID = ''
 var userRole = ''
 var returnURL = ''
 var sharedCSS = ''
+var bbVer = {};
 var launcherURL
 
 var sess
@@ -160,7 +161,13 @@ router.post('/lti', function (req, res, next) {
         systemGUID = req.body['tool_consumer_instance_guid']
         returnURL = req.body['launch_presentation_return_url']
         sharedCSS = req.body['ext_launch_presentation_css_url']
+        var version = req.body['ext_lms'].split("-")[1];
+        bbVer = {
+          "major" : version.split(".")[0],
+          "minor" : version.split(".")[1],
+          "patch" : version.split(".")[2]
 
+        }
         if (returnURL === undefined) {
           returnURL = 'https://' + sess.consumer_hostname + ':' + sess.consumer_port
         }
@@ -173,6 +180,7 @@ router.post('/lti', function (req, res, next) {
            '"user_role" :' + userRole + ',' +
            '"system_guid" :' + systemGUID + ',' +
            '"return_url" :' + returnURL + ',' +
+           '"bb_version" :' + JSON.stringify(bbVer,null,2) +
          '}')
         }
 
@@ -257,6 +265,7 @@ router.get('/lti/data', function (req, res, next) {
       'rest_port': config.rest_port,
       'shared_css': sharedCSS,
       'return_url': returnURL,
+      'bb_version' : bbVer,
       'jwtClaims': JSON.stringify(jwtClaims),
       'jwtToken': jwtToken
     }
