@@ -12,8 +12,7 @@ function listService($http) {
     deleteLists: deleteLists,
     getList: getList,
     getLists: getLists,
-    updateList: updateList//,
-    //updateLists: updateLists
+    updateList: updateList
   };
 
   function addList(list) {
@@ -21,7 +20,7 @@ function listService($http) {
   }
 
   function deleteList(list) {
-      return $http.delete('/lists/' + list._Id);
+      return $http.delete('/lists/' + list.list_uuid);
   }
 
   function deleteLists(courseId) {
@@ -29,7 +28,7 @@ function listService($http) {
   }
 
   function getList(list) {
-      return $http.get('/lists' + list._Id);
+      return $http.get('/lists' + list.list_uuid);
   }
 
   function getLists() {
@@ -37,10 +36,7 @@ function listService($http) {
   }
 
   function updateList(list) {
-      return $http.patch('/lists/' + list._Id, list);
+      return $http.patch('/lists/' + list.list_uuid, list);
   }
 
-  //function updateLists(systemId, courseId, list) {
-  //    return $http.patch('/list/course/' + systemId + '/' + courseId + '/list/' + list._Id, list);
-  //}
 }

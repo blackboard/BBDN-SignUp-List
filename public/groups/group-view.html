@@ -7,13 +7,12 @@
           <button class="btn btn-default" ng-if="signups.config.lti.bb_version.major > 3100 || (signups.config.lti.bb_version.major === 3100 && signups.config.lti.bb_version.minor >= 5)" title="Create Learn Group" ng-click="signups.createGroup(group)"><i class="glyphicon glyphicon-list-alt"></i></button>
           <button class="btn btn-default" title="Add a user to this group" ng-click="signups.addUser(group,list)"><i class="glyphicon glyphicon-user"></i></button>
           <button class="btn btn-default" ng-if="signups.config.lti.bb_version.major > 3400" title="Email group" ng-click="signups.emailList(group)"><i class="glyphicon glyphicon-envelope"></i></button> <!-- Hiding until course messages is available -->
-          <button ng-print print-element-id="printGroup" class="btn btn-default" title="Print group listing"><i class="glyphicon glyphicon-print"></i></button>
-          <button class="btn btn-default" title="export group" lazy-load=true ng-csv="signups.groupExport" csv-header="signups.exportHeaders" filename="{{group.grp_name}}.csv" ng-click="signups.exportList(list,group)"><i class="glyphicon glyphicon-export"></i></button>
-
+          <button class="btn btn-default" title="export group" lazy-load="true" ng-csv="signups.exportList(list,group)" csv-header="signups.exportHeaders()" filename="{{group.grp_name}}.csv"><i class="glyphicon glyphicon-export"></i></button>
+          <button class="btn btn-default" title="delete group" ng-click="signups.deleteGroup(list,group)"><i class="glyphicon glyphicon-trash"></i></button>
         </div>
         <div ng-show="signups.config.lti.user_role === 'learner'" class="col-lg-8 col-md-8 col-sm-8 col-xs-8 text-right">
-          <button ng-disabled="(signups.calculateTaken(group, true) >= group.grp_max_size) && (signups.reserveSpaces(group) === 0)" ng-class="(signups.calculateTaken(group, true) < group.grp_max_size) || (signups.calculateTaken(group, false) < group.grp_max_waitlist) ? 'btn btn-default' : 'btn btn-default disabled'" ng-show="!signups.userInList(list,group)" ng-click="signups.addMe(group, (signups.calculateTaken(group, true) >= group.grp_max_size) && (signups.reserveSpaces(group) > 0) ? true : false)">Join</button>
-          <button class="btn" ng-show="signups.userInList(list,group)" ng-click="signups.delMe(group)">Unjoin</button>
+          <button ng-disabled="(signups.calculateTaken(group, true) >= group.grp_max_size) && (signups.reserveSpaces(group) === 0)" ng-class="(signups.calculateTaken(group, true) < group.grp_max_size) || (signups.calculateTaken(group, false) < group.grp_max_waitlist) ? 'btn btn-default' : 'btn btn-default disabled'" ng-show="!signups.userInList(list,group)" ng-click="signups.addMe(list,group, (signups.calculateTaken(group, true) >= group.grp_max_size) && (signups.reserveSpaces(group) > 0) ? true : false)">Join</button>
+          <button class="btn" ng-show="signups.userInList(list,group)" ng-click="signups.delMe(list,group)">Unjoin</button>
         </div>
       </div>
     </div>

@@ -2,7 +2,7 @@
   <br />
   <div ng-show="signups.config.lti">
     <h4>LTI data</h4>
-    <pre>userToAdd: {{signups.userToAdd}}</pre>
+    <pre>singleList: {{signups.singleList | json}}</pre>
     <pre>{{signups.config.lti | json}}</pre>
   </div>
   <div ng-show="signups.course">

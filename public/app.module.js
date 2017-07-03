@@ -5,5 +5,6 @@ angular.module('signupApp', [
     'angular-spinkit',
     'ngPrint',
     'ngSanitize',
-    'ngCsv'
+    'ngCsv',
+    'ngclipboard'
 ]);
