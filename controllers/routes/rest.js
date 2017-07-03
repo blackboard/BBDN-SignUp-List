@@ -181,7 +181,11 @@ router.post('/system/:systemId/course/:courseId/:groupName', function (req, res,
     console.log('\n[REST.JS: Create Course Group]: \n uuid: ' + uuid + ' system ' + system + ' authString: ' + authString)
     var group = {
       'name': req.params.groupName,
-      'externalId': req.params.groupName
+      'externalId': req.params.groupName,
+      'description': req.body.grp_description,
+      'availability': {
+        'available': 'Yes'
+      }
     }
     var options = {
       'hostname': sess.consumer_hostname,
@@ -189,7 +193,7 @@ router.post('/system/:systemId/course/:courseId/:groupName', function (req, res,
       'path': '/learn/api/public/v1/courses/uuid:' + uuid + '/groups',
       'method': 'POST',
       'rejectUnauthorized': rejectUnauthorized,
-      'headers': { 'Authorization': authString }
+      'headers': { 'Authorization': authString, 'Content-Type' : 'application/json' }
     }
     console.log('\n[REST.JS: Create Course Group]:options:\n', options)
     var httpReq = https.request(options, function (httpRes) {
@@ -204,14 +208,14 @@ router.post('/system/:systemId/course/:courseId/:groupName', function (req, res,
         res.json(json)
       })
     })
-    httpReq.end(group)
+    httpReq.end(JSON.stringify(group))
   })
 })
 
 /* Add Users to Group */
-router.post('/system/:systemId/course/:courseId/:groupName/user/:userId', function (req, res, next) {
+router.post('/system/:systemId/course/:courseId/:groupId/user/:userId', function (req, res, next) {
   var uuid = req.params.courseId
-  var groupName = req.params.groupName
+  var groupId = req.params.groupId
   var userId = req.params.userId
   var system = req.params.systemId
 
@@ -227,8 +231,8 @@ router.post('/system/:systemId/course/:courseId/:groupName/user/:userId', functi
     var options = {
       'hostname': sess.consumer_hostname,
       'port': sess.consumer_port,
-      'path': '/learn/api/public/v1/courses/uuid:' + uuid + '/groups/externalId:' + groupName + '/users/uuid:' + userId,
-      'method': 'POST',
+      'path': '/learn/api/public/v1/courses/uuid:' + uuid + '/groups/' + groupId + '/users/uuid:' + userId,
+      'method': 'PUT',
       'rejectUnauthorized': rejectUnauthorized,
       'headers': { 'Authorization': authString }
     }

@@ -517,22 +517,15 @@ router.delete('/:id/groups/:grpId', function (req, res, next) {
   var validRoles = ['AP']
   var token = req.cookies['sulToken']
   if (jwtToken.jwtValidRole(token, validRoles)) {
-    List.findOne({'list_uuid': req.params.id}, function (err, list) {
-      if (err) res.send(err)
-      // find existing group and replace with incoming
-      for (var i = 0, len = list.list_groups.length; i < len; i++) {
-        if (list.list_groups[i].grp_uuid === req.params.grpId) {
-          delete list.list_groups[i]
-        }
+    List.findOneAndUpdate({'list_uuid': req.params.id}, { $pull: {'list_groups' : { 'grp_uuid' : req.params.grpId } } }, function (err, list) {
+
+      if (err) {
+        console.log("[DELGROUP] err: " + JSON.stringify(err,null,2));
+        res.status(400).send()
+      } else {
+        console.log("[DELGROUP] list: " + JSON.stringify(list,null,2));
+        res.status(204).json(list)
       }
-      if (debug) console.log('\n[Lists/:id/groups]: List after adding new groupList : \n' + JSON.stringify(list))
-      list.save((err, list) => {
-        if (err) {
-          // do something
-          res.status(400).send()
-        }
-        res.status(200).json(list)
-      })
     })
   } else {
     res.status(403).send()

@@ -76,6 +76,7 @@ app.use('/dialogs', express.static(path.join(__dirname, '/bower_components/angul
 app.use('/uib', express.static(path.join(__dirname, '/node_modules/angular-ui-bootstrap')));
 app.use('/ngSanitize', express.static(path.join(__dirname, '/node_modules/angular-sanitize')));
 app.use('/ngCsv', express.static(path.join(__dirname, '/node_modules/ng-csv/build')));
+app.use('/ngclipboard', express.static(path.join(__dirname, '/node_modules/ngclipboard/dist')));
 
 app.use('/', index);
 // app.use('/systems', systems);

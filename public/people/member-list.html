@@ -8,7 +8,7 @@
       <th>Date Joined</th>
       <th>Added By</th>
       <th>Waitlisted?</th>
-      <th>Actions</th>
+      <th ng-show="signups.config.lti.user_role === 'instructor'">Actions</th>
     </tr>
   </thead>
   <tbody ng-repeat="user in group.grp_members">
@@ -20,7 +20,7 @@
       <td>{{user.created_on | date}}</td>
       <td>{{user.added_by}}</td>
       <td>{{user.waitlisted ? "Yes" : ""}}</td>
-      <td>
+      <td ng-show="signups.config.lti.user_role === 'instructor'">
         <div class="btn-group btn-group-xs" role="group" aria-label="Instructor tools for user manipulation">
           <button class="btn btn-default" ng-click="signups.delUser(group, list, user.user_uuid)"><i class="glyphicon glyphicon-remove-sign"></i></button>
         </div>

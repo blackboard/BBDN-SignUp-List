@@ -29,8 +29,8 @@ function membershipService($http) {
     return $http.post('/lists/' + listId + '/groups/' + groupId, group);
   }
 
-  function addGroupMemberInLearn(listId,groupId,user) {
-    return $http.delete('/courses/' + courseId + '/lists');
+  function addGroupMemberInLearn(systemId,courseId,groupId,userId) {
+    return $http.post('/api/system/' + systemId + '/course/' + courseId + '/' + groupId + '/user/' + userId);
   }
 
   function addGroupMemberList(courseId) {

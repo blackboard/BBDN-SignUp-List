@@ -32,6 +32,7 @@ var userRole = ''
 var returnURL = ''
 var sharedCSS = ''
 var bbVer = {};
+var listId = '';
 var launcherURL
 
 var sess
@@ -97,6 +98,7 @@ if (debug) {
 
 /* Return home page from LTI Launch. */
 router.post('/lti', function (req, res, next) {
+
 /*
  * POST LTI Launch Received
  */
@@ -107,6 +109,16 @@ router.post('/lti', function (req, res, next) {
 
   var provider = new lti.Provider(ltiKey, ltiSecret)
   req.body = _.omit(req.body, '__proto__')
+
+  if (req.query != {}) {
+    listId =  req.query.list;
+  }
+
+  if (debug) {
+    if(listId) {
+      console.log('POST_FUNCTION] listId: ' + listId);
+    }
+  }
 
 
   if (debug) console.log('REQUEST HEADERS: ')
@@ -180,6 +192,7 @@ router.post('/lti', function (req, res, next) {
            '"user_role" :' + userRole + ',' +
            '"system_guid" :' + systemGUID + ',' +
            '"return_url" :' + returnURL + ',' +
+           '"list_id" :' + listId + ',' +
            '"bb_version" :' + JSON.stringify(bbVer,null,2) +
          '}')
         }
@@ -242,7 +255,7 @@ router.post('/lti', function (req, res, next) {
       }
     }
   })
-})
+});
 
 /* Supply node variables to angular front end
  *
@@ -266,6 +279,7 @@ router.get('/lti/data', function (req, res, next) {
       'shared_css': sharedCSS,
       'return_url': returnURL,
       'bb_version' : bbVer,
+      'list_id' : listId,
       'jwtClaims': JSON.stringify(jwtClaims),
       'jwtToken': jwtToken
     }
@@ -277,6 +291,6 @@ router.get('/lti/data', function (req, res, next) {
     res.json(ltidata)
 
   }
-})
+});
 
 module.exports = router

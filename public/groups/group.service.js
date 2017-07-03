@@ -24,7 +24,7 @@ function groupService($http) {
   }
 
   function addGroupInLearn(systemId, courseId, group) {
-    return $http.post('/lists/' + listId + '/groups', group);
+    return $http.post('/api/system/' + systemId + '/course/' + courseId + '/'  + group.grp_name, group);
   }
 
   function deleteGroup(listId,groupId) {
