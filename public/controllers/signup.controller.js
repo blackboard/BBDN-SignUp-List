@@ -47,6 +47,7 @@
       vm.groups = [];
       vm.grpEndIsOpen = false;
       vm.grpStartIsOpen = false;
+      vm.intervalId = '';
       vm.list = {};
       vm.listEndIsOpen = false;
       vm.listStartIsOpen = false;
@@ -76,6 +77,12 @@
         vm.getData();
       }
 
+      // listen on DOM destroy (removal) event, and cancel the next UI update
+      // to prevent updating time after the DOM element was removed.
+      $scope.$on('$destroy', function() {
+        $interval.cancel(vm.intervalId);
+      });
+
       function getLtiData() {
         ltiService.getData()
           .then(function (response) {
@@ -92,7 +99,7 @@
               promises.push(promise);
 
               $q.all(promises).then(function() {
-                $interval(dataSync, 1000);
+                vm.intervalId = $interval(dataSync, 1000);
               })
           }, function (error) {
               vm.status = 'Unable to load lti data: ' + error.message;
@@ -837,8 +844,9 @@
                 vm.getList();
             }
           }, function (error) {
-              vm.status = 'Unable to load course data from database: ' + error.message;
-              $log.log("Error getting course from Db: " + error);
+              $interval.cancel(vm.intervalId);
+              vm.status = 'Unable to load course data from database: ' + error.message + '\nClearing Interval to prevent runaway process.';
+              $log.log(vm.status);
         });
       };
   }
