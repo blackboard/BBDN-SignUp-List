@@ -4,10 +4,12 @@
       <div class="row">
         <div class="text-left h3 col-md-4" style="margin-top:0px; margin-bottom: 0px;">{{group.grp_name}}</div>
         <div class="btn-group pull-right" style="margin-right: 10px;" ng-show="signups.config.lti.user_role === 'instructor'">
-          <button class="btn btn-default" ng-if="signups.config.lti.bb_version.major > 3100 || (signups.config.lti.bb_version.major === 3100 && signups.config.lti.bb_version.minor >= 5)" title="Create Learn Group" ng-click="signups.createGroup(group)"><i class="glyphicon glyphicon-list-alt"></i></button>
+          <button class="btn btn-default" ng-if="signups.config.lti.bb_version.major > 3100 || (signups.config.lti.bb_version.major === 3100 && signups.config.lti.bb_version.minor >= 5)" ng-show="!group.grp_learn_group" title="Create Learn Group" ng-click="signups.createGroup(list,group)"><i class="glyphicon glyphicon-star-empty"></i></button>
+          <button class="btn btn-default" ng-if="signups.config.lti.bb_version.major > 3100 || (signups.config.lti.bb_version.major === 3100 && signups.config.lti.bb_version.minor >= 5)" ng-show="group.grp_learn_group" title="Delete Learn Group" ng-click="signups.deleteGroupInLearn(list,group,false)"><i class="glyphicon glyphicon-star"></i></button>
           <button class="btn btn-default" title="Add a user to this group" ng-click="signups.addUser(group,list)"><i class="glyphicon glyphicon-user"></i></button>
-          <button class="btn btn-default" ng-if="signups.config.lti.bb_version.major > 3400" title="Email group" ng-click="signups.emailList(group)"><i class="glyphicon glyphicon-envelope"></i></button> <!-- Hiding until course messages is available -->
+          <button class="btn btn-default" ng-if="signups.config.lti.bb_version.major > 3400" title="Message group" ng-click="signups.messageList(group)"><i class="glyphicon glyphicon-envelope"></i></button> <!-- Hiding until course messages is available -->
           <button class="btn btn-default" title="export group" lazy-load="true" ng-csv="signups.exportList(list,group)" csv-header="signups.exportHeaders()" filename="{{group.grp_name}}.csv"><i class="glyphicon glyphicon-export"></i></button>
+          <button class="btn btn-default" title="edit group" ng-click="signups.editGroup(list,group)"><i class="glyphicon glyphicon-pencil"></i></button>
           <button class="btn btn-default" title="delete group" ng-click="signups.deleteGroup(list,group)"><i class="glyphicon glyphicon-trash"></i></button>
         </div>
         <div ng-show="signups.config.lti.user_role === 'learner'" class="col-lg-8 col-md-8 col-sm-8 col-xs-8 text-right">

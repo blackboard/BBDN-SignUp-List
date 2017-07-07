@@ -253,4 +253,84 @@ router.post('/system/:systemId/course/:courseId/:groupId/user/:userId', function
   })
 })
 
+/* Remove Course Group in learn */
+router.delete('/system/:systemId/course/:courseId/:groupName', function (req, res, next) {
+  var uuid = req.params.courseId
+  var system = req.params.systemId
+  var grpName = req.params.groupName
+
+  sess = req.session
+  console.log('\n[REST.JS: Create Course Group]:session.consumer_protocol: ', sess.consumer_protocol)
+  console.log('\n[REST.JS: Create Course Group]:session.consumer_hostname: ', sess.consumer_hostname)
+  console.log('\n[REST.JS: Create Course Group]:session.consumer_port : ', sess.consumer_port)
+
+  tokenjs.checkToken(system, sess, function (err, token) {
+    if (err) console.log(err)
+    var authString = 'Bearer ' + token
+    console.log('\n[REST.JS: Create Course Group]: \n uuid: ' + uuid + ' system ' + system + ' authString: ' + authString)
+
+    var options = {
+      'hostname': sess.consumer_hostname,
+      'port': sess.consumer_port,
+      'path': '/learn/api/public/v1/courses/uuid:' + uuid + '/groups/externalId:' + encodeURIComponent(grpName),
+      'method': 'DELETE',
+      'rejectUnauthorized': rejectUnauthorized,
+      'headers': { 'Authorization': authString, 'Content-Type' : 'application/json' }
+    }
+    console.log('\n[REST.JS: Delete Course Group]:options:\n', options)
+    var httpReq = https.request(options, function (httpRes) {
+      httpRes.setEncoding('utf-8')
+      var responseString = ''
+      httpRes.on('data', function (data) {
+        responseString += data
+      })
+      httpRes.on('end', function () {
+        console.log(responseString)
+        res.status(204).send()
+      })
+    })
+    httpReq.end()
+  })
+})
+
+/* remove Users from Learn Group */
+router.delete('/system/:systemId/course/:courseId/:groupName/user/:userId', function (req, res, next) {
+  var uuid = req.params.courseId
+  var groupName = req.params.groupName
+  var userId = req.params.userId
+  var system = req.params.systemId
+
+  sess = req.session
+  console.log('\n[REST.JS: Add Users to Group]:session.consumer_protocol: ', sess.consumer_protocol)
+  console.log('\n[REST.JS: Add Users to Group]:session.consumer_hostname: ', sess.consumer_hostname)
+  console.log('\n[REST.JS: Add Users to Group]:session.consumer_port : ', sess.consumer_port)
+
+  tokenjs.checkToken(system, sess, function (err, token) {
+    if (err) console.log(err)
+    var authString = 'Bearer ' + token
+    console.log('uuid: ' + uuid + ' system ' + system + ' authString: ' + authString)
+    var options = {
+      'hostname': sess.consumer_hostname,
+      'port': sess.consumer_port,
+      'path': '/learn/api/public/v1/courses/uuid:' + uuid + '/groups/externalId:' + encodeURIComponent(groupName) + '/users/uuid:' + userId,
+      'method': 'PUT',
+      'rejectUnauthorized': rejectUnauthorized,
+      'headers': { 'Authorization': authString }
+    }
+    console.log('\n[REST.JS: Add Users to Group]:options:\n', options)
+    var httpReq = https.request(options, function (httpRes) {
+      httpRes.setEncoding('utf-8')
+      var responseString = ''
+      httpRes.on('data', function (data) {
+        responseString += data
+      })
+      httpRes.on('end', function () {
+        console.log(responseString)
+        res.status(204).send();
+      })
+    })
+    httpReq.end()
+  })
+})
+
 module.exports = router

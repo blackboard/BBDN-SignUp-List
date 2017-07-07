@@ -49,6 +49,7 @@ var groupSchema = new Schema(
     grp_start: { type: Date, required: true },
     grp_end: Date,
     grp_waitlist_allowed: { type: Boolean, default: false },
+    grp_learn_group: { type: Boolean, default: false },
     grp_max_size: Number,
     grp_max_waitlist: Number,
     grp_state: {

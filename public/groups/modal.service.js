@@ -34,10 +34,16 @@ angular.module('signupApp').service('modalService', ['$uibModal', '$log',
                 tempModalDefaults.controller = function ($scope, $uibModalInstance, $log) {
                     $scope.modalOptions = tempModalOptions;
                     $scope.modalOptions.ok = function (result) {
-                        $uibModalInstance.close(result);
+                        $log.log("Save Clicked: " + JSON.stringify(result));
+                        $uibModalInstance.close(false);
+                    };
+                    $scope.modalOptions.waitlist = function (result) {
+                        $log.log("Waitlist Clicked: " + JSON.stringify(result));
+                        $uibModalInstance.close(true);
                     };
                     $scope.modalOptions.close = function (result) {
-                        $uibModalInstance.dismiss('cancel');
+                      $log.log("Cancel Clicked: " + JSON.stringify(result));
+                      $uibModalInstance.dismiss('cancel');
                     };
                 }
             }

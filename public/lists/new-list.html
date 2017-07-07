@@ -1,7 +1,7 @@
 <div class="modal-content">
   <form novalidate id="newListForm">
     <div class="modal-header">
-      <h3>Add a List</h3>
+      <h3>{{modalOptions.headerText}}</h3>
     </div>
     <div class="modal-body">
       <div class="form-group dropdown">
@@ -19,7 +19,7 @@
       <div class="form-group dropdown">
         <label for="startdate">List Availability Start Date</label>
         <div class="input-group date">
-          <input type="text" ng-click="signups.openListStartCal($event, prop)" class="form-control" id="startdate" datetime-picker="dd MMM yyyy HH:mm" ng-model="signups.list.list_visible_start" is-open="signups.listStartIsOpen"  />
+          <input type="datetime-local" datetime-picker="yyyy-MM-ddThh:mm:ss.sss'Z'" ng-focus="signups.openListStartCal($event, prop)" class="form-control" id="startdate" ng-model="signups.list.list_visible_start" is-open="signups.listStartIsOpen" />
           <span class="input-group-addon">
             <a ng-click="signups.openListStartCal($event, prop)"><i class="glyphicon glyphicon-calendar custom-cal"></i></a>
           </span>
@@ -28,7 +28,7 @@
       <div class="form-group dropdown">
         <label for="enddate">List Availability End Date</label>
         <div class="input-group date">
-          <input type="text" ng-click="signups.openListEndCal($event, prop)" class="form-control" id="enddate" datetime-picker="dd MMM yyyy HH:mm" ng-model="signups.list.list_visible_end" is-open="signups.listEndIsOpen"  />
+          <input type="datetime-local" datetime-picker="yyyy-MM-ddThh:mm:ss.sss'Z'" ng-focus="signups.openListEndCal($event, prop)" class="form-control" id="enddate" ng-model="signups.list.list_visible_end" is-open="signups.listEndIsOpen"  />
           <span class="input-group-addon">
             <a ng-click="signups.openListEndCal($event, prop)"><i class="glyphicon glyphicon-calendar custom-cal"></i></a>
           </span>

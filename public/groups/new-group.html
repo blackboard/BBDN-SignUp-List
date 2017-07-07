@@ -1,7 +1,7 @@
 <div class="modal-content">
   <form novalidate>
   <div class="modal-header">
-    <h3>Add a Group</h3>
+    <h3>{{modalOptions.textHeader}}</h3>
   </div>
   <div class="modal-body">
     <div class="form-group dropdown">
@@ -25,7 +25,7 @@
       <div class="form-group dropdown">
         <label for="startdate">Group Start Date</label>
         <div class="input-group date">
-          <input type="text" ng-click="signups.openGroupStartCal($event, prop)" class="form-control" id="startdate" datetime-picker="dd MMM yyyy HH:mm" ng-model="signups.group.grp_start" is-open="signups.groupStartIsOpen"  />
+          <input type="datetime-local" ng-focus="signups.openGroupStartCal($event, prop)" class="form-control" id="startdate" datetime-picker="yyyy-MM-ddThh:mm:ss.sss'Z'" ng-model="signups.group.grp_start" is-open="signups.groupStartIsOpen"  />
           <span class="input-group-addon">
             <a ng-click="signups.openGroupStartCal($event, prop)"><i class="glyphicon glyphicon-calendar custom-cal"></i></a>
           </span>
@@ -34,7 +34,7 @@
       <div class="form-group dropdown">
         <label for="enddate">Group End Date</label>
         <div class="input-group date">
-          <input type="text" ng-click="signups.openGroupEndCal($event, prop)" class="form-control" id="enddate" datetime-picker="dd MMM yyyy HH:mm" ng-model="signups.group.grp_end" is-open="signups.groupEndIsOpen"  />
+          <input type="datetime-local" ng-focus="signups.openGroupEndCal($event, prop)" class="form-control" id="enddate" datetime-picker="yyyy-MM-ddThh:mm:ss.sss'Z'" ng-model="signups.group.grp_end" is-open="signups.groupEndIsOpen"  />
           <span class="input-group-addon">
             <a ng-click="signups.openGroupEndCal($event, prop)"><i class="glyphicon glyphicon-calendar custom-cal"></i></a>
           </span>
