@@ -25,8 +25,8 @@ function membershipService($http) {
     updateGroupMemberListInLearn: updateGroupMemberListInLearn
   };
 
-  function addGroupMember(listId, groupId, group) {
-    return $http.post('/lists/' + listId + '/groups/' + groupId, group);
+  function addGroupMember(listId, groupId, user) {
+    return $http.put('/lists/' + listId + '/groups/' + groupId + '/members', user);
   }
 
   function addGroupMemberInLearn(systemId,courseId,groupId,userId) {
@@ -45,8 +45,8 @@ function membershipService($http) {
     return $http.delete('/lists/' + listId + '/groups/' + groupId + '/members/' + userId);
   }
 
-  function deleteGroupMemberInLearn(courseId) {
-    return $http.get('/courses/' + courseId);
+  function deleteGroupMemberInLearn(systemId,courseId,groupName,userId) {
+    return $http.delete('/api/system/' + systemId + '/course/' + courseId + '/' + groupName + '/user/' + userId);
   }
 
   function deleteGroupMemberList(systemId, courseId) {

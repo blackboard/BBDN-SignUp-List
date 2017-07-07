@@ -459,10 +459,11 @@ router.delete('/:id/groups/:grpId/members/:userId', function (req, res, next) {
   if (debug) console.log('requestorsUserUUID = paramsuserId?: ', requestorsUserUUID === req.params.userId)
   if (jwtToken.jwtValidRole(token, validRoles)) {
     if (jwtToken.jwtGetRole(token) === 'AP' || req.params.userId === requestorsUserUUID) {
-      List.findOne({'list_uuid': req.params.id}, function (err, list) {
+
+      List.findOneAndUpdate({'list_uuid': req.params.id, 'list_groups.grp_uuid' : req.params.grpId}, { $pull: {'list_groups.$.grp_members' : { 'user_uuid' : req.params.userId } } }, function (err, list) {
         if (err) res.status(404).send(err)
         // find group and return user from the groups grp_members
-        for (var i = 0, len = list.list_groups.length; i < len; i++) {
+        /*for (var i = 0, len = list.list_groups.length; i < len; i++) {
           if (debug) console.log(i + ') GROUP FROM LIST:', list.list_groups[i].grp_uuid + '\nSearching for Group: ' + req.params.grpId)
           if (debug) console.log('DOES THE GROUP ID MATCH?: ', list.list_groups[i].grp_uuid === req.params.grpId)
           if (list.list_groups[i].grp_uuid === req.params.grpId) {
@@ -497,10 +498,10 @@ router.delete('/:id/groups/:grpId/members/:userId', function (req, res, next) {
           if (err) {
             // do something
             res.status(400).send()
-          }
+          } */
           res.status(200).json(list)
         })
-      })
+      //})
     } else {
       res.status(403).send()
     }

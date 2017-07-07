@@ -1,6 +1,6 @@
 <div id="printMe" ng-if="signups.config.lti.user_role === 'instructor'">
   <uib-accordion close-others="oneAtATime" ng-repeat="list in signups.course.lists">
-    <div uib-accordion-group class="panel panel-default" is-open="list.isOpen">
+    <div uib-accordion-group class="panel panel-default" is-open="signups.accordianState.list" ng-click="select('list')">
       <uib-accordion-heading> {{ list.list_name }}
           <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': list.isOpen, 'glyphicon-chevron-right': !list.isOpen}"></i>
           <p></p>
@@ -24,8 +24,7 @@
   </uib-accourdion>
 </div>
 <div ng-if="signups.config.lti.user_role === 'learner'">
-  <uib-accordion close-others="oneAtATime" ng-model="list = signups.singleList">
-  <p>List: {{list | json}}</p>
+  <uib-accordion close-others="oneAtATime" ng-model="list=signups.singleList">
   <div class="panel" ng-class="calculateTaken(list, true) < list.max_size ? 'panel-default' : 'panel-danger'">
     <div class="panel-heading clearfix">
       <div class="row">

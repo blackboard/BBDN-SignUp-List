@@ -13,6 +13,7 @@ var courses = require('./controllers/routes/courses');
 var lists = require('./controllers/routes/lists');
 var logs = require('./controllers/routes/logs');
 var rest = require('./controllers/routes/rest');
+var dataSync = require('./controllers/routes/datasync');
 
 var debug = (config.debugMode === 'true')
 
@@ -84,6 +85,7 @@ app.use('/courses', courses);
 app.use('/lists', lists);
 app.use('/logs', logs);
 app.use('/api', rest);
+//app.get('/data-sync/:id', dataSync.regListener);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

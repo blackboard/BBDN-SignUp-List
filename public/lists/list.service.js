@@ -36,7 +36,7 @@ function listService($http) {
   }
 
   function updateList(list) {
-      return $http.patch('/lists/' + list.list_uuid, list);
+      return $http.put('/lists/' + list.list_uuid, list);
   }
 
 }

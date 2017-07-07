@@ -31,8 +31,8 @@ function groupService($http) {
     return $http.delete('/lists/' + listId + '/groups/' + groupId);
   }
 
-  function deleteGroupInLearn(courseId) {
-    return $http.delete('/courses/' + courseId);
+  function deleteGroupInLearn(systemId, courseId, group) {
+    return $http.delete('/api/system/' + systemId + '/course/' + courseId + '/'  + group.grp_name);
   }
 
   function getGroup(courseId) {
