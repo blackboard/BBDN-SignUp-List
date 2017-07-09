@@ -2,8 +2,8 @@
   <div class="panel" ng-class="signups.calculateTaken(group, true) < group.grp_max_size ? 'panel-default' : 'panel-danger'">
     <div class="panel-heading clearfix">
       <div class="row">
-        <div class="text-left h3 col-md-4" style="margin-top:0px; margin-bottom: 0px;">{{group.grp_name}}</div>
-        <div class="btn-group pull-right" style="margin-right: 10px;" ng-show="signups.config.lti.user_role === 'instructor'">
+        <div class="text-left h3 col-md-4" style="margin-top:0px; margin-bottom: 0px;">{{group.grp_name}} - {{group.grp_state}}</div>
+        <div class="btn-group pull-right" style="margin-right: 10px;" ng-show="signups.config.lti.user_role === 'instructor'" ng-disabled="group.grp_state === 'CLOSED'">
           <button class="btn btn-default" ng-if="signups.config.lti.bb_version.major > 3100 || (signups.config.lti.bb_version.major === 3100 && signups.config.lti.bb_version.minor >= 5)" ng-show="!group.grp_learn_group" title="Create Learn Group" ng-click="signups.createGroup(list,group)"><i class="glyphicon glyphicon-star-empty"></i></button>
           <button class="btn btn-default" ng-if="signups.config.lti.bb_version.major > 3100 || (signups.config.lti.bb_version.major === 3100 && signups.config.lti.bb_version.minor >= 5)" ng-show="group.grp_learn_group" title="Delete Learn Group" ng-click="signups.deleteGroupInLearn(list,group,false)"><i class="glyphicon glyphicon-star"></i></button>
           <button class="btn btn-default" title="Add a user to this group" ng-click="signups.addUser(group,list)"><i class="glyphicon glyphicon-user"></i></button>
@@ -13,8 +13,8 @@
           <button class="btn btn-default" title="delete group" ng-click="signups.deleteGroup(list,group)"><i class="glyphicon glyphicon-trash"></i></button>
         </div>
         <div ng-show="signups.config.lti.user_role === 'learner'" class="col-lg-8 col-md-8 col-sm-8 col-xs-8 text-right">
-          <button ng-disabled="(signups.calculateTaken(group, true) >= group.grp_max_size) && (signups.reserveSpaces(group) === 0)" ng-class="(signups.calculateTaken(group, true) < group.grp_max_size) || (signups.calculateTaken(group, false) < group.grp_max_waitlist) ? 'btn btn-default' : 'btn btn-default disabled'" ng-show="!signups.userInList(list,group)" ng-click="signups.addMe(list,group, (signups.calculateTaken(group, true) >= group.grp_max_size) && (signups.reserveSpaces(group) > 0) ? true : false)">Join</button>
-          <button class="btn" ng-show="signups.userInList(list,group)" ng-click="signups.delMe(list,group)">Unjoin</button>
+          <button ng-disabled="((signups.calculateTaken(group, true) >= group.grp_max_size) && (signups.reserveSpaces(group) === 0) || group.grp_state === 'CLOSED')" ng-class="(signups.calculateTaken(group, true) < group.grp_max_size) || (signups.calculateTaken(group, false) < group.grp_max_waitlist) ? 'btn btn-default' : 'btn btn-default disabled'" ng-show="!signups.userInList(list,group)" ng-click="signups.addMe(list,group, (signups.calculateTaken(group, true) >= group.grp_max_size) && (signups.reserveSpaces(group) > 0) ? true : false)">Join</button>
+          <button ng-disabled="group.grp_state === 'CLOSED'" class="btn" ng-show="signups.userInList(list,group)" ng-click="signups.delMe(list,group)">Unjoin</button>
         </div>
       </div>
     </div>

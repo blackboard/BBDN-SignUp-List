@@ -5,10 +5,10 @@
         .module('signupApp')
         .controller('SignupController', SignupController);
 
-    SignupController.$inject = ['$scope', '$log', '$q', '$filter', '$location', '$interval', 'accordianState', 'courseService', 'groupService', 'ltiService', 'listService', 'membershipService', 'rosterService', 'modalService'];
+    SignupController.$inject = ['$scope', '$log', '$q', '$filter', '$location', '$interval', /*'accordianState',*/ 'courseService', 'groupService', 'ltiService', 'listService', 'membershipService', 'rosterService', 'modalService'];
 
     /* @ngInject */
-    function SignupController($scope, $log, $q, $filter, $location, $interval, accordianState, courseService, groupService, ltiService, listService, membershipService, rosterService, modalService) {
+    function SignupController($scope, $log, $q, $filter, $location, $interval, /*accordianState,*/ courseService, groupService, ltiService, listService, membershipService, rosterService, modalService) {
       var vm = this;
 
       vm.access_token = "";
@@ -26,6 +26,7 @@
       vm.dataSync = dataSync;
       vm.deleteAllGroupsInLearn = deleteAllGroupsInLearn;
       vm.createGroup = createGroup;
+      vm.dateIntId = '';
       vm.deleteGroup = deleteGroup;
       vm.deleteGroupInLearn = deleteGroupInLearn;
       vm.deleteList = deleteList;
@@ -47,6 +48,7 @@
       vm.groups = [];
       vm.grpEndIsOpen = false;
       vm.grpStartIsOpen = false;
+      vm.intervalId = '';
       vm.list = {};
       vm.listEndIsOpen = false;
       vm.listStartIsOpen = false;
@@ -61,12 +63,16 @@
       vm.pickUser = false;
       vm.print =  print;
       vm.reserveSpaces = reserveSpaces;
-      vm.select  = function(list) {
-        accordianState[list] = !accordianState[list];
+      vm.select  = function(list_uuid) {
+        vm.accordianState[list_uuid] = !vm.accordianState[list_uuid];
+        $log.log("[ACCSTATE] : vm.accordianState:" + JSON.stringify(vm.accordianState));
+      }
+      vm.getAccState = function(list_uuid) {
+        return vm.accordianState[list_uuid];
       }
       vm.singleList = {};
       vm.source = null;
-      vm.storage = accordianState;
+      vm.accordianState = [];
       vm.user = {};
       vm.userInList = userInList;
 
@@ -75,6 +81,13 @@
       function activate() {
         vm.getData();
       }
+
+      // listen on DOM destroy (removal) event, and cancel the next UI update
+      // to prevent updating time after the DOM element was removed.
+      $scope.$on('$destroy', function() {
+        $interval.cancel(vm.intervalId);
+        $interval.cancel(vm.dateIntId);
+      });
 
       function getLtiData() {
         ltiService.getData()
@@ -92,13 +105,22 @@
               promises.push(promise);
 
               $q.all(promises).then(function() {
-                $interval(dataSync, 1000);
+                dateManagement();
+                createAcState();
+                vm.intervalId = $interval(dataSync, 1000);
+                vm.dateIntId = $interval(dateManagement, 30000);
               })
           }, function (error) {
               vm.status = 'Unable to load lti data: ' + error.message;
               $log.log(vm.status);
           });
       };
+
+      function createAcState() {
+        angular.forEach(vm.course.list, function(list,key) {
+          vm.accordianState[list.list_uuid] = false;
+        });
+      }
 
       function getCourse() {
         courseService.getCourseFromLearn(vm.config.lti.system_guid, vm.config.lti.course_uuid)
@@ -641,6 +663,7 @@
             $q.all(promises).then(function () {
               vm.course.lists.push({ "_id": listId });
               $log.log(vm.course.lists);
+              vm.accordianState[list.list_uuid] = true;
               courseService.updateCourse(vm.config.lti.course_uuid, vm.course)
                 .then(function (response) {
                   vm.status = 'List Added.';
@@ -837,8 +860,61 @@
                 vm.getList();
             }
           }, function (error) {
-              vm.status = 'Unable to load course data from database: ' + error.message;
-              $log.log("Error getting course from Db: " + error);
+              $interval.cancel(vm.intervalId);
+              vm.status = 'Unable to load course data from database: ' + error.message + '\nClearing Interval to prevent runaway process.';
+              $log.log(vm.status);
+        });
+      };
+
+      function dateManagement() {
+
+        var now = Date.now();
+        $log.log("[DM] now: " + now);
+
+        angular.forEach(vm.course.lists, function(list, lKey) {
+          var listStart = new Date(list.list_visible_start);
+          var listEnd = new Date(list.list_visible_end);
+          $log.log("[DM] list start: " + listStart + " list end: " + listEnd);
+          if (list.list_state === 'OPEN' && (now < listStart || now >= listEnd) ) {
+            list.list_state='CLOSED';
+            $log.log("[DM] list_state: " + list.list_state);
+            listService.updateList(list).then(function(response) {
+              $log.log("List " + list.list_name + " Closed.");
+            }, function(error) {
+              $log.log("Error closing list " + list.list_name + ": " + error.status + ": " + error.statusText);
+            });
+          } else if (list.list_state === 'CLOSED' && (now >= listStart || now < listEnd) ) {
+            list.list_state='OPEN';
+            $log.log("[DM] list_state: " + list.list_state);
+            listService.updateList(list).then(function(response) {
+              $log.log("List " + list.list_name + " Opened.");
+            }, function(error) {
+              $log.log("Error opening list " + list.list_name + ": " + error.status + ": " + error.statusText);
+            });
+          };
+          angular.forEach(list.list_groups, function(group, gKey) {
+            var grpStart = new Date(group.grp_start);
+            var grpEnd = new Date(group.grp_end);
+
+            $log.log("[DM] group start: " + grpStart + " group end: " + grpEnd);
+            if (group.grp_state === 'OPEN' && (now < grpStart || now >= grpEnd) ) {
+              group.grp_state='CLOSED';
+              $log.log("[DM] grp_state: " + group.grp_state);
+              groupService.updateGroup(list.list_uuid, group).then(function(response) {
+                $log.log("Group " + group.grp_name + " Closed.");
+              }, function(error) {
+                $log.log("Error closing group " + group.grp_name + ": " + error.status + ": " + error.statusText);
+              });
+            } else if (group.grp_state === 'CLOSED' && (now >= grpStart || now < grpEnd) ) {
+              group.grp_state='OPEN';
+              $log.log("[DM] grp_state: " + group.grp_state);
+              groupService.updateGroup(list.list_uuid, group).then(function(response) {
+                $log.log("Group " + group.grp_name + " Opened.");
+              }, function(error) {
+                $log.log("Error opening group " + group.grp_name + ": " + error.status + ": " + error.statusText);
+              });
+            };
+          });
         });
       };
   }

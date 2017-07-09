@@ -1,15 +1,15 @@
 <div id="printMe" ng-if="signups.config.lti.user_role === 'instructor'">
   <uib-accordion close-others="oneAtATime" ng-repeat="list in signups.course.lists">
-    <div uib-accordion-group class="panel panel-default" is-open="signups.accordianState.list" ng-click="select('list')">
-      <uib-accordion-heading> {{ list.list_name }}
-          <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': list.isOpen, 'glyphicon-chevron-right': !list.isOpen}"></i>
+    <div uib-accordion-group class="panel panel-default" is-open="signups.accordianState[list.list_uuid]" ng-click="select(list.list_uuid)">
+      <uib-accordion-heading> {{ list.list_name }} - {{list.list_state}}
+          <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': signups.accordianState[list.list_uuid], 'glyphicon-chevron-right': signups.accordianState[list.list_uuid]}"></i>
           <p></p>
           <p class="lead" style="margin-left: 5px;"> {{list.list_description}}</p>
           <p style="margin-left: 5px;"><strong>Closes on {{list.list_visible_end | date : "EEEE, MMMM d, y 'at' h:mm a"}}</p>
       </uib-accordion-heading>
       <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group" role="group" aria-label="Add List">
-          <button title="Add a new group" class="btn btn-default" ng-click="signups.addGroup(list, true)"><i class="glyphicon glyphicon-plus"></i></button>
+          <button ng-disabled="list.list_state === 'CLOSED'" title="Add a new group" class="btn btn-default" ng-click="signups.addGroup(list, true)"><i class="glyphicon glyphicon-plus"></i></button>
         </div>
         <div class="btn-group" role="group" aria-label="List Actions">
           <button class="btn btn-default" title="Generate an LTI Link" ng-click="signups.generateLti(list)"><i class="glyphicon glyphicon-link"></i></button>
@@ -28,7 +28,7 @@
   <div class="panel" ng-class="calculateTaken(list, true) < list.max_size ? 'panel-default' : 'panel-danger'">
     <div class="panel-heading clearfix">
       <div class="row">
-        <div class="text-left h3 col-md-4" style="margin-top:0px; margin-bottom: 0px;">{{list.list_name}}
+        <div class="text-left h3 col-md-4" style="margin-top:0px; margin-bottom: 0px;">{{list.list_name}} - {{list.list_state}}
         </div>
       </div>
     </div>

@@ -81,7 +81,12 @@ var listSchema = new Schema(
     list_visible_start: { type: Date, required: true },
     list_visible_end: { type: Date, required: true },
     student_view: { type: Boolean, default: false },
-    list_groups: [groupSchema]
+    list_groups: [groupSchema],
+    list_state: {
+      type: String,
+      enum: ['OPEN', 'CLOSED'],
+      default: 'OPEN'
+    },
   },
   { timestamps: { createdAt: 'created_on', updatedAt: 'updated_on' }
   })
