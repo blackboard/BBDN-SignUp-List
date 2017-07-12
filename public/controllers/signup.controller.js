@@ -5,10 +5,10 @@
         .module('signupApp')
         .controller('SignupController', SignupController);
 
-    SignupController.$inject = ['$scope', '$log', '$q', '$filter', '$location', '$interval', /*'accordianState',*/ 'courseService', 'groupService', 'ltiService', 'listService', 'membershipService', 'rosterService', 'modalService'];
+    SignupController.$inject = ['$scope', '$log', '$q', '$filter', '$location', '$interval', 'courseService', 'groupService', 'ltiService', 'listService', 'membershipService', 'rosterService', 'modalService'];
 
     /* @ngInject */
-    function SignupController($scope, $log, $q, $filter, $location, $interval, /*accordianState,*/ courseService, groupService, ltiService, listService, membershipService, rosterService, modalService) {
+    function SignupController($scope, $log, $q, $filter, $location, $interval, courseService, groupService, ltiService, listService, membershipService, rosterService, modalService) {
       var vm = this;
 
       vm.access_token = "";
@@ -17,6 +17,11 @@
       vm.addMe = addMe;
       vm.addUser = addUser;
       vm.calculateTaken = calculateTaken;
+      vm.calOps = {
+        minDate : null,
+        maxDate : null
+      };
+      vm.calOpsUpdate = calOpsUpdate;
       vm.config = {};
       vm.config.add_list = false;
       vm.config.showInfo = false;
@@ -54,6 +59,8 @@
       vm.listStartIsOpen = false;
       vm.member = {};
       vm.member.userInfo = [];
+      vm.minDate = '';
+      vm.maxDate = '';
       vm.newList = newList;
       vm.oneAtATime = true;
       vm.openListStartCal = openListStartCal;
@@ -585,6 +592,8 @@
         $log.log("index: " + index);
         grpInListScope.grp_members.splice(index,1);
 
+        groupMemberRoller(list,group);
+
         groupService.updateGroup(list.list_uuid, grpInListScope).then(function (response) {
           $log.log("Removed " + user_uuid + " from group " + group.grp_name + " in list " + list.list_name);
         }, function (error) {
@@ -630,11 +639,12 @@
           .then(function (response) {
             vm.status = 'delMe: User deleted from list!';
             $log.log(vm.status);
+            groupMemberRoller(list,group);
           }, function(error) {
             vm.status = 'Unable to delete user from list: ' + error;
             $log.log(vm.status);
           });
-        loadRoster();
+        //loadRoster();
       };
 
       function emailList(list) {
@@ -644,9 +654,11 @@
       function addList() {
         var promises = [];
         var listId;
+        var list_uuid;
         listService.addList(vm.list)
           .then(function (response) {
             listId = response.data._id;
+            list_uuid = response.data.list_uuid;
             $log.log("list id: " + response.data._id);
             angular.forEach(vm.groups, function(group,index) {
               $log.log("Adding group UUID: " , group + ", index: " , index);
@@ -663,7 +675,7 @@
             $q.all(promises).then(function () {
               vm.course.lists.push({ "_id": listId });
               $log.log(vm.course.lists);
-              vm.accordianState[list.list_uuid] = true;
+              vm.accordianState[list_uuid] = true;
               courseService.updateCourse(vm.config.lti.course_uuid, vm.course)
                 .then(function (response) {
                   vm.status = 'List Added.';
@@ -868,54 +880,117 @@
 
       function dateManagement() {
 
-        var now = Date.now();
+        var now = new Date();
         $log.log("[DM] now: " + now);
 
         angular.forEach(vm.course.lists, function(list, lKey) {
           var listStart = new Date(list.list_visible_start);
           var listEnd = new Date(list.list_visible_end);
-          $log.log("[DM] list start: " + listStart + " list end: " + listEnd);
+          $log.log("[DM] list_name: " + list.list_name + " list start: " + listStart + " list end: " + listEnd);
           if (list.list_state === 'OPEN' && (now < listStart || now >= listEnd) ) {
             list.list_state='CLOSED';
             $log.log("[DM] list_state: " + list.list_state);
             listService.updateList(list).then(function(response) {
-              $log.log("List " + list.list_name + " Closed.");
+              $log.log("[DM] List " + list.list_name + " Closed.");
             }, function(error) {
-              $log.log("Error closing list " + list.list_name + ": " + error.status + ": " + error.statusText);
+              $log.log("[DM] Error closing list " + list.list_name + ": " + error.status + ": " + error.statusText);
             });
-          } else if (list.list_state === 'CLOSED' && (now >= listStart || now < listEnd) ) {
+          } else if (list.list_state === 'CLOSED' && now >= listStart && now < listEnd ) {
             list.list_state='OPEN';
             $log.log("[DM] list_state: " + list.list_state);
             listService.updateList(list).then(function(response) {
-              $log.log("List " + list.list_name + " Opened.");
+              $log.log("[DM] List " + list.list_name + " Opened.");
             }, function(error) {
-              $log.log("Error opening list " + list.list_name + ": " + error.status + ": " + error.statusText);
+              $log.log("[DM] Error opening list " + list.list_name + ": " + error.status + ": " + error.statusText);
             });
           };
           angular.forEach(list.list_groups, function(group, gKey) {
             var grpStart = new Date(group.grp_start);
             var grpEnd = new Date(group.grp_end);
 
-            $log.log("[DM] group start: " + grpStart + " group end: " + grpEnd);
-            if (group.grp_state === 'OPEN' && (now < grpStart || now >= grpEnd) ) {
+            $log.log("[DM] group_name: " + group.grp_name + " group start: " + grpStart + " group end: " + grpEnd);
+            if (group.grp_state === 'OPEN' && (now < grpStart || now >= grpEnd || list.list_state === 'CLOSED') ) {
               group.grp_state='CLOSED';
               $log.log("[DM] grp_state: " + group.grp_state);
               groupService.updateGroup(list.list_uuid, group).then(function(response) {
-                $log.log("Group " + group.grp_name + " Closed.");
+                $log.log("[DM] Group " + group.grp_name + " Closed.");
               }, function(error) {
-                $log.log("Error closing group " + group.grp_name + ": " + error.status + ": " + error.statusText);
+                $log.log("[DM] Error closing group " + group.grp_name + ": " + error.status + ": " + error.statusText);
               });
-            } else if (group.grp_state === 'CLOSED' && (now >= grpStart || now < grpEnd) ) {
+            } else if (group.grp_state === 'CLOSED' && now >= grpStart && now < grpEnd && list.list_state === 'OPEN') {
               group.grp_state='OPEN';
               $log.log("[DM] grp_state: " + group.grp_state);
               groupService.updateGroup(list.list_uuid, group).then(function(response) {
-                $log.log("Group " + group.grp_name + " Opened.");
+                $log.log("[DM] Group " + group.grp_name + " Opened.");
               }, function(error) {
-                $log.log("Error opening group " + group.grp_name + ": " + error.status + ": " + error.statusText);
+                $log.log("[DM] Error opening group " + group.grp_name + ": " + error.status + ": " + error.statusText);
               });
             };
           });
         });
       };
+
+    function groupMemberRoller(list,group) {
+      $log.log("[GRPROLL] =============================================");
+      if(group.grp_waitlist_allowed) {
+        $log.log("[GRPROLL] Waitlist allowed");
+        if(calculateTaken(group,true) < group.grp_max_size) {
+          $log.log("[GRPROLL] Room on list");
+          if(calculateTaken(group,false) > 0) {
+            $log.log("[GRPROLL] people waiting");
+            var oldestDate = Date.now();
+            var userToPromote = '';
+            angular.forEach(group.grp_members, function(user,key) {
+              $log.log("[GRPROLL] check user");
+              if(user.waitlisted) {
+                $log.log("[GRPROLL] user waitlisted: " + user.user_uuid);
+                var userModified = new Date(user.modified);
+                if(oldestDate > userModified) {
+                  $log.log("[GRPROLL] setting user to be promoted: " + user.user_uuid);
+                  oldestDate = userModified;
+                  userToPromote = user.user_uuid;
+                };
+              };
+            });
+
+            var listInCourseScope = $filter('filter')(vm.course.lists, function (c) {$log.log("c.list_uuid is " + c.list_uuid); return c.list_uuid === list.list_uuid;})[0];
+            $log.log("[GRPROLL] listInCourseScope.uuid is :");
+            $log.log("[GRPROLL] " + listInCourseScope.list_uuid);
+
+            var grpInListScope = $filter('filter')(listInCourseScope.list_groups, function (d) {$log.log("d.grp_uuid is " + d.grp_uuid); return d.grp_uuid === group.grp_uuid;})[0];
+            $log.log("[GRPROLL] grpInListScope.uuid is :");
+            $log.log("[GRPROLL] " + grpInListScope.grp_uuid);
+
+            var usrInGrpScope = $filter('filter')(grpInListScope.grp_members, function (e) {$log.log("e.user_uuid is " + e.user_uuid); return e.user_uuid === userToPromote;})[0];
+            $log.log("[GRPROLL] usrInGrpScope.user_uuid is :");
+            $log.log("[GRPROLL] " + usrInGrpScope.user_uuid);
+            usrInGrpScope.waitlisted = false;
+
+            groupService.updateGroup(list.list_uuid, grpInListScope).then(function (response) {
+              $log.log("[GRPROLL] Group " + vm.group.grp_name + " added to list " + list.list_name);
+
+              userToPromote = null;
+            }, function (error) {
+              $log.log("[GRPROLL] User " + userToPromote + " promotion failed: " + error.status + ": " + error.statusText);
+            });
+          }
+        }
+      }
+    };
+
+    function calOpsUpdate(start,date) {
+
+      if(start) {
+        vm.calOps.minDate = new Date(date);
+        var tmpDate = vm.calOps.minDate.toISOString();
+        vm.minDate = tmpDate.slice(0,-1);
+        $log.log("minDate - Ops:" + vm.calOps.minDate + " val: " + vm.minDate);
+      } else {
+        vm.calOps.maxDate = new Date(date);
+        var tmpDate = vm.calOps.maxDate.toISOString();
+        vm.maxDate = tmpDate.slice(0,-1);
+        $log.log("maxDate - Ops:" + vm.calOps.maxDate + " val: " + vm.maxDate);
+      }
+    };
   }
 })();

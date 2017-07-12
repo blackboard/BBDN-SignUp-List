@@ -1,13 +1,17 @@
 <div class="modal-content">
-  <form novalidate id="newListForm">
+  <form name="newListForm" novalidate>
     <div class="modal-header">
       <h3>{{modalOptions.headerText}}</h3>
     </div>
     <div class="modal-body">
-      <div class="form-group dropdown">
+      <div class="form-group dropdown" ng-class="{ 'has-error': newListForm.name.$touched && newListForm.name.$error.required, 'has-feedback': newListForm.name.$touched && newListForm.name.$error.required }">
         <label for="name" class="col-2 col-form-label">Name</label>
         <div class="col-10">
-          <input class="form-control" type="text" id="name" ng-model="signups.list.list_name" />
+          <input class="form-control" type="text" id="name" name="name" ng-model="signups.list.list_name" required/>
+        </div>
+        <span class="glyphicon glyphicon-remove form-control-feedback" ng-show="newListForm.name.$touched && newListForm.name.$error.required"></span>
+        <div ng-show="newListForm.name.$touched && newListForm.name.$error.required" class="alert alert-danger">
+          <span >The name is required.</span>
         </div>
       </div>
       <div class="form-group dropdown">
@@ -16,22 +20,31 @@
           <input class="form-control" type="text" id="description" ng-model="signups.list.list_description" />
         </div>
       </div>
-      <div class="form-group dropdown">
+      <div class="form-group dropdown" ng-class="{ 'has-error' : newListForm.startdate.$touched && (newListForm.startdate.$error.required  ||  newListForm.startdate.$error.dateValidator), 'has-feedback : newListForm.startdate.$touched && (newListForm.startdate.$error.required  ||  newListForm.startdate.$error.dateValidator)' }">
         <label for="startdate">List Availability Start Date</label>
         <div class="input-group date">
-          <input type="datetime-local" datetime-picker="yyyy-MM-ddThh:mm:ss.sss'Z'" ng-focus="signups.openListStartCal($event, prop)" class="form-control" id="startdate" ng-model="signups.list.list_visible_start" is-open="signups.listStartIsOpen" />
+          <input type="datetime-local" datetime-picker="yyyy-MM-ddThh:mm:ss.sss'Z'" ng-focus="signups.openListStartCal($event, prop)" class="form-control" id="startdate" name="startdate" ng-model="signups.list.list_visible_start" is-open="signups.listStartIsOpen" required date-validator="signups.list.list_visible_end" ng-change="signups.calOpsUpdate(true,signups.list.list_visible_start)"/>
           <span class="input-group-addon">
             <a ng-click="signups.openListStartCal($event, prop)"><i class="glyphicon glyphicon-calendar custom-cal"></i></a>
           </span>
         </div>
+        <span class="glyphicon glyphicon-calendar form-control-feedback" ng-show="newListForm.startdate.$touched && newListForm.startdate.$error.required"></span>
+        <div class="alert alert-danger" ng-show="newListForm.startdate.$touched && newListForm.startdate.$error.required">
+          <span ng-show="newListForm.startdate.$touched && newListForm.startdate.$error.required">The start date is required.</span>
+        </div>
       </div>
-      <div class="form-group dropdown">
+      <div class="form-group dropdown" ng-class="{ 'has-error' : newListForm.enddate.$touched && (newListForm.enddate.$error.required ||  newListForm.startdate.$error.dateValidator), 'has-feedback' : newListForm.enddate.$touched && (newListForm.enddate.$error.required ||  newListForm.startdate.$error.dateValidator) }">
         <label for="enddate">List Availability End Date</label>
         <div class="input-group date">
-          <input type="datetime-local" datetime-picker="yyyy-MM-ddThh:mm:ss.sss'Z'" ng-focus="signups.openListEndCal($event, prop)" class="form-control" id="enddate" ng-model="signups.list.list_visible_end" is-open="signups.listEndIsOpen"  />
+          <input type="datetime-local" datetime-picker="yyyy-MM-ddThh:mm:ss.sss'Z'" ng-focus="signups.openListEndCal($event, prop)" class="form-control" id="enddate" name="enddate" ng-model="signups.list.list_visible_end" is-open="signups.listEndIsOpen" ng-change="signups.calOpsUpdate(false,signups.list.list_visible_end)" required/>
           <span class="input-group-addon">
             <a ng-click="signups.openListEndCal($event, prop)"><i class="glyphicon glyphicon-calendar custom-cal"></i></a>
           </span>
+        </div>
+        <span class="glyphicon glyphicon-calendar form-control-feedback" ng-show="newListForm.enddate.$touched && (newListForm.enddate.$error.required ||  newListForm.startdate.$error.dateValidator)"></span>
+        <div class="alert alert-danger" ng-show="newListForm.enddate.$touched && (newListForm.enddate.$error.required ||  newListForm.startdate.$error.dateValidator)" >
+          <span ng-show="newListForm.enddate.$touched && newListForm.enddate.$error.required">The end date is required.</span>
+          <span ng-show="newListForm.enddate.$touched && newListForm.startdate.$error.dateValidator">The end date is before the start date.</span>
         </div>
       </div>
       <div class="form-check">
@@ -40,12 +53,14 @@
           Allow Students To View Memberships
         </label>
       </div>
-      <group-list></group-list>
+      <div ng-hide="!signups.list.list_visible_start && !signups.list.list_visible_end" >
+        <group-list></group-list>
+      </div>
       <div class="modal-footer">
       <button type="button" class="btn"
           data-ng-click="modalOptions.close()">{{modalOptions.closeButtonText}}</button>
       <button class="btn btn-primary"
-          data-ng-click="modalOptions.ok();">{{modalOptions.actionButtonText}}</button>
+          data-ng-click="modalOptions.ok();" ng-disabled="newListForm.$invalid">{{modalOptions.actionButtonText}}</button>
     </div>
   </form>
 </div>
