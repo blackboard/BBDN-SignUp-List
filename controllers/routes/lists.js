@@ -170,7 +170,7 @@ router.put('/:id/groups', function (req, res, next) {
  * * Only accessible by AP roles
  */
 router.put('/:id/groups/:grpId', function (req, res, next) {
-  var validRoles = ['AP']
+  var validRoles = ['AP', 'SP']
   var token = req.cookies['sulToken']
   if (jwtToken.jwtValidRole(token, validRoles)) {
     if (debug) console.log('\n[Lists/:id/groups]: PUT /lists/' + req.params.id + '/groups/' + req.params.grpId + ' called\n')
