@@ -1,5 +1,5 @@
-angular.module('signupApp').service('modalService', ['$uibModal', '$log',
-    function ($uibModal, $log) {
+angular.module('signupApp').service('modalService', ['$uibModal', '$log', '$translate',
+    function ($uibModal, $log, $translate) {
 
         var modalDefaults = {
             backdrop: true,
@@ -7,10 +7,18 @@ angular.module('signupApp').service('modalService', ['$uibModal', '$log',
             modalFade: true
         };
 
-        var modalOptions = {
-            closeButtonText: 'Cancel',
-            actionButtonText: 'Save'
-        };
+        var modalOptions = {};
+
+        $translate(['modal.btn-save','modal.btn-cancel']).then( function(translations) {
+
+          modalOptions = {
+            closeButtonText: translations['modal.btn-cancel'],
+            actionButtonText: translations['modal.btn-save']
+          };
+
+        }, function (error) {
+          $log.log("Error instantiating modal object: " + error.status + " - " + error.statusText);
+        });
 
         this.showModal = function (customModalDefaults, customModalOptions) {
             if (!customModalDefaults) customModalDefaults = {};
@@ -50,5 +58,4 @@ angular.module('signupApp').service('modalService', ['$uibModal', '$log',
 
             return $uibModal.open(tempModalDefaults).result;
         };
-
-    }]);
+  }]);

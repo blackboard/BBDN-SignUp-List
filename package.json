@@ -27,6 +27,7 @@
     "uuid": "^3.0.1"
   },
   "devDependencies": {
+    "angular-translate": "^2.15.2",
     "bluebird": "^3.4.7",
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",

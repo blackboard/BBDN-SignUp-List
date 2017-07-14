@@ -4,21 +4,21 @@
 
     <div uib-accordion-group class="panel" is-open="group.isOpen">
       <uib-accordion-heading> {{ group.grp_name }}
-          <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': group.isOpen, 'glyphicon-chevron-right': !group.isOpen}"></i>
+          <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': group.isOpen, 'glyphicon-chevron-up': !group.isOpen}"></i>
       </uib-accordion-heading>
       <div class="row" style="padding-left: 25px;">
-        <strong>Description</strong>: {{group.grp_description}}<br />
-        <strong>Location</strong>: {{group.grp_location}}<br />
-        <strong>Start</strong>: {{group.grp_start | date}}<br />
-        <strong>End</strong>: {{group.grp_end | date}}<br />
-        <strong>Max</strong>: {{group.grp_max_size}} <strong>Waitlist</strong>: {{group.grp_max_waitlist}}<br />
+        <strong><span translate="group-list.description"></span></strong>: {{group.grp_description}}<br />
+        <strong><span translate="group-list.location"></span></strong>: {{group.grp_location}}<br />
+        <strong><span translate="group-list.start" translate-value-type="Group"></span></strong>: {{group.grp_start | date}}<br />
+        <strong><span translate="group-list.end" translate-value-type="Group"></span></strong>: {{group.grp_end | date}}<br />
+        <strong><span translate="group-list.max"></span></strong>: {{group.grp_max_size}} <strong><span translate="group-list.waitlist"></span></strong>: {{group.grp_max_waitlist}}<br />
       </div>
       <div class="btn-group-sm pull-right">
-        <button class="btn btn-default pull-right glyphicon glyphicon-trash" ng-click="signups.deleteGroup(signups.list, group)"></button>
-        <button class="btn btn-default pull-right glyphicon glyphicon-pencil" ng-click="signups.editGroup(signups.list, group)"></button>
+        <button class="btn btn-default pull-right glyphicon glyphicon-trash" translate-attr="{ title : 'group-list.btn-delete-group' }" ng-click="signups.deleteGroup(signups.list, group)"></button>
+        <button class="btn btn-default pull-right glyphicon glyphicon-pencil" translate-attr="{ title : 'group-list.btn-edit-group' }" ng-click="signups.editGroup(signups.list, group)"></button>
       </div>
     </div>
   </uib-accordion>
 
-  <button class="btn btn-default" ng-click="signups.addGroup(list,false)"><i class="glyphicon glyphicon-plus"></i></button>
+  <button class="btn btn-default" translate-attr="{ title : 'group-list.btn-add-group' }" ng-click="signups.addGroup(list,false)"><i class="glyphicon glyphicon-plus"></i></button>
 </div>
