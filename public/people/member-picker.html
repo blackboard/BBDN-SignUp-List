@@ -1,27 +1,25 @@
 <div class="modal-content">
   <form novalidate>
     <div class="modal-header">
-      <h3>Add User</h3>
+      <h3 translate="member-picker.title"></h3>
     </div>
     <div class="modal-body">
       <!-- Show if list is full and waitlist is available -->
-      <div ng-show="signups.calculateTaken(signups.group, true) >= signups.group.grp_max_size && signups.reserveSpaces(signups.group)" class="lead">
-        The list is currently full. Adding a user to this group will alter the maximum size. You may also choose to add the user to the waitlist.
+      <div ng-show="signups.calculateTaken(signups.group, true) >= signups.group.grp_max_size && signups.reserveSpaces(signups.group)" class="lead" translate="member-picker.warning-full-empty">
         <br />
       </div>
       <!-- Show if list is full and waitlist is full -->
-      <div ng-show="signups.calculateTaken(signups.group, true) >= signups.group.grp_max_size && !signups.reserveSpaces(signups.group)" class="lead">
-        The list is currently full, and either the waitlist is full or there is no waitlist available. Adding a user to the group will alter the maximum size of the group. Adding the user to the waitlist will alter the waitlist settings to either increase the size or add a waitlist, as appropriate.
+      <div ng-show="signups.calculateTaken(signups.group, true) >= signups.group.grp_max_size && !signups.reserveSpaces(signups.group)" class="lead" translate="member-picker.warning-full-full">
         <br />
       </div>
       <table class="table table-responsive">
         <thead class="thead-default">
           <tr>
             <th></th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Role</th>
+            <th translate="member-picker.header-given-name"></th>
+            <th translate="member-picker.header-family-name"></th>
+            <th translate="member-picker.header-email"></th>
+            <th translate="member-picker.header-role"></th>
           </tr>
         </thead>
         <tbody ng-repeat="user in signups.courseRoster">
@@ -38,7 +36,7 @@
       <button type="button" class="btn"
           data-ng-click="modalOptions.close()">{{modalOptions.closeButtonText}}</button>
       <button type="button" class="btn btn-info" ng-if="signups.calculateTaken(signups.group, true) >= signups.group.grp_max_size"
-          data-ng-click="modalOptions.waitlist();">Waitlist</button>
+          data-ng-click="modalOptions.waitlist();" translate="member-picker.btn-waitlist"></button>
       <button class="btn btn-primary"
           data-ng-click="modalOptions.ok();">{{modalOptions.actionButtonText}}</button>
     </div>

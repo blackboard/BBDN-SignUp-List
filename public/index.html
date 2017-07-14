@@ -31,8 +31,12 @@
 
     <!-- Angular Includes-->
     <script src="/moment/moment.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular-resource.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.js"></script>
+    <script src="/ngtranslate/angular-translate.js"></script>
+    <script src="/ngtranslate/angular-translate-loader-static-files/angular-translate-loader-static-files.js"></script>
+    <script src="/ngtranslate/angular-translate-interpolation-messageformat/angular-translate-interpolation-messageformat.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular-resource.js"></script>
     <script src="/uib/dist/ui-bootstrap.js"></script>
     <script src="/uib/dist/datetime-picker.min.js"></script>
     <script src="/ask/angular-spinkit.min.js"></script>
@@ -45,13 +49,16 @@
     <!-- Angular Application -->
     <script src="/app.module.js"></script>
 
+    <!-- Configuration -->
+    <script src="/language.config.js"></script>
+
     <!-- Controllers -->
     <script src="/controllers/signup.controller.js"></script>
 
     <!-- Service Factories -->
     <script src="/courses/course.service.js"></script>
     <script src="/groups/group.service.js"></script>
-    <script src="/groups/modal.service.js"></script>
+    <script src="/layout/modal.service.js"></script>
     <script src="/layout/accordian-state.service.js"></script>
     <script src="/lists/list.service.js"></script>
     <script src="/lti/lti.service.js"></script>

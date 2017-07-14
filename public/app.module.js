@@ -7,5 +7,6 @@ angular.module('signupApp', [
     'ngPrint',
     'ngSanitize',
     'ngCsv',
-    'ngclipboard'
+    'ngclipboard',
+    'pascalprecht.translate'
 ]);

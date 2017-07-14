@@ -1,66 +1,64 @@
 <div class="modal-content">
   <form name="frmNewGroup" novalidate>
   <div class="modal-header">
-    <h3>{{modalOptions.textHeader}}</h3>
+  <h3>{{modalOptions.headerText}}</h3>
   </div>
   <div class="modal-body">
     <div class="form-group dropdown" ng-class="{ 'has-error' : frmNewGroup.name.$touched && frmNewGroup.name.$error.required }">
-        <label for="name" class="col-2 col-form-label">Name</label>
+        <label for="name" class="col-2 col-form-label" translate="new-group.name.label"></label>
         <div class="col-10">
           <input class="form-control" type="text" id="name" name="name" ng-model="signups.group.grp_name" required/>
-          <span class="alert alert-danger" ng-show="frmNewGroup.name.$touched && frmNewGroup.name.$error.required">The name is required.</span>
+          <span class="alert alert-danger" ng-show="frmNewGroup.name.$touched && frmNewGroup.name.$error.required" translate="new-group.name.error-required"></span>
         </div>
       </div>
       <div class="form-group dropdown">
-        <label for="description" class="col-2 col-form-label">Description</label>
+        <label for="description" class="col-2 col-form-label" translate="new-group.description-label"></label>
         <div class="col-10">
           <input class="form-control" type="text" id="description" ng-model="signups.group.grp_description" />
         </div>
       </div>
       <div class="form-group dropdown">
-        <label for="location" class="col-2 col-form-label">Location</label>
+        <label for="location" class="col-2 col-form-label" translate="new-group.location-label"></label>
         <div class="col-10">
           <input class="form-control" type="text" id="location" ng-model="signups.group.grp_location" />
         </div>
       </div>
       <div class="form-group dropdown" ng-class="{ 'has-error' : frmNewGroup.startdate.$touched && ( frmNewGroup.startdate.$error.required  || frmNewGroup.startdate.$error.dateValidator || frmNewGroup.startdate.$error.dateRangeValidator) }">
-        <label for="startdate">Group Start Date</label>
+        <label for="startdate" translate="new-group.start.label" translate-value-type="Group"></label>
         <div class="input-group date">
           <input type="datetime-local" ng-focus="signups.openGroupStartCal($event, prop)" class="form-control" id="startdate" name="startdate" datetime-picker="yyyy-MM-ddThh:mm:ss.sss'Z'" ng-model="signups.group.grp_start" is-open="signups.groupStartIsOpen"  required date-validator="signups.group.grp_end" date-range-validator="signups.list" datepickerOptions="signups.calOpts" value="{{signups.minDate}}"/>
           <span class="input-group-addon">
             <a ng-click="signups.openGroupStartCal($event, prop)"><i class="glyphicon glyphicon-calendar custom-cal"></i></a>
           </span>
         </div>
-        <span class="alert alert-danger" ng-show="frmNewGroup.enddate.$touched && frmNewGroup.enddate.$error.required">The start date is required.</span>
-        <span class="alert alert-danger" ng-show="frmNewGroup.startdate.$touched && frmNewGroup.startdate.$error.dateRangeValidator">The start date does not fall within the list availability date range.</span>
+        <span class="alert alert-danger" ng-show="frmNewGroup.enddate.$touched && frmNewGroup.enddate.$error.required" translate="new-group.start.error-required"></span>
+        <span class="alert alert-danger" ng-show="frmNewGroup.startdate.$touched && frmNewGroup.startdate.$error.dateRangeValidator" translate="new-group.start.error-out-of-range"></span>
       </div>
       <div class="form-group dropdown" ng-class="{ 'has-error' : frmNewGroup.enddate.$touched && (frmNewGroup.enddate.$error.required || frmNewGroup.startdate.$error.dateValidator || frmNewGroup.enddate.$error.dateRangeValidator) }">
-        <label for="enddate">Group End Date</label>
+        <label for="enddate" translate="new-group.end.label" translate-value-type="Group"></label>
         <div class="input-group date">
           <input type="datetime-local" ng-focus="signups.openGroupEndCal($event, prop)" class="form-control" id="enddate" name="enddate" datetime-picker="yyyy-MM-ddThh:mm:ss.sss'Z'" date-range-validator="signups.list" datepickerOptions="signups.calOpts"  ng-model="signups.group.grp_end" is-open="signups.groupEndIsOpen" value="{{signups.maxDate}}"  required/>
           <span class="input-group-addon">
             <a ng-click="signups.openGroupEndCal($event, prop)"><i class="glyphicon glyphicon-calendar custom-cal"></i></a>
           </span>
         </div>
-        <span class="alert alert-danger" ng-show="frmNewGroup.enddate.$touched && frmNewGroup.enddate.$error.required">The end date is required.</span>
-        <span class="alert alert-danger" ng-show="frmNewGroup.enddate.$touched && frmNewGroup.startdate.$error.dateValidator">The end date is before the start date.</span>
-        <span class="alert alert-danger" ng-show="frmNewGroup.enddate.$touched && frmNewGroup.enddate.$error.dateRangeValidator">The end date does not fall within the list availability date range.</span>
+        <span class="alert alert-danger" ng-show="frmNewGroup.enddate.$touched && frmNewGroup.enddate.$error.required" translate="new-group.end.error-required"></span>
+        <span class="alert alert-danger" ng-show="frmNewGroup.enddate.$touched && frmNewGroup.startdate.$error.dateValidator" translate="new-group.end.error-out-of-order"></span>
+        <span class="alert alert-danger" ng-show="frmNewGroup.enddate.$touched && frmNewGroup.enddate.$error.dateRangeValidator" translate="new-group.end.error-out-of-range"></span>
       </div>
       <div class="form-group dropdown" ng-class="{ 'has-error' : frmNewGroup.max-size.$touched && frmNewGroup.max-size.$error.required }">
-        <label for="max-size" class="col-2 col-form-label">Maximum Members</label>
+        <label for="max-size" class="col-2 col-form-label" translate="new-group.max-size.label"></label>
         <div class="col-10">
           <input class="form-control" type="number" id="max-size" name="max-size" ng-model="signups.group.grp_max_size" required>
-          <span class="alert alert-danger" ng-show="frmNewGroup.max-size.$touched && new-groupfrmNewGroup.max-size.$error.required">The Maximum List Size is required.</span>
+          <span class="alert alert-danger" ng-show="frmNewGroup.max-size.$touched && new-groupfrmNewGroup.max-size.$error.required" translate="new-group.max-size.error-required"></span>
         </div>
       </div>
       <div class="form-check">
-        <label class="form-check-label">
-          <input class="form-check-input" type="checkbox" value="waitlist_allowed" ng-model="signups.group.grp_waitlist_allowed">
-          Allow Waitlist
-        </label>
+        <input class="form-check-input" type="checkbox" id="waitlist_allowed" value="waitlist_allowed" ng-model="signups.group.grp_waitlist_allowed" />
+        <label for="waitlist_allowed" class="form-check-label" translate="new-group.allow-waitlist-label"></label>
       </div>
       <div class="form-group dropdown" ng-show="signups.group.grp_waitlist_allowed">
-        <label for="max-waitlist" class="col-2 col-form-label">Maximum Waitlist</label>
+        <label for="max-waitlist" class="col-2 col-form-label" translate="new-group.max-waitlist-label"></label>
         <div class="col-10">
           <input class="form-control" type="number" id="max-waitlist" ng-model="signups.group.grp_max_waitlist">
         </div>

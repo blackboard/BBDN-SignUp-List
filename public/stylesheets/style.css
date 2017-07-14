@@ -32,6 +32,10 @@
   text-decoration: none;
 }
 
+.custom-nav-text-vcenter a:active {
+  border-style: dashed;
+}
+
 .custom-grp-btn-right {
   margin-right: 5px;
   color: gray;

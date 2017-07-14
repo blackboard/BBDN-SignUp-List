@@ -1,14 +1,14 @@
 <table class="table table-responsive" ng-show="signups.config.showMembers || (list.student_view && signups.config.lti.user_role === 'learner')">
   <thead class="thead-default">
     <tr>
-      <th>First Name</th>
-      <th>Last Name</th>
-      <th>Email</th>
-      <th>Role</th>
-      <th>Date Joined</th>
-      <th>Added By</th>
-      <th>Waitlisted?</th>
-      <th ng-show="signups.config.lti.user_role === 'instructor'">Actions</th>
+      <th translate="member-list.header-given-name"></th>
+      <th tranlate="member-list.header-family-name"></th>
+      <th translate="member-list.header-email"></th>
+      <th translate="member-list.header-role"></th>
+      <th translate="member-list.header-date-joined"></th>
+      <th translate="member-list.header-added-by"></th>
+      <th translate="member-list.header-waitlisted"></th>
+      <th ng-show="signups.config.lti.user_role === 'instructor'" translate="member-list.header-actions"></th>
     </tr>
   </thead>
   <tbody ng-repeat="user in group.grp_members">
@@ -17,12 +17,12 @@
       <td>{{signups.getUserById(user.user_uuid).last}}</td>
       <td>{{signups.getUserById(user.user_uuid).email}}</td>
       <td>{{user.role}}</td>
-      <td>{{user.created_on | date}}</td>
+      <td translate="member-list.date-joined" translate-value-date="{{user.created_on | date : 'MM/dd/yyyy hh:mm:ss a'}}"></td>
       <td>{{user.added_by}}</td>
-      <td>{{user.waitlisted ? "Yes" : ""}}</td>
+      <td translate="{{(user.waitlisted ? 'member-list.waitlisted' : '') | translate}}"></td>
       <td ng-show="signups.config.lti.user_role === 'instructor'">
-        <div class="btn-group btn-group-xs" role="group" aria-label="Instructor tools for user manipulation">
-          <button class="btn btn-default" ng-click="signups.delUser(group, list, user.user_uuid)"><i class="glyphicon glyphicon-remove-sign"></i></button>
+        <div class="btn-group btn-group-xs" role="group" translate-attr="{ 'aria-label' : 'member-list.acc-btn-group-actions' }">
+          <button class="btn btn-default" translate-attr="{ title : 'member-list.btn-delete-user' }" ng-click="signups.delUser(group, list, user.user_uuid)"><i class="glyphicon glyphicon-remove-sign"></i></button>
         </div>
       </td>
     </tr>

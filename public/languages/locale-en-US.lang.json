@@ -1,0 +1,166 @@
+{
+  "common": {
+    "localized-name": "{{given}} {{family}}",
+    "name": "Name",
+    "description": "Description",
+    "location": "Location",
+    "start": "Begin {{type}} Availability",
+    "end": "End {{type}} Availability",
+    "max-users": "Maximum Users",
+    "max-wl-users": "Maximum Waitlist Users",
+    "btn-save": "Save",
+    "btn-waitlist": "Waitlist",
+    "btn-cancel": "Cancel"
+    },
+  "nav-bar" : {
+    "acc-create-list": "create new list",
+    "create-list": "New List",
+    "acc-view-members": "view all list members",
+    "view-members": "View Members",
+    "acc-hide-members": "hide all list members",
+    "hide-members": "Hide Members",
+    "acc-exit": "return to blackboard",
+    "exit": "Exit",
+    "acc-user": "logged in as",
+    "acc-course": "course name",
+    "branding": "Signup List"
+  },
+  "group-list" : {
+    "description": "@:common.description",
+    "location": "@:common.location",
+    "start": "@:common.start",
+    "end": "@:common.end",
+    "max": "@:common.max-users",
+    "waitlist": "@:common.max-wl-users",
+    "btn-add-group": "@:list-view.btn-add-group",
+    "btn-edit-group": "@:group-view.btn-edit-group",
+    "btn-delete-group": "@:group-view.btn-delete-group"
+  },
+  "group-view": {
+    "btn-create-learn-group" : "create a group in Learn",
+    "btn-delete-learn-group" : "delete a group in Learn",
+    "btn-add-user": "add a user to group",
+    "btn-group-message": "send a message to group members",
+    "btn-export-group": "export member list to CSV file",
+    "btn-edit-group": "edit group",
+    "btn-delete-group": "delete group",
+    "btn-join-list-title": "join group",
+    "btn-join-list-label": "Join",
+    "btn-unjoin-list-title": "unjoin group",
+    "btn-unjoin-list-label": "Unjoin",
+    "location": "@:common.location",
+    "places-taken": " places taken",
+    "reserve-spaces": " reserve spaces"
+  },
+  "new-group": {
+    "name" :{
+      "label": "@:common.name",
+      "error-required": "The name is required"
+    },
+    "description-label": "@:common.description",
+    "location-label": "@:common.location",
+    "start": {
+      "label": "@:common.start",
+      "error-required": "The start date is required",
+      "error-out-of-range": "The start date does not fall within the list availability date range"
+    },
+    "end": {
+      "label": "@:common.end",
+      "error-required": "The end date is required",
+      "error-out-of-range": "The end date does not fall within the list availability date range",
+      "error-out-of-order": "The end date is before the start date"
+    },
+    "max-size": {
+      "label": "@:common.max-users",
+      "error-required": "The maximum list size is required"
+    },
+    "allow-waitlist-label": "Allow Waitlist",
+    "max-waitlist-label": "@:common.max-wl-users",
+    "btn-save": "@:common.btn-save",
+    "btn-cancel": "@:common.btn-cancel"
+  },
+  "confirmation-dialog": {
+    "btn-yes": "Yes",
+    "btn-no": "No"
+  },
+  "generate-lti": {
+    "title": "LTI Link",
+    "btn-copy": "copy link to clipboard",
+    "btn-ok": "@:common.btn-ok"
+  },
+  "list-view": {
+    "close-text": "Closes on {{date}}",
+    "acc-toolbar": "toolbar with button groups",
+    "acc-btn-group-add": "add list",
+    "btn-add-group": "add a new group",
+    "acc-btn-group-actions": "sign-up list actions",
+    "btn-generate-lti": "generate an LTI link",
+    "btn-print": "print list",
+    "btn-edit-list": "edit list",
+    "btn-delete-list": "delete list"
+  },
+  "new-list": {
+    "name" :{
+      "label": "@:common.name",
+      "error-required": "The name is required"
+    },
+    "description-label": "@:common.description",
+    "start": {
+      "label": "@:common.start",
+      "error-required": "The start date is required"
+    },
+    "end": {
+      "label": "@:common.end",
+      "error-required": "The end date is required",
+      "error-out-of-order": "The end date is before the start date"
+    },
+    "allow-student-view-label": "Allow Students To View Memberships",
+    "group-header": "Groups",
+    "btn-save": "@:common.btn-save",
+    "btn-cancel": "@:common.btn-cancel"
+  },
+  "member-list": {
+    "header-given-name": "First Name",
+    "header-family-name": "Last Name",
+    "header-email": "Email",
+    "header-role": "Role",
+    "header-date-joined": "Date Joined",
+    "header-added-by": "Added By",
+    "header-waitlisted": "Waitlisted",
+    "header-actions": "Actions",
+    "date-joined" : "{{date}}",
+    "waitlisted": "Yes",
+    "acc-btn-group-actions": "instructor tools for user manipulation",
+    "btn-delete-user": "drop user from list"
+  },
+  "member-picker": {
+    "title": "Add User",
+    "warning-full-full": "The list is currently full, and either the waitlist is full or there is no waitlist available. Adding a user to the group will alter the maximum size of the group. Adding the user to the waitlist will alter the waitlist settings to either increase the size or add a waitlist, as appropriate.",
+    "warning-full-empty": "The list is currently full. Adding a user to this group will alter the maximum size. You may also choose to add the user to the waitlist.",
+    "header-given-name": "@:member-list.header-given-name",
+    "header-family-name": "@:member-list.header-family-name",
+    "header-email": "@:member-list.header-email",
+    "header-role": "@:member-list.header-role",
+    "btn-save": "@:common.btn-save",
+    "btn-cancel": "@:common.btn-cancel",
+    "btn-waitlist": "Waitlist"
+  },
+  "modal" : {
+    "delete-learn-group-dialog" : "Are you sure you want to delete group {{group}} from the Learn course?",
+    "delete-learn-group-header" : "Delete Group",
+    "delete-all-learn-groups-dialog" : "You are deleting list {{list}}, which contains groups in Learn. Do you want to delete them, as well?",
+    "delete-all-learn-groups-header" : "Confirm Bulk Learn Group Deletion",
+    "delete-group-dialog" : "Are you sure you want to delete group {{group}}?",
+    "delete-group-header" : "Confirm Group Deletion",
+    "delete-list-dialog" : "Are you sure you want to delete the list {{list}}?",
+    "delete-list-header" : "Confirm List Deletion",
+    "add-user-header" : "Add User To Group",
+    "add-group-header" : "Add a Group",
+    "add-list-header" : "Create New List",
+    "edit-list-header" : "Edit List",
+    "edit-group-header" : "Edit Group",
+    "generate-lti-header" : "Generate List LTI Link",
+    "btn-save" : "@:common.btn-save",
+    "btn-cancel" : "@:common.btn-cancel"
+  }
+}

@@ -5,10 +5,10 @@
         .module('signupApp')
         .controller('SignupController', SignupController);
 
-    SignupController.$inject = ['$scope', '$log', '$q', '$filter', '$location', '$interval', 'courseService', 'groupService', 'ltiService', 'listService', 'membershipService', 'rosterService', 'modalService'];
+    SignupController.$inject = ['$scope', '$log', '$q', '$filter', '$location', '$interval', '$translate', 'courseService', 'groupService', 'ltiService', 'listService', 'membershipService', 'rosterService', 'modalService'];
 
     /* @ngInject */
-    function SignupController($scope, $log, $q, $filter, $location, $interval, courseService, groupService, ltiService, listService, membershipService, rosterService, modalService) {
+    function SignupController($scope, $log, $q, $filter, $location, $interval, $translate, courseService, groupService, ltiService, listService, membershipService, rosterService, modalService) {
       var vm = this;
 
       vm.access_token = "";
@@ -340,67 +340,21 @@
 
       function deleteGroupInLearn(list,group,internal) {
         var promises = [];
+        var dialogText = "";
+        var headerText = "";
 
-        var dialogText = "Are you sure you want to delete group '" + group.grp_name + "' from the Learn course?";
-        $log.log("[DELGRP] dialogText: " + dialogText);
-        $log.log("[DELGRP] list.list_uuid: <" + list.list_uuid + ">");
+        $translate(['modal.delete-learn-group-dialog', 'modal.delete-learn-group-header'],{ group : group.grp_name }).then(function(translations) {
+          dialogText = translations['modal.delete-group-dialog'];
+          headerText = translations['modal.delete-group-header'];
 
-        modalService.showModal(
-        { scope: $scope, templateUrl: '/layout/confirmation-dialog.html' },
-        { headerText: 'Confirm Learn Group Deletion', dialogText : dialogText })
-        .then(function (result) {
-          angular.forEach(group.grp_members, function(user, key) {
-            $log.log("Pk1: "+user.user_uuid + " role: " + user.role);
+          $log.log("[DELGRP] dialogText: " + dialogText);
+          $log.log("[DELGRP] list.list_uuid: <" + list.list_uuid + ">");
 
-            if(!user.waitlisted) {
-              var promise = membershipService.deleteGroupMemberInLearn(vm.config.lti.system_guid,vm.course.uuid,group.grp_name,user.user_uuid).then(function(result) {
-                $log.log("Removed user " + user.user_uuid + " to group " + group.grp_name + " in Learn.");
-              });
-
-              promises.push[promise];
-            }
-          });
-
-          $q.all(promises).then( function() {
-            groupService.deleteGroupInLearn(vm.config.lti.system_guid,vm.course.uuid,group).then(function(result) {
-              $log.log("Deleted Group");
-            });
-
-            if(!internal) {
-              group.grp_learn_group = false;
-
-              groupService.updateGroup(list.list_uuid, group).then(function (response) {
-                var listIndex = vm.course.lists.indexOf(list);
-                var index = vm.course.lists[listIndex].list_groups.indexOf(group);
-                $log.log("group index: " + index);
-                vm.course.lists[listIndex].list_groups[index].grp_learn_group = false;
-                $log.log(JSON.stringify(vm.course.lists[listIndex].list_groups));
-              });
-            }
-          });
-        });
-      };
-
-      function deleteAllGroupsInLearn(list) {
-        var listsWithGroups = [];
-
-        listsWithGroups = $filter('filter')(list.list_groups, function (c) {$log.log("c.grp_learn_group is " + c.grp_learn_group); return c.grp_learn_group === true;});
-
-        $log.log("listsWithGroups Length: " + listsWithGroups.length);
-
-        var dialogText = "You are deleting list '" + list.list_name + "', which contains groups in Learn. Do you want to delete them, as well?";
-        $log.log("[DELGRP] dialogText: " + dialogText);
-        $log.log("[DELGRP] list.list_uuid: <" + list.list_uuid + ">");
-
-        modalService.showModal(
-        { scope: $scope, templateUrl: '/layout/confirmation-dialog.html' },
-        { headerText: 'Confirm Bulk Learn Group Deletion', dialogText : dialogText })
-        .then(function (result) {
-          angular.forEach(listsWithGroups, function(group, key) {
-            var promises = [];
-
-            angular.forEach(group.grp_members, function(user,uKey) {
-
+          modalService.showModal(
+          { scope: $scope, templateUrl: '/layout/confirmation-dialog.html' },
+          { headerText: headerText, dialogText : dialogText })
+          .then(function (result) {
+            angular.forEach(group.grp_members, function(user, key) {
               $log.log("Pk1: "+user.user_uuid + " role: " + user.role);
 
               if(!user.waitlisted) {
@@ -416,19 +370,88 @@
               groupService.deleteGroupInLearn(vm.config.lti.system_guid,vm.course.uuid,group).then(function(result) {
                 $log.log("Deleted Group");
               });
+
+              if(!internal) {
+                group.grp_learn_group = false;
+
+                groupService.updateGroup(list.list_uuid, group).then(function (response) {
+                  var listIndex = vm.course.lists.indexOf(list);
+                  var index = vm.course.lists[listIndex].list_groups.indexOf(group);
+                  $log.log("group index: " + index);
+                  vm.course.lists[listIndex].list_groups[index].grp_learn_group = false;
+                  $log.log(JSON.stringify(vm.course.lists[listIndex].list_groups));
+                });
+              }
             });
           });
+        }, function (error) {
+          $log.log("Error translating text: " + error.status + " - " + error.statusText);
+        });
+      };
+
+      function deleteAllGroupsInLearn(list) {
+        var listsWithGroups = [];
+
+        listsWithGroups = $filter('filter')(list.list_groups, function (c) {$log.log("c.grp_learn_group is " + c.grp_learn_group); return c.grp_learn_group === true;});
+
+        $log.log("listsWithGroups Length: " + listsWithGroups.length);
+
+        var dialogText = "";
+        var headerText = "";
+
+        $translate(['modal.delete-all-learn-groups-dialog', 'modal.delete-all-learn-groups-header'],{ list : list.list_name }).then(function(translations) {
+          dialogText = translations['modal.delete-all-learn-groups-dialog'];
+          headerText = translations['modal.delete-all-learn-groups-header'];
+
+          $log.log("[DELGRP] dialogText: " + dialogText);
+          $log.log("[DELGRP] list.list_uuid: <" + list.list_uuid + ">");
+
+          modalService.showModal(
+          { scope: $scope, templateUrl: '/layout/confirmation-dialog.html' },
+          { headerText: headerText, dialogText : dialogText })
+          .then(function (result) {
+            angular.forEach(listsWithGroups, function(group, key) {
+              var promises = [];
+
+              angular.forEach(group.grp_members, function(user,uKey) {
+
+                $log.log("Pk1: "+user.user_uuid + " role: " + user.role);
+
+                if(!user.waitlisted) {
+                  var promise = membershipService.deleteGroupMemberInLearn(vm.config.lti.system_guid,vm.course.uuid,group.grp_name,user.user_uuid).then(function(result) {
+                    $log.log("Removed user " + user.user_uuid + " to group " + group.grp_name + " in Learn.");
+                  });
+
+                  promises.push[promise];
+                }
+              });
+
+              $q.all(promises).then( function() {
+                groupService.deleteGroupInLearn(vm.config.lti.system_guid,vm.course.uuid,group).then(function(result) {
+                  $log.log("Deleted Group");
+                });
+              });
+            });
+          });
+        }, function (error) {
+          $log.log("Error translating text: " + error.status + " - " + error.statusText);
         });
       };
 
       function deleteGroup(list,group,) {
-        var dialogText = "Are you sure you want to delete group '" + group.grp_name + "'?";
+        var dialogText = "";
+        var headerText = "";
+
+        $translate(['modal.delete-group-dialog', 'modal.delete-group-header'],{ group : group.grp_name }).then(function(translations) {
+          dialogText = translations['modal.delete-group-dialog'];
+          headerText = translations['modal.delete-group-header'];
+
         $log.log("[DELGRP] dialogText: " + dialogText);
         $log.log("[DELGRP] list.list_uuid: <" + list.list_uuid + ">");
 
         modalService.showModal(
         { scope: $scope, templateUrl: '/layout/confirmation-dialog.html' },
-        { headerText: 'Confirm Group Deletion', dialogText : dialogText })
+        { headerText: headerText, dialogText : dialogText })
         .then(function (result) {
             $log.log("Deleting group " + group.grp_name);
 
@@ -472,15 +495,23 @@
               });
             }
           }, $log.log("Deleting Group."));
+        }, function (error) {
+          $log.log("Error translating text: " + error.status + " - " + error.statusText);
+        });
       };
 
       function deleteList(list) {
-        var dialogText = "Are you sure you want to delete the list '" + list.list_name + "'?";
+        var dialogText = "";
+        var headerText = "";
 
-        modalService.showModal(
-          { scope: $scope, templateUrl: '/layout/confirmation-dialog.html' },
-          { headerText: 'Confirm List Deletion', dialogText : dialogText })
-          .then(function (result) {
+        $translate(['modal.delete-list-dialog', 'modal.delete-list-header'],{ list : list.list_name }).then(function(translations) {
+          dialogText = translations['modal.delete-list-dialog'];
+          headerText = translations['modal.delete-list-header'];
+
+          modalService.showModal(
+            { scope: $scope, templateUrl: '/layout/confirmation-dialog.html' },
+            { headerText: headerText, dialogText : dialogText })
+            .then(function (result) {
               $log.log("Deleting list " + list.list_name);
 
               listService.deleteList(list).then(function (response) {
@@ -504,6 +535,9 @@
               });
 
           }, $log.log("Deleting List."));
+        }, function (error) {
+          $log.log("Error translating text: " + error.status + " - " + error.statusText);
+        });
       };
 
       /*
@@ -512,7 +546,10 @@
       function addUser(group, list) {
         vm.list = list;
         vm.group = group;
-        modalService.showModal({ scope: $scope, templateUrl: '/people/member-picker.html' },{ headerText: 'Select a User to Add' }).then(function (waitlisted) {
+
+        $translate('modal.add-user-header').then(function(headerText) {
+
+          modalService.showModal({ scope: $scope, templateUrl: '/people/member-picker.html' },{ headerText: headerText }).then(function (waitlisted) {
             $log.log("Waitlisted: " + waitlisted + " or, in case its JSON: " + JSON.stringify(waitlisted));
             $log.log("New User UUID is: " + vm.userToAdd);
 
@@ -565,7 +602,10 @@
               $log.log("User " + vm.userToAdd + " add failed: " + error.status + ": " + error.statusText);
             });
 
-        }, $log.log("Adding User."));
+          }, $log.log("Adding User."));
+        }, function (error) {
+          $log.log("Error translating text: " + error.status + " - " + error.statusText);
+        });
       };
 
       /*
@@ -763,7 +803,9 @@
       };
 
       function addGroup (list, sendDbNotification) {
-        modalService.showModal({ scope: $scope, templateUrl: '/groups/new-group.html' },{ headerText: 'Add a Group' }).then(function (result) {
+        $translate('modal.add-group-header').then( function(headerText) {
+          $log.log("add-group-header: " + headerText);
+          modalService.showModal({ scope: $scope, templateUrl: '/groups/new-group.html' },{ headerText: headerText }).then(function (result) {
             $log.log("New Group Name is: " + vm.group.grp_name);
             vm.group.grp_members = [];
             vm.group.isOpen = false;
@@ -785,15 +827,24 @@
               vm.group = {};
             }
 
-        }, $log.log("Adding Group."));
+          }, $log.log("Adding Group."));
+        }, function (error) {
+          $log.log("Error translating: " + error.status + " - " + error.statusText);
+        });
       }
 
       function newList() {
-        modalService.showModal({ scope: $scope, templateUrl: '/lists/new-list.html' },{ headerText: 'Create New List' }).then(function (result) {
+        $translate('modal.add-list-header').then( function(headerText) {
+
+          $log.log("newList headerText: " + headerText)
+          modalService.showModal({ scope: $scope, templateUrl: '/lists/new-list.html' },{ headerText: headerText }).then(function (result) {
             $log.log("New List Name is: " + vm.list.list_name);
 
             vm.addList();
-        }, $log.log("Adding List."));
+          }, $log.log("Adding List."));
+        }, function (error) {
+          $log.log("Error translating: " + error.status + " - " + error.statusText);
+        });
       }
 
       function editList(list) {
@@ -805,7 +856,8 @@
 
         vm.groups = list.list_groups;
 
-        modalService.showModal({ scope: $scope, templateUrl: '/lists/new-list.html' },{ headerText: 'Edit List' }).then(function (result) {
+        $translate('modal.edit-list-header').then( function(headerText) {
+          modalService.showModal({ scope: $scope, templateUrl: '/lists/new-list.html' },{ headerText: headerText }).then(function (result) {
 
             $log.log("Editing List: " + vm.list.list_name);
 
@@ -819,7 +871,10 @@
               vm.groups = {};
             });
 
-        }, $log.log("Adding List."));
+          }, $log.log("Adding List."));
+        }, function (error) {
+          $log.log("Error translating: " + error.status + " - " + error.statusText);
+        });
       }
 
       function editGroup (list, group) {
@@ -828,21 +883,26 @@
 
         vm.group = group;
 
-        modalService.showModal({ scope: $scope, templateUrl: '/groups/new-group.html' },{ headerText: 'Edit Group' }).then(function (result) {
+        $translate('modal.edit-group-header').then( function(headerText) {
 
-          groupService.updateGroup(list.list_uuid, vm.group).then(function (response) {
-            $log.log("Group " + vm.group.grp_name + " added to list " + list.list_name);
-            var listInCourseScope = $filter('filter')(vm.course.lists, function (c) {$log.log("c.list_uuid is " + c.list_uuid); return c.list_uuid === list.list_uuid;})[0];
-            $log.log("listInCourseScope.uuid is :");
-            $log.log(listInCourseScope.list_uuid);
-            var index = listInCourseScope.list_groups.indexOf(vm.group);
-            listInCourseScope.list_groups[index] = vm.group;
-            vm.group = {};
-          }, function (error) {
-            $log.log("Group " + vm.group.grp_name + " edit failed: " + error.status + ": " + error.statusText);
-            vm.group = {};
-          });
-        }, $log.log("Editing Group."));
+          modalService.showModal({ scope: $scope, templateUrl: '/groups/new-group.html' },{ headerText: headerText }).then(function (result) {
+
+            groupService.updateGroup(list.list_uuid, vm.group).then(function (response) {
+              $log.log("Group " + vm.group.grp_name + " added to list " + list.list_name);
+              var listInCourseScope = $filter('filter')(vm.course.lists, function (c) {$log.log("c.list_uuid is " + c.list_uuid); return c.list_uuid === list.list_uuid;})[0];
+              $log.log("listInCourseScope.uuid is :");
+              $log.log(listInCourseScope.list_uuid);
+              var index = listInCourseScope.list_groups.indexOf(vm.group);
+              listInCourseScope.list_groups[index] = vm.group;
+              vm.group = {};
+            }, function (error) {
+              $log.log("Group " + vm.group.grp_name + " edit failed: " + error.status + ": " + error.statusText);
+              vm.group = {};
+            });
+          }, $log.log("Editing Group."));
+        }, function (error) {
+          $log.log("Error translating: " + error.status + " - " + error.statusText);
+        });
       }
 
       function getList() {
@@ -854,9 +914,15 @@
 
       function generateLti(list) {
         vm.list = list;
-        modalService.showModal({ scope: $scope, templateUrl: '/layout/generate-lti.html' },{ headerText: 'Generate List LTI Link' }).then(function (result) {
+
+        $translate('modal.generate-lti-header').then( function(headerText) {
+
+          modalService.showModal({ scope: $scope, templateUrl: '/layout/generate-lti.html' },{ headerText: headerText }).then(function (result) {
             $log.log("[GENLTI] Task Complete!");
-        }, $log.log("[GENLTI] Generating LTI Link"));
+          }, $log.log("[GENLTI] Generating LTI Link"));
+        }, function (error) {
+          $log.log("Error translating: " + error.status + " - " + error.statusText);
+        });
       }
 
       function getLink() {
