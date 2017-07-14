@@ -550,8 +550,8 @@
         $translate('modal.add-user-header').then(function(headerText) {
 
           modalService.showModal({ scope: $scope, templateUrl: '/people/member-picker.html' },{ headerText: headerText }).then(function (waitlisted) {
-            $log.log("Waitlisted: " + waitlisted + " or, in case its JSON: " + JSON.stringify(waitlisted));
-            $log.log("New User UUID is: " + vm.userToAdd);
+            $log.log("[ADDUSER] Waitlisted: " + waitlisted + " or, in case its JSON: " + JSON.stringify(waitlisted));
+            $log.log("[ADDUSER] New User UUID is: " + vm.userToAdd);
 
             var newUser = {
               "user_uuid" : vm.userToAdd,
@@ -569,40 +569,45 @@
             $log.log(grpInListScope.grp_uuid);
 
             if(grpInListScope.grp_members.length >= grpInListScope.grp_max_size) {
-              $log.log("List is full");
+              $log.log("[ADDUSER] List is full");
               if(waitlisted) {
-                $log.log("Adding to waitlist");
+                $log.log("[ADDUSER] Adding to waitlist");
                 if(!grpInListScope.grp_waitlist_allowed) {
-                  $log.log("Creating Waitlist")
+                  $log.log("[ADDUSER] Creating Waitlist")
                   grpInListScope.grp_waitlist_allowed = true;
                   grpInListScope.grp_max_waitlist = 1;
                 }
                 else {
                   if(!vm.reserveSpaces(grpInListScope)) {
-                    $log.log("Adding Space for new waitlist member: " + grpInListScope.grp_max_waitlist);
+                    $log.log("[ADDUSER] Adding Space for new waitlist member: " + grpInListScope.grp_max_waitlist);
                     grpInListScope.grp_max_waitlist++;
-                    $log.log("Space added for new waitlist member: " + grpInListScope.grp_max_waitlist);
+                    $log.log("[ADDUSER] Space added for new waitlist member: " + grpInListScope.grp_max_waitlist);
                   }
                 }
               }
               else {
-                $log.log("Adding space for new group member: " + grpInListScope.grp_max_size);
+                $log.log("[ADDUSER] Adding space for new group member: " + grpInListScope.grp_max_size);
                 grpInListScope.grp_max_size++;
-                $log.log("Space added for new group member: " + grpInListScope.grp_max_size);
+                $log.log("[ADDUSER] Space added for new group member: " + grpInListScope.grp_max_size);
               }
             }
 
             grpInListScope.grp_members.push(newUser);
 
+
             groupService.updateGroup(list.list_uuid, grpInListScope).then(function (response) {
-              $log.log("Group " + vm.group.grp_name + " added to list " + list.list_name);
+              $log.log("[ADDUSER] Group " + vm.group.grp_name + " added to list " + list.list_name);
 
               vm.userToAdd = null;
             }, function (error) {
-              $log.log("User " + vm.userToAdd + " add failed: " + error.status + ": " + error.statusText);
+              $log.log("[ADDUSER] User " + vm.userToAdd + " add failed: " + error.status + ": " + error.statusText);
             });
 
-          }, $log.log("Adding User."));
+          }, function() {
+            $log.log("[ADDUSER] Cancelled.");
+            vm.group = {};
+            vm.list = {};
+          });
         }, function (error) {
           $log.log("Error translating text: " + error.status + " - " + error.statusText);
         });
@@ -636,8 +641,12 @@
 
         groupService.updateGroup(list.list_uuid, grpInListScope).then(function (response) {
           $log.log("Removed " + user_uuid + " from group " + group.grp_name + " in list " + list.list_name);
+          vm.list={};
+          vm.group={};
         }, function (error) {
           $log.log("User " + user_uuid + " removal failed: " + error.status + ": " + error.statusText);
+          vm.list={};
+          vm.group={};
         });
 
       };
