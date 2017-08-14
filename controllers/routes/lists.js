@@ -255,6 +255,8 @@ router.put('/:id/groups/:grpId/members', function (req, res, next) {
   var reqUUID = req.body.user_uuid
   var grpFound = false
   var requestorRole = jwtToken.jwtGetRole(token)
+  var retStatus = 200
+  var warnHead = false
 
   if (debug) console.log('MEMBERUUID: [' + reqUUID + ']')
   if (debug) console.log('REQUESTORTOKENUUID: [' + requestorsUserUUID + ']')
@@ -266,13 +268,40 @@ router.put('/:id/groups/:grpId/members', function (req, res, next) {
       for (var i = 0, length = list.list_groups.length; i < length; i++) {
         if (list.list_groups[i].grp_uuid === req.params.grpId) {
           grpFound = true
+          var maxsize = list.list_groups[i].grp_maxsize
+          var waitlist = list.list_groups[i].grp_waitlist_allowed
+          var wlsize = list.list_groups[i].grp_max_waitlist
+
+          var main = 0
+          var wl = 0
+
+          for (var u = 0, length = list.list_groups[i].grp_members.length; u < length; u++) {
+            if(list.list_groups[i].grp_members[u].waitlisted) {
+              wl++
+            } else {
+              main++
+            }
+          }
+
+          if( main >= maxsize ) {
+            if (waitlist && wl < wlsize) {
+              req.body.waitlist = true
+              warnHead = true
+            } else {
+              retStatus = 409
+            }
+
+          }
           list.list_groups[i].grp_members.push(req.body)
         }
         if (grpFound) break
       }
       list.save((err, list) => {
         if (err) res.send(err)
-        res.status(200).json(list)
+        if (warnHead) {
+          res.setHeader({'Warning': '409'});
+        }
+        res.status(retStatus).json(list)
       })
     })
   } else {

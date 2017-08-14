@@ -20,6 +20,25 @@
       <nav class="navbar navbar-default">
         <navigation-bar></navigation-bar>
       </nav>
+      <div ng-show="signups.addedUser === 'success'" class="alert alert-success alert-dismissible show" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close" ng-click="signups.addedUser=''">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <strong>{{ "alert.success" | translate }}</strong> <a href="#" class="alert-link">{{ "alert.joined" | translate }}</a>
+      </div>
+      <div ng-show="signups.addedUser === 'warning'" class="alert alert-warning alert-dismissible show" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close" ng-click="signups.addedUser=''">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <strong>{{ "alert.warning-encountered" | translate }}</strong> <a href="#" class="alert-link">{{ "alert.waitlisted" | translate }}</a>
+      </div>
+      <div ng-show="signups.addedUser === 'failed'" class="alert alert-danger alert-dismissible show" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close" ng-click="signups.addedUser=''">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <strong>{{ "alert.error-encountered" | translate }}</strong> <a href="#" class="alert-link">{{ "alert.error-joining-list" | translate }}</a>
+      </div>
+
       <div class="container-fluid">
 
         <list-view></list-view>
