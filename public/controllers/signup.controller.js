@@ -12,8 +12,9 @@
       var vm = this;
 
       vm.access_token = "";
-      vm.addList = addList;
+      vm.addedUser = "";
       vm.addGroup = addGroup;
+      vm.addList = addList;
       vm.addMe = addMe;
       vm.addUser = addUser;
       vm.calculateTaken = calculateTaken;
@@ -344,8 +345,11 @@
         var headerText = "";
 
         $translate(['modal.delete-learn-group-dialog', 'modal.delete-learn-group-header'],{ group : group.grp_name }).then(function(translations) {
-          dialogText = translations['modal.delete-group-dialog'];
-          headerText = translations['modal.delete-group-header'];
+          $log.error("Check translations");
+          $log.error("translations: " + JSON.stringify(translations))
+
+          dialogText = translations['modal.delete-learn-group-dialog'];
+          headerText = translations['modal.delete-learn-group-header'];
 
           $log.log("[DELGRP] dialogText: " + dialogText);
           $log.log("[DELGRP] list.list_uuid: <" + list.list_uuid + ">");
@@ -505,6 +509,7 @@
         var headerText = "";
 
         $translate(['modal.delete-list-dialog', 'modal.delete-list-header'],{ list : list.list_name }).then(function(translations) {
+
           dialogText = translations['modal.delete-list-dialog'];
           headerText = translations['modal.delete-list-header'];
 
@@ -666,7 +671,17 @@
         groupInListScope.grp_members.push(userToAdd);
         $log.log("User list length: " + groupInListScope.grp_members.length);
         membershipService.addGroupMember(list.list_uuid, groupInListScope.grp_uuid, userToAdd).then(function (response) {
-          $log.log("User " + userToAdd.user_uuid + " added to group " + group.grp_name);
+          $log.log("response: " + JSON.stringify(response));
+          if(response.status === "409") {
+            vm.addedUser = "failed";
+            $log.log("List is full");
+          } else if (response.config.headers.Warning === "409") {
+            vm.addedUser = "warning";
+            $log.log("List full, added to waitlist");
+          } else {
+            vm.addedUser = "success";
+            $log.log("User " + userToAdd.user_uuid + " added to group " + group.grp_name);
+          }
 
           userToAdd = null;
         }, function (error) {

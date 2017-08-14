@@ -86,7 +86,7 @@
   "generate-lti": {
     "title": "LTI Link",
     "btn-copy": "copy link to clipboard",
-    "btn-ok": "@:common.btn-ok"
+    "btn-ok": "Close"
   },
   "list-view": {
     "close-text": "Closes on {{date}}",
@@ -162,5 +162,13 @@
     "generate-lti-header" : "Generate List LTI Link",
     "btn-save" : "@:common.btn-save",
     "btn-cancel" : "@:common.btn-cancel"
+  },
+  "alert" : {
+    "success" : "Success!",
+    "warning-encountered" : "Warning!",
+    "error-encountered" : "Error!",
+    "joined" : "You have been added to the list!",
+    "waitlisted" : "The list is full. You were added to the waitlist.",
+    "error-joining-list" : "There was an error joining the list. If you believe this is an error, contact your instructor."
   }
 }
