@@ -25,10 +25,10 @@
     "node-cache": "^4.1.1",
     "serve-favicon": "~2.3.0",
     "ui-bootstrap": "^0.1.10",
+    "angular-translate": "^2.15.2",
     "uuid": "^3.0.1"
   },
   "devDependencies": {
-    "angular-translate": "^2.15.2",
     "bluebird": "^3.4.7",
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",
