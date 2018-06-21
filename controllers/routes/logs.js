@@ -5,7 +5,7 @@ var Log = require('../models/logs')
 var config = require('../../config/config')
 var jwtToken = require('./jwtToken')
 
-var debug = (config.debugMode === 'true')
+var debug = (process.env.DEBUG_MODE === 'yes') || (config.debugMode === 'true')
 
 
 if (debug) mongoose.set('debug', true)

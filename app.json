@@ -24,6 +24,10 @@
     "MONGO_URI": {
       "description": "Enter the target URI for your MongoDB. E.g.: mongo://<dbuser>:<dbpassword>@<mongodb_url>",
       "required": true
+    },
+    "DEBUG_MODE": {
+      "description": "Enter 'yes' to turn on debug mode.",
+      "required": no
     }
   }
 }

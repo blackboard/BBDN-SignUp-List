@@ -9,7 +9,7 @@ var jwtSecret = process.env.APP_JWT_SECRET || config.jwtSecret
 const NodeCache = require('node-cache')
 const jwtTokenCache = new NodeCache()
 
-var debug = (config.debugMode === 'true')
+var debug = (process.env.DEBUG_MODE === 'yes') || (config.debugMode === 'true')
 
 // var exports = module.exports = {};
 
@@ -144,4 +144,3 @@ exports.cacheJwtToken = function (jti, token, exp) {
     }
   })
 }
-
