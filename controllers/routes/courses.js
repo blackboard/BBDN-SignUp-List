@@ -5,7 +5,8 @@ var Course = require('../models/courses')
 var jwtToken = require('./jwtToken')
 
 var config = require('../../config/config')
-var debug = (config.debugMode === 'true')
+
+var debug = (process.env.DEBUG_MODE === 'yes') || (config.debugMode === 'true')
 
 // √ POST /courses to create a new SUL course record
 // √ PUT /courses/:id to update a complete course record (use PATCH for partial updates)

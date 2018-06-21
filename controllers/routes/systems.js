@@ -4,7 +4,7 @@ var System = require('../models/systems')
 var system = {}
 
 var config = require('../../config/config')
-var debug = (config.debugMode === 'true')
+var debug = (process.env.DEBUG_MODE === 'yes') || (config.debugMode === 'true')
 
 
 /*
@@ -56,7 +56,7 @@ system.getSystems = function (next) {
     if (debug) console.log('[SYSTEM.JS] GET systems collection:\n', systems)
     if (!err) {
       if (debug) console.log('\n[SYSTEMS.JS:getSystems]: :', systems)
-      next(err, systems)    
+      next(err, systems)
     } else {
       console.log('ERROR: ', err)
       next(err, { 'err': 400 })
@@ -95,7 +95,7 @@ system.updateSystem = function (systemId, systemJSON, next) {
           next(err, savedsystem)
         } else {
           console.log('ERROR: ', err)
-          next(err, { 'err': 400 })  
+          next(err, { 'err': 400 })
         }
       })
     }

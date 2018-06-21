@@ -4,7 +4,7 @@ var express = require('express')
 var router = express.Router()
 var List = require('../models/lists')
 var config = require('../../config/config')
-var debug = true//(config.debugMode === 'true')
+var debug = (process.env.DEBUG_MODE === 'yes') || (config.debugMode === 'true')
 var jwtToken = require('./jwtToken')
 
 /*

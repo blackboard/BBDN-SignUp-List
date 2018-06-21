@@ -11,8 +11,6 @@ var jwtUtils = require('./jwtToken')
 
 // const url = require('url').URL
 
-var debug = (config.debugMode === 'true')
-
 var url = require('url')
 
 var ltiKey = process.env.LTI_KEY || config.lti_key
@@ -22,6 +20,8 @@ var oauthSecret = process.env.APP_OAUTH_SECRET || config.oauth_secret
 // var restHost = process.env.APP_TARGET_URL || config.rest_host
 // var restPort = process.env.APP_TARGET_PORT || config.rest_port
 var dbURL = process.env.MONGO_URI || config.db
+
+var debug = (process.env.DEBUG_MODE === 'yes') || (config.debugMode === 'true')
 
 var router = express.Router()
 

@@ -8,7 +8,7 @@ const tokenCache = new NodeCache()
 
 // set false to allow self-signed certs with local Learn
 var rejectUnauthorized = false
-var debug = (config.debugMode === 'true')
+var debug = (process.env.DEBUG_MODE === 'yes') || (config.debugMode === 'true')
 
 /*
  * Check the cache for a token based on system Id.
