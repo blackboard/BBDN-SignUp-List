@@ -27,7 +27,7 @@
     },
     "DEBUG_MODE": {
       "description": "Enter 'yes' to turn on debug mode.",
-      "required": no
+      "required": false
     }
   }
 }
