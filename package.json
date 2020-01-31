@@ -19,7 +19,7 @@
     "ims-lti": "^3.0.2",
     "jsonwebtoken": "^7.3.0",
     "mongoose": "^4.8.1",
-    "morgan": "~1.8.0",
+    "morgan": "~1.9.1",
     "ng-csv": "^0.3.6",
     "ngclipboard": "^1.1.1",
     "node-cache": "^4.1.1",
