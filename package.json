@@ -18,7 +18,7 @@
     "express": "~4.14.0",
     "ims-lti": "^3.0.2",
     "jsonwebtoken": "^7.3.0",
-    "mongoose": "^4.8.1",
+    "mongoose": "^5.8.10",
     "morgan": "~1.9.1",
     "ng-csv": "^0.3.6",
     "ngclipboard": "^1.1.1",
